@@ -22,7 +22,7 @@ export function Pagination({ meta, onPageChange }: PaginationProps) {
       <button
         onClick={() => onPageChange(current_page - 1)}
         disabled={current_page === 1}
-        className="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+        className="px-3 py-1.5 rounded-btn border border-line text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-soft transition-colors cursor-pointer"
       >
         Anterior
       </button>
@@ -30,21 +30,21 @@ export function Pagination({ meta, onPageChange }: PaginationProps) {
         <>
           <button
             onClick={() => onPageChange(1)}
-            className="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+            className="px-3 py-1.5 rounded-btn border border-line text-sm font-bold hover:bg-primary-soft transition-colors cursor-pointer"
           >
             1
           </button>
-          {start > 2 && <span className="px-1 text-gray-400">...</span>}
+          {start > 2 && <span className="px-1 text-muted">...</span>}
         </>
       )}
       {pages.map((p) => (
         <button
           key={p}
           onClick={() => onPageChange(p)}
-          className={`px-3 py-1 rounded border text-sm ${
+          className={`px-3 py-1.5 rounded-btn border text-sm font-bold cursor-pointer transition-colors ${
             p === current_page
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700'
+              ? 'bg-primary text-white border-primary'
+              : 'border-line hover:bg-primary-soft'
           }`}
         >
           {p}
@@ -52,10 +52,10 @@ export function Pagination({ meta, onPageChange }: PaginationProps) {
       ))}
       {end < last_page && (
         <>
-          {end < last_page - 1 && <span className="px-1 text-gray-400">...</span>}
+          {end < last_page - 1 && <span className="px-1 text-muted">...</span>}
           <button
             onClick={() => onPageChange(last_page)}
-            className="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+            className="px-3 py-1.5 rounded-btn border border-line text-sm font-bold hover:bg-primary-soft transition-colors cursor-pointer"
           >
             {last_page}
           </button>
@@ -64,7 +64,7 @@ export function Pagination({ meta, onPageChange }: PaginationProps) {
       <button
         onClick={() => onPageChange(current_page + 1)}
         disabled={current_page === last_page}
-        className="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+        className="px-3 py-1.5 rounded-btn border border-line text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-soft transition-colors cursor-pointer"
       >
         Siguiente
       </button>
