@@ -41,15 +41,15 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       : undefined,
   });
 
-  const inputClass = 'w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
+  const inputClass = 'w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
   const labelClass = 'text-[13px] font-bold text-label';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[18px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4.5">
       {/* Basic info */}
-      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+      <fieldset className="border border-line rounded-section p-4.5 bg-white">
         <legend className="text-base font-semibold text-heading px-2">Información básica</legend>
-        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Cliente</label>
             <select {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })} className={inputClass} disabled={!!defaultValues}>
@@ -69,9 +69,9 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       </fieldset>
 
       {/* Electrical */}
-      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+      <fieldset className="border border-line rounded-section p-4.5 bg-white">
         <legend className="text-base font-semibold text-heading px-2">Información eléctrica</legend>
-        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Voltaje</label>
               <select {...register('farm_voltage', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
@@ -109,9 +109,9 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       </fieldset>
 
       {/* Access & infrastructure */}
-      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+      <fieldset className="border border-line rounded-section p-4.5 bg-white">
         <legend className="text-base font-semibold text-heading px-2">Acceso e infraestructura</legend>
-        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Vías de acceso</label>
             <input {...register('access_ways')} className={inputClass} />
@@ -153,7 +153,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
+          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
         >
           {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Crear granja'}
         </button>

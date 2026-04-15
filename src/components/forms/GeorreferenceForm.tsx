@@ -28,15 +28,15 @@ export function GeorreferenceForm({ farmId, onSubmit, defaultValues, isLoading }
       : { farm_id: farmId },
   });
 
-  const inputClass = 'w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
+  const inputClass = 'w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
   const labelClass = 'text-[13px] font-bold text-label';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[14px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-3.5">
       <input type="hidden" {...register('farm_id', { setValueAs: (v) => Number(v) })} />
       {errors.farm_id && <p className="text-[13px] text-danger">{errors.farm_id.message}</p>}
 
-      <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+      <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
         <div>
           <label className={labelClass}>Dirección</label>
           <input {...register('address')} className={inputClass} />
@@ -59,7 +59,7 @@ export function GeorreferenceForm({ farmId, onSubmit, defaultValues, isLoading }
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
+          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
         >
           {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Guardar georreferencia'}
         </button>

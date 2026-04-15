@@ -37,14 +37,14 @@ export function ClientDetailPage() {
         </div>
         <button
           onClick={() => navigate(`/clients/${client.id}/edit`)}
-          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           Editar
         </button>
       </div>
 
-      <div className="border border-line rounded-section p-[18px] bg-white">
-        <dl className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+      <div className="border border-line rounded-section p-4.5 bg-white">
+        <dl className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div>
             <dt className="text-[13px] text-muted">Razón Social</dt>
             <dd className="font-medium text-heading">{client.razon_social}</dd>
@@ -70,7 +70,7 @@ export function ClientDetailPage() {
       {client.farms && client.farms.length > 0 && (
         <div className="mt-6">
           <h3 className="text-base font-semibold text-heading mb-3.5">Granjas</h3>
-          <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+          <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
             {client.farms.map((farm) => (
               <Link
                 key={farm.id}

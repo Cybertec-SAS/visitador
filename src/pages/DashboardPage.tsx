@@ -1,4 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
+import { HiOutlineUserGroup, HiOutlineOfficeBuilding, HiOutlineClipboardList } from 'react-icons/hi';
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -12,19 +13,19 @@ export function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 min-[640px]:grid-cols-3 gap-[14px]">
-        <div className="border border-line rounded-section p-[18px] bg-white">
-          <div className="text-3xl">👥</div>
+      <div className="grid grid-cols-1 min-[640px]:grid-cols-3 gap-3.5">
+        <div className="border border-line rounded-section p-4.5 bg-white">
+          <HiOutlineUserGroup className="w-8 h-8 text-primary" />
           <h3 className="mt-2 text-base font-semibold text-heading">Clientes</h3>
           <p className="text-[13px] text-muted">Gestiona los clientes del sistema</p>
         </div>
-        <div className="border border-line rounded-section p-[18px] bg-white">
-          <div className="text-3xl">🏡</div>
+        <div className="border border-line rounded-section p-4.5 bg-white">
+          <HiOutlineOfficeBuilding className="w-8 h-8 text-primary" />
           <h3 className="mt-2 text-base font-semibold text-heading">Granjas</h3>
           <p className="text-[13px] text-muted">Administra las granjas registradas</p>
         </div>
-        <div className="border border-line rounded-section p-[18px] bg-white">
-          <div className="text-3xl">📋</div>
+        <div className="border border-line rounded-section p-4.5 bg-white">
+          <HiOutlineClipboardList className="w-8 h-8 text-primary" />
           <h3 className="mt-2 text-base font-semibold text-heading">Contactos</h3>
           <p className="text-[13px] text-muted">Contactos asociados a granjas</p>
         </div>

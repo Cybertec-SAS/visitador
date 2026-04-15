@@ -54,7 +54,7 @@ export function FarmsListPage() {
         <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">Granjas</h2>
         <button
           onClick={() => navigate('/farms/new')}
-          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           + Nueva granja
         </button>

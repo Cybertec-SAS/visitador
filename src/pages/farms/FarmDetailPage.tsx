@@ -130,16 +130,16 @@ export function FarmDetailPage() {
         </div>
         <button
           onClick={() => navigate(`/farms/${farm.id}/edit`)}
-          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           Editar
         </button>
       </div>
 
       {/* Farm details */}
-      <div className="border border-line rounded-section p-[18px] bg-white mb-5">
+      <div className="border border-line rounded-section p-4.5 bg-white mb-5">
         <h3 className="text-base font-semibold text-heading mb-3.5">Detalles</h3>
-        <dl className="grid grid-cols-2 gap-[14px] text-sm max-[640px]:grid-cols-1">
+        <dl className="grid grid-cols-2 gap-3.5 text-sm max-[640px]:grid-cols-1">
           <div>
             <dt className="text-[13px] text-muted">Voltaje</dt>
             <dd className="font-medium text-heading">{farm.farm_voltage ?? '—'}</dd>
@@ -186,7 +186,7 @@ export function FarmDetailPage() {
       </div>
 
       {/* Georreference */}
-      <div className="border border-line rounded-section p-[18px] bg-white mb-5">
+      <div className="border border-line rounded-section p-4.5 bg-white mb-5">
         <div className="flex items-center justify-between mb-3.5">
           <h3 className="text-base font-semibold text-heading">Georreferencia</h3>
           <button
@@ -205,7 +205,7 @@ export function FarmDetailPage() {
             isLoading={savingGeo}
           />
         ) : farm.georreference ? (
-          <dl className="grid grid-cols-2 gap-[14px] text-sm max-[640px]:grid-cols-1">
+          <dl className="grid grid-cols-2 gap-3.5 text-sm max-[640px]:grid-cols-1">
             <div>
               <dt className="text-[13px] text-muted">Dirección</dt>
               <dd className="font-medium text-heading">{farm.georreference.address ?? '—'}</dd>
@@ -235,7 +235,7 @@ export function FarmDetailPage() {
       </div>
 
       {/* Contacts */}
-      <div className="border border-line rounded-section p-[18px] bg-white">
+      <div className="border border-line rounded-section p-4.5 bg-white">
         <div className="flex items-center justify-between mb-3.5">
           <h3 className="text-base font-semibold text-heading">Contactos</h3>
           <button

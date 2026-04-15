@@ -17,7 +17,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[14px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-3.5">
       <div className="grid gap-2">
         <label htmlFor="email" className="text-[13px] font-bold text-label">
           Email
@@ -27,7 +27,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           type="email"
           autoComplete="email"
           {...register('email')}
-          className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+          className="w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
           placeholder="admin@visitador.com"
         />
         {errors.email && <p className="text-[13px] text-danger">{errors.email.message}</p>}
@@ -42,7 +42,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           type="password"
           autoComplete="current-password"
           {...register('password')}
-          className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+          className="w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
         />
         {errors.password && <p className="text-[13px] text-danger">{errors.password.message}</p>}
       </div>
