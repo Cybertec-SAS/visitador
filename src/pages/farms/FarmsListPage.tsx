@@ -6,6 +6,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineOfficeBuilding, HiOutlinePlus } from 'react-icons/hi';
 
 export function FarmsListPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
@@ -54,17 +55,31 @@ export function FarmsListPage() {
         <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">Granjas</h2>
         <button
           onClick={() => navigate('/farms/new')}
-          className="rounded-btn px-4.5 py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+          className="flex items-center gap-2 rounded-btn px-4.5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
-          + Nueva granja
+          <HiOutlinePlus className="w-4 h-4" />
+          Nueva granja
         </button>
       </div>
 
       {isLoading ? (
         <LoadingSpinner className="mt-12" />
       ) : farms.length === 0 ? (
-        <div className="text-center py-12 text-muted">
-          No hay granjas registradas.
+        <div className="border border-line rounded-section bg-white py-16 flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-primary-soft grid place-items-center">
+            <HiOutlineOfficeBuilding className="w-8 h-8 text-primary" />
+          </div>
+          <div className="text-center">
+            <h3 className="text-base font-semibold text-heading m-0">No hay granjas aún</h3>
+            <p className="text-[13px] text-muted mt-1.5">Primero crea un cliente y luego agrega su granja</p>
+          </div>
+          <button
+            onClick={() => navigate('/farms/new')}
+            className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+          >
+            <HiOutlinePlus className="w-4 h-4" />
+            Crear primera granja
+          </button>
         </div>
       ) : (
         <div className="border border-line rounded-section bg-white overflow-hidden">
@@ -98,18 +113,22 @@ export function FarmsListPage() {
                   <td className="px-4 py-3 text-heading">{farm.farm_voltage ?? '—'}</td>
                   <td className="px-4 py-3 text-heading">{farm.farm_electric_current ?? '—'}</td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => navigate(`/farms/${farm.id}/edit`)}
-                      className="text-sm text-primary hover:underline mr-3"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(farm)}
-                      className="text-sm text-danger hover:underline"
-                    >
-                      Eliminar
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => navigate(`/farms/${farm.id}/edit`)}
+                        title="Editar granja"
+                        className="w-8 h-8 rounded-lg grid place-items-center text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors cursor-pointer border-none"
+                      >
+                        <HiOutlinePencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(farm)}
+                        title="Eliminar granja"
+                        className="w-8 h-8 rounded-lg grid place-items-center text-danger bg-red-50 hover:bg-danger hover:text-white transition-colors cursor-pointer border-none"
+                      >
+                        <HiOutlineTrash className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
