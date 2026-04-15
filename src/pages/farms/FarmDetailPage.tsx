@@ -116,82 +116,82 @@ export function FarmDetailPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <Link to="/farms" className="text-sm text-indigo-600 hover:underline dark:text-indigo-400">
+          <Link to="/farms" className="text-sm text-primary hover:underline">
             ← Volver a granjas
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{farm.nombre}</h1>
+          <h2 className="text-[28px] font-bold text-heading m-0 mt-1 max-[640px]:text-2xl">{farm.nombre}</h2>
           {farm.client && (
-            <Link to={`/clients/${farm.client.id}`} className="text-sm text-gray-500 hover:underline dark:text-gray-400">
+            <Link to={`/clients/${farm.client.id}`} className="text-sm text-muted hover:underline">
               Cliente: {farm.client.name}
             </Link>
           )}
         </div>
         <button
           onClick={() => navigate(`/farms/${farm.id}/edit`)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           Editar
         </button>
       </div>
 
       {/* Farm details */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Detalles</h2>
-        <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+      <div className="border border-line rounded-section p-[18px] bg-white mb-5">
+        <h3 className="text-base font-semibold text-heading mb-3.5">Detalles</h3>
+        <dl className="grid grid-cols-2 gap-[14px] text-sm max-[640px]:grid-cols-1">
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Voltaje</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.farm_voltage ?? '—'}</dd>
+            <dt className="text-[13px] text-muted">Voltaje</dt>
+            <dd className="font-medium text-heading">{farm.farm_voltage ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Corriente</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.farm_electric_current ?? '—'}</dd>
+            <dt className="text-[13px] text-muted">Corriente</dt>
+            <dd className="font-medium text-heading">{farm.farm_electric_current ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Cap. transformador (KVA)</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.transformator_capacity_kva ?? '—'}</dd>
+            <dt className="text-[13px] text-muted">Cap. transformador (KVA)</dt>
+            <dd className="font-medium text-heading">{farm.transformator_capacity_kva ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Transformador propio</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.have_own_transformator === null ? '—' : farm.have_own_transformator ? 'Sí' : 'No'}</dd>
+            <dt className="text-[13px] text-muted">Transformador propio</dt>
+            <dd className="font-medium text-heading">{farm.have_own_transformator === null ? '—' : farm.have_own_transformator ? 'Sí' : 'No'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Vías de acceso</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.access_ways ?? '—'}</dd>
+            <dt className="text-[13px] text-muted">Vías de acceso</dt>
+            <dd className="font-medium text-heading">{farm.access_ways ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Acceso para tráiler</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.have_easy_access_for_trailer === null ? '—' : farm.have_easy_access_for_trailer ? 'Sí' : 'No'}</dd>
+            <dt className="text-[13px] text-muted">Acceso para tráiler</dt>
+            <dd className="font-medium text-heading">{farm.have_easy_access_for_trailer === null ? '—' : farm.have_easy_access_for_trailer ? 'Sí' : 'No'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Personal disponible</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.staff_availability === null ? '—' : farm.staff_availability ? 'Sí' : 'No'}</dd>
+            <dt className="text-[13px] text-muted">Personal disponible</dt>
+            <dd className="font-medium text-heading">{farm.staff_availability === null ? '—' : farm.staff_availability ? 'Sí' : 'No'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Bodegas</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.has_storage_warehouse ? `Sí (${farm.how_many_warehouses ?? 0})` : farm.has_storage_warehouse === false ? 'No' : '—'}</dd>
+            <dt className="text-[13px] text-muted">Bodegas</dt>
+            <dd className="font-medium text-heading">{farm.has_storage_warehouse ? `Sí (${farm.how_many_warehouses ?? 0})` : farm.has_storage_warehouse === false ? 'No' : '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-500 dark:text-gray-400">Dist. lindero vecino (m)</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.distance_to_neighbor_boundary_m ?? '—'}</dd>
+            <dt className="text-[13px] text-muted">Dist. lindero vecino (m)</dt>
+            <dd className="font-medium text-heading">{farm.distance_to_neighbor_boundary_m ?? '—'}</dd>
           </div>
         </dl>
         {farm.observations && (
-          <div className="mt-4">
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Observaciones</dt>
-            <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{farm.observations}</dd>
+          <div className="mt-3.5">
+            <dt className="text-[13px] text-muted">Observaciones</dt>
+            <dd className="mt-1 text-sm text-heading">{farm.observations}</dd>
           </div>
         )}
       </div>
 
       {/* Georreference */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Georreferencia</h2>
+      <div className="border border-line rounded-section p-[18px] bg-white mb-5">
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-base font-semibold text-heading">Georreferencia</h3>
           <button
             onClick={() => setShowGeoForm(!showGeoForm)}
-            className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+            className="text-sm text-primary hover:underline"
           >
             {farm.georreference ? 'Editar' : 'Agregar'}
           </button>
@@ -205,24 +205,24 @@ export function FarmDetailPage() {
             isLoading={savingGeo}
           />
         ) : farm.georreference ? (
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <dl className="grid grid-cols-2 gap-[14px] text-sm max-[640px]:grid-cols-1">
             <div>
-              <dt className="text-gray-500 dark:text-gray-400">Dirección</dt>
-              <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.georreference.address ?? '—'}</dd>
+              <dt className="text-[13px] text-muted">Dirección</dt>
+              <dd className="font-medium text-heading">{farm.georreference.address ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-gray-500 dark:text-gray-400">Municipio</dt>
-              <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.georreference.town ?? '—'}</dd>
+              <dt className="text-[13px] text-muted">Municipio</dt>
+              <dd className="font-medium text-heading">{farm.georreference.town ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-gray-500 dark:text-gray-400">Departamento</dt>
-              <dd className="font-medium text-gray-900 dark:text-gray-100">{farm.georreference.department ?? '—'}</dd>
+              <dt className="text-[13px] text-muted">Departamento</dt>
+              <dd className="font-medium text-heading">{farm.georreference.department ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-gray-500 dark:text-gray-400">URL mapa</dt>
-              <dd className="font-medium text-gray-900 dark:text-gray-100">
+              <dt className="text-[13px] text-muted">URL mapa</dt>
+              <dd className="font-medium text-heading">
                 {farm.georreference.map_url_reference ? (
-                  <a href={farm.georreference.map_url_reference} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline dark:text-indigo-400">
+                  <a href={farm.georreference.map_url_reference} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     Ver mapa
                   </a>
                 ) : '—'}
@@ -230,27 +230,27 @@ export function FarmDetailPage() {
             </div>
           </dl>
         ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Sin georreferencia registrada.</p>
+          <p className="text-sm text-muted">Sin georreferencia registrada.</p>
         )}
       </div>
 
       {/* Contacts */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Contactos</h2>
+      <div className="border border-line rounded-section p-[18px] bg-white">
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-base font-semibold text-heading">Contactos</h3>
           <button
             onClick={() => {
               setEditingContact(undefined);
               setShowContactForm(!showContactForm);
             }}
-            className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+            className="text-sm text-primary hover:underline"
           >
             + Agregar contacto
           </button>
         </div>
 
         {showContactForm && (
-          <div className="mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="mb-3.5 p-4 border border-line rounded-action">
             <FarmContactForm
               farmId={farm.id}
               onSubmit={handleContactSubmit}
@@ -265,13 +265,13 @@ export function FarmDetailPage() {
         )}
 
         {farm.contacts && farm.contacts.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid gap-3">
             {farm.contacts.map((contact) => (
-              <div key={contact.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div key={contact.id} className="flex items-center justify-between p-3.5 border border-line rounded-action">
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">{contact.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="inline-block px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs mr-2">
+                  <div className="font-medium text-heading">{contact.name}</div>
+                  <div className="text-[13px] text-muted">
+                    <span className="inline-block px-2 py-0.5 rounded-btn bg-primary-soft text-primary text-xs mr-2">
                       {contactTypeLabels[contact.type] ?? contact.type}
                     </span>
                     {contact.email && <span className="mr-2">{contact.email}</span>}
@@ -284,13 +284,13 @@ export function FarmDetailPage() {
                       setEditingContact(contact);
                       setShowContactForm(true);
                     }}
-                    className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+                    className="text-sm text-primary hover:underline"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => setDeleteContactTarget(contact)}
-                    className="text-sm text-red-600 hover:underline dark:text-red-400"
+                    className="text-sm text-danger hover:underline"
                   >
                     Eliminar
                   </button>
@@ -299,7 +299,7 @@ export function FarmDetailPage() {
             ))}
           </div>
         ) : (
-          !showContactForm && <p className="text-sm text-gray-500 dark:text-gray-400">Sin contactos registrados.</p>
+          !showContactForm && <p className="text-sm text-muted">Sin contactos registrados.</p>
         )}
       </div>
 

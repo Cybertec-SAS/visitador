@@ -29,14 +29,14 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
       : { farm_id: farmId },
   });
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white';
-  const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
+  const inputClass = 'w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
+  const labelClass = 'text-[13px] font-bold text-label';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[14px]">
       <input type="hidden" {...register('farm_id', { setValueAs: (v) => Number(v) })} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
         <div>
           <label className={labelClass}>Tipo</label>
           <select {...register('type', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
@@ -46,17 +46,17 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
             <option value="encargado">Encargado</option>
             <option value="otro">Otro</option>
           </select>
-          {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>}
+          {errors.type && <p className="mt-1 text-[13px] text-danger">{errors.type.message}</p>}
         </div>
         <div>
           <label className={labelClass}>Nombre</label>
           <input {...register('name')} className={inputClass} />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-[13px] text-danger">{errors.name.message}</p>}
         </div>
         <div>
           <label className={labelClass}>Email</label>
           <input type="email" {...register('email', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass} />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+          {errors.email && <p className="mt-1 text-[13px] text-danger">{errors.email.message}</p>}
         </div>
         <div>
           <label className={labelClass}>Teléfono</label>
@@ -64,12 +64,12 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
         </div>
       </div>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex gap-3 flex-wrap">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-white text-heading border border-line hover:bg-gray-50 transition-colors cursor-pointer"
           >
             Cancelar
           </button>
@@ -77,7 +77,7 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
         >
           {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Agregar contacto'}
         </button>

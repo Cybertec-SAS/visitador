@@ -17,9 +17,9 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[14px]">
+      <div className="grid gap-2">
+        <label htmlFor="email" className="text-[13px] font-bold text-label">
           Email
         </label>
         <input
@@ -27,14 +27,14 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           type="email"
           autoComplete="email"
           {...register('email')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
           placeholder="admin@visitador.com"
         />
-        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+        {errors.email && <p className="text-[13px] text-danger">{errors.email.message}</p>}
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <div className="grid gap-2">
+        <label htmlFor="password" className="text-[13px] font-bold text-label">
           Contraseña
         </label>
         <input
@@ -42,15 +42,15 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           type="password"
           autoComplete="current-password"
           {...register('password')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
         />
-        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+        {errors.password && <p className="text-[13px] text-danger">{errors.password.message}</p>}
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2.5 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+        className="w-full mt-1.5 border-none bg-primary text-white p-3.5 rounded-[12px] font-bold cursor-pointer hover:bg-primary-hover disabled:opacity-50 transition-colors"
       >
         {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
       </button>

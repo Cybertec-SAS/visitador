@@ -31,12 +31,13 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+    <div className="min-h-screen flex justify-center p-6 max-[640px]:p-3.5">
+      <div className="w-full max-w-md self-center">
+        <div className="bg-surface border border-line rounded-panel shadow-panel p-[26px]">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Visitator</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Inicia sesión para continuar</p>
+            <div className="w-11 h-11 rounded-logo bg-primary text-white grid place-items-center font-extrabold text-lg mx-auto mb-3">V</div>
+            <h1 className="text-xl font-bold text-heading">Visitador</h1>
+            <p className="text-sm text-muted mt-1">Inicia sesión para continuar</p>
           </div>
           <LoginForm onSubmit={handleSubmit} isLoading={isLoading} />
         </div>

@@ -50,11 +50,11 @@ export function FarmsListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Granjas</h1>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">Granjas</h2>
         <button
           onClick={() => navigate('/farms/new')}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           + Nueva granja
         </button>
@@ -63,50 +63,50 @@ export function FarmsListPage() {
       {isLoading ? (
         <LoadingSpinner className="mt-12" />
       ) : farms.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-muted">
           No hay granjas registradas.
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="border border-line rounded-section bg-white overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
+            <thead className="bg-input-bg">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Nombre</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Cliente</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Voltaje</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Corriente</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Acciones</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Nombre</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Cliente</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Voltaje</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Corriente</th>
+                <th className="text-right px-4 py-3 font-bold text-[13px] text-label">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-line">
               {farms.map((farm) => (
-                <tr key={farm.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                <tr key={farm.id} className="hover:bg-primary-soft/50">
                   <td className="px-4 py-3">
-                    <Link to={`/farms/${farm.id}`} className="text-indigo-600 hover:underline dark:text-indigo-400">
+                    <Link to={`/farms/${farm.id}`} className="text-primary hover:underline">
                       {farm.nombre}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                  <td className="px-4 py-3 text-heading">
                     {farm.client ? (
-                      <Link to={`/clients/${farm.client.id}`} className="hover:underline">
+                      <Link to={`/clients/${farm.client.id}`} className="text-primary hover:underline">
                         {farm.client.name}
                       </Link>
                     ) : (
                       '—'
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{farm.farm_voltage ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{farm.farm_electric_current ?? '—'}</td>
+                  <td className="px-4 py-3 text-heading">{farm.farm_voltage ?? '—'}</td>
+                  <td className="px-4 py-3 text-heading">{farm.farm_electric_current ?? '—'}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => navigate(`/farms/${farm.id}/edit`)}
-                      className="text-sm text-indigo-600 hover:underline dark:text-indigo-400 mr-3"
+                      className="text-sm text-primary hover:underline mr-3"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => setDeleteTarget(farm)}
-                      className="text-sm text-red-600 hover:underline dark:text-red-400"
+                      className="text-sm text-danger hover:underline"
                     >
                       Eliminar
                     </button>

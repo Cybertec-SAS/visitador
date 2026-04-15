@@ -57,12 +57,13 @@ export function ClientFormPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-        {isEdit ? 'Editar cliente' : 'Nuevo cliente'}
-      </h1>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-        <ClientForm onSubmit={handleSubmit} defaultValues={client} isLoading={isSaving} />
+      <div className="mb-5">
+        <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">
+          {isEdit ? 'Editar cliente' : 'Nuevo cliente'}
+        </h2>
+        <p className="mt-1.5 text-sm text-muted">Primero registra el cliente. Luego podrás crear la granja.</p>
       </div>
+      <ClientForm onSubmit={handleSubmit} defaultValues={client} isLoading={isSaving} />
     </div>
   );
 }

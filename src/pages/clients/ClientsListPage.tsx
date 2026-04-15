@@ -50,11 +50,11 @@ export function ClientsListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Clientes</h1>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">Clientes</h2>
         <button
           onClick={() => navigate('/clients/new')}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           + Nuevo cliente
         </button>
@@ -63,42 +63,42 @@ export function ClientsListPage() {
       {isLoading ? (
         <LoadingSpinner className="mt-12" />
       ) : clients.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-muted">
           No hay clientes registrados.
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="border border-line rounded-section bg-white overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
+            <thead className="bg-input-bg">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Nombre</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Razón Social</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Email</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Teléfono</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Acciones</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Nombre</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Razón Social</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Email</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Teléfono</th>
+                <th className="text-right px-4 py-3 font-bold text-[13px] text-label">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-line">
               {clients.map((client) => (
-                <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                <tr key={client.id} className="hover:bg-primary-soft/50">
                   <td className="px-4 py-3">
-                    <Link to={`/clients/${client.id}`} className="text-indigo-600 hover:underline dark:text-indigo-400">
+                    <Link to={`/clients/${client.id}`} className="text-primary hover:underline">
                       {client.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{client.razon_social}</td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{client.email}</td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{client.phone_number}</td>
+                  <td className="px-4 py-3 text-heading">{client.razon_social}</td>
+                  <td className="px-4 py-3 text-heading">{client.email}</td>
+                  <td className="px-4 py-3 text-heading">{client.phone_number}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => navigate(`/clients/${client.id}/edit`)}
-                      className="text-sm text-indigo-600 hover:underline dark:text-indigo-400 mr-3"
+                      className="text-sm text-primary hover:underline mr-3"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => setDeleteTarget(client)}
-                      className="text-sm text-red-600 hover:underline dark:text-red-400"
+                      className="text-sm text-danger hover:underline"
                     >
                       Eliminar
                     </button>

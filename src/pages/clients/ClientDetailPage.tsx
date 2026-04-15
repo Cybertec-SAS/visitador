@@ -28,38 +28,38 @@ export function ClientDetailPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <Link to="/clients" className="text-sm text-indigo-600 hover:underline dark:text-indigo-400">
+          <Link to="/clients" className="text-sm text-primary hover:underline">
             ← Volver a clientes
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{client.name}</h1>
+          <h2 className="text-[28px] font-bold text-heading m-0 mt-1 max-[640px]:text-2xl">{client.name}</h2>
         </div>
         <button
           onClick={() => navigate(`/clients/${client.id}/edit`)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
         >
           Editar
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
-        <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="border border-line rounded-section p-[18px] bg-white">
+        <dl className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Razón Social</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{client.razon_social}</dd>
+            <dt className="text-[13px] text-muted">Razón Social</dt>
+            <dd className="font-medium text-heading">{client.razon_social}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Email</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{client.email}</dd>
+            <dt className="text-[13px] text-muted">Email</dt>
+            <dd className="font-medium text-heading">{client.email}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Teléfono</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">{client.phone_number}</dd>
+            <dt className="text-[13px] text-muted">Teléfono</dt>
+            <dd className="font-medium text-heading">{client.phone_number}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Creado</dt>
-            <dd className="font-medium text-gray-900 dark:text-gray-100">
+            <dt className="text-[13px] text-muted">Creado</dt>
+            <dd className="font-medium text-heading">
               {new Date(client.created_at).toLocaleDateString()}
             </dd>
           </div>
@@ -68,17 +68,17 @@ export function ClientDetailPage() {
 
       {/* Farms list */}
       {client.farms && client.farms.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Granjas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-6">
+          <h3 className="text-base font-semibold text-heading mb-3.5">Granjas</h3>
+          <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
             {client.farms.map((farm) => (
               <Link
                 key={farm.id}
                 to={`/farms/${farm.id}`}
-                className="block bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
+                className="block border border-line rounded-action p-4 hover:border-primary/30 transition-colors no-underline"
               >
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">{farm.nombre}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h3 className="font-medium text-heading">{farm.nombre}</h3>
+                <p className="text-[13px] text-muted mt-1">
                   {farm.farm_voltage ?? 'Sin voltaje'} · {farm.farm_electric_current ?? 'Sin corriente'}
                 </p>
               </Link>

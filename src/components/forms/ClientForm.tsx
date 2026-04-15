@@ -27,53 +27,56 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-          <input
-            {...register('name')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-        </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[18px]">
+      <section className="border border-line rounded-section p-[18px] bg-white">
+        <h3 className="text-base font-semibold text-heading m-0 mb-3.5">Datos del cliente</h3>
+        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
+          <div className="grid gap-2">
+            <label className="text-[13px] font-bold text-label">Nombre</label>
+            <input
+              {...register('name')}
+              className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+            />
+            {errors.name && <p className="text-[13px] text-danger">{errors.name.message}</p>}
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razón Social</label>
-          <input
-            {...register('razon_social')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          {errors.razon_social && <p className="mt-1 text-sm text-red-600">{errors.razon_social.message}</p>}
-        </div>
+          <div className="grid gap-2">
+            <label className="text-[13px] font-bold text-label">Razón Social</label>
+            <input
+              {...register('razon_social')}
+              className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+            />
+            {errors.razon_social && <p className="text-[13px] text-danger">{errors.razon_social.message}</p>}
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-          <input
-            type="email"
-            {...register('email')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-        </div>
+          <div className="grid gap-2">
+            <label className="text-[13px] font-bold text-label">Email</label>
+            <input
+              type="email"
+              {...register('email')}
+              className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+            />
+            {errors.email && <p className="text-[13px] text-danger">{errors.email.message}</p>}
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
-          <input
-            {...register('phone_number')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          {errors.phone_number && <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>}
+          <div className="grid gap-2">
+            <label className="text-[13px] font-bold text-label">Teléfono</label>
+            <input
+              {...register('phone_number')}
+              className="w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+            />
+            {errors.phone_number && <p className="text-[13px] text-danger">{errors.phone_number.message}</p>}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="flex justify-end pt-4">
+      <div className="flex gap-3 flex-wrap max-[640px]:flex-col">
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
         >
-          {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Crear cliente'}
+          {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Guardar cliente'}
         </button>
       </div>
     </form>

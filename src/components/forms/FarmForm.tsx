@@ -41,15 +41,15 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       : undefined,
   });
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white';
-  const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
+  const inputClass = 'w-full min-h-[50px] border border-line rounded-control px-[15px] py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder';
+  const labelClass = 'text-[13px] font-bold text-label';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-[18px]">
       {/* Basic info */}
-      <fieldset className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <legend className="text-sm font-semibold text-gray-900 dark:text-gray-100 px-2">Información básica</legend>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+        <legend className="text-base font-semibold text-heading px-2">Información básica</legend>
+        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Cliente</label>
             <select {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })} className={inputClass} disabled={!!defaultValues}>
@@ -58,20 +58,20 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
-            {errors.client_id && <p className="mt-1 text-sm text-red-600">{errors.client_id.message}</p>}
+            {errors.client_id && <p className="mt-1 text-[13px] text-danger">{errors.client_id.message}</p>}
           </div>
           <div>
             <label className={labelClass}>Nombre de la granja</label>
             <input {...register('nombre')} className={inputClass} />
-            {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre.message}</p>}
+            {errors.nombre && <p className="mt-1 text-[13px] text-danger">{errors.nombre.message}</p>}
           </div>
         </div>
       </fieldset>
 
       {/* Electrical */}
-      <fieldset className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <legend className="text-sm font-semibold text-gray-900 dark:text-gray-100 px-2">Información eléctrica</legend>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+        <legend className="text-base font-semibold text-heading px-2">Información eléctrica</legend>
+        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Voltaje</label>
               <select {...register('farm_voltage', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
@@ -94,12 +94,12 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
             <input type="number" min={0} {...register('transformator_capacity_kva', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} className={inputClass} />
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="have_own_transformator" {...register('have_own_transformator')} className="rounded" />
-            <label htmlFor="have_own_transformator" className="text-sm text-gray-700 dark:text-gray-300">Transformador propio</label>
+            <input type="checkbox" id="have_own_transformator" {...register('have_own_transformator')} className="rounded accent-primary" />
+            <label htmlFor="have_own_transformator" className="text-sm text-heading">Transformador propio</label>
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="is_transformator_feeds" {...register('is_transformator_feeds_other_installations')} className="rounded" />
-            <label htmlFor="is_transformator_feeds" className="text-sm text-gray-700 dark:text-gray-300">Alimenta otras instalaciones</label>
+            <input type="checkbox" id="is_transformator_feeds" {...register('is_transformator_feeds_other_installations')} className="rounded accent-primary" />
+            <label htmlFor="is_transformator_feeds" className="text-sm text-heading">Alimenta otras instalaciones</label>
           </div>
           <div>
             <label className={labelClass}>Instalaciones que alimenta</label>
@@ -109,9 +109,9 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       </fieldset>
 
       {/* Access & infrastructure */}
-      <fieldset className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <legend className="text-sm font-semibold text-gray-900 dark:text-gray-100 px-2">Acceso e infraestructura</legend>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <fieldset className="border border-line rounded-section p-[18px] bg-white">
+        <legend className="text-base font-semibold text-heading px-2">Acceso e infraestructura</legend>
+        <div className="grid grid-cols-2 gap-[14px] max-[640px]:grid-cols-1">
           <div>
             <label className={labelClass}>Vías de acceso</label>
             <input {...register('access_ways')} className={inputClass} />
@@ -129,16 +129,16 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
             <input type="number" min={0} {...register('how_many_warehouses', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} className={inputClass} />
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="have_easy_access_for_trailer" {...register('have_easy_access_for_trailer')} className="rounded" />
-            <label htmlFor="have_easy_access_for_trailer" className="text-sm text-gray-700 dark:text-gray-300">Acceso fácil para tráiler</label>
+            <input type="checkbox" id="have_easy_access_for_trailer" {...register('have_easy_access_for_trailer')} className="rounded accent-primary" />
+            <label htmlFor="have_easy_access_for_trailer" className="text-sm text-heading">Acceso fácil para tráiler</label>
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="staff_availability" {...register('staff_availability')} className="rounded" />
-            <label htmlFor="staff_availability" className="text-sm text-gray-700 dark:text-gray-300">Personal disponible</label>
+            <input type="checkbox" id="staff_availability" {...register('staff_availability')} className="rounded accent-primary" />
+            <label htmlFor="staff_availability" className="text-sm text-heading">Personal disponible</label>
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="has_storage_warehouse" {...register('has_storage_warehouse')} className="rounded" />
-            <label htmlFor="has_storage_warehouse" className="text-sm text-gray-700 dark:text-gray-300">Tiene bodega</label>
+            <input type="checkbox" id="has_storage_warehouse" {...register('has_storage_warehouse')} className="rounded accent-primary" />
+            <label htmlFor="has_storage_warehouse" className="text-sm text-heading">Tiene bodega</label>
           </div>
         </div>
       </fieldset>
@@ -146,14 +146,14 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       {/* Observations */}
       <div>
         <label className={labelClass}>Observaciones</label>
-        <textarea {...register('observations')} rows={3} className={inputClass} />
+        <textarea {...register('observations')} rows={3} className={`${inputClass} min-h-[90px]`} />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex gap-3 flex-wrap max-[640px]:flex-col">
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="rounded-btn px-[18px] py-3.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
         >
           {isLoading ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Crear granja'}
         </button>
