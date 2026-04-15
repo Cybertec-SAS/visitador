@@ -89,7 +89,7 @@ export function FarmsListPage() {
                   <td className="px-4 py-3 text-heading">
                     {farm.client ? (
                       <Link to={`/clients/${farm.client.id}`} className="text-primary hover:underline">
-                        {farm.client.name}
+                        {farm.client.razon_social}
                       </Link>
                     ) : (
                       '—'

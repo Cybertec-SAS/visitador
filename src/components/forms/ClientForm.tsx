@@ -18,8 +18,8 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
     resolver: zodResolver(clientSchema),
     defaultValues: defaultValues
       ? {
-          name: defaultValues.name,
           razon_social: defaultValues.razon_social,
+          nit: defaultValues.nit,
           email: defaultValues.email,
           phone_number: defaultValues.phone_number,
         }
@@ -32,21 +32,21 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
         <h3 className="text-base font-semibold text-heading m-0 mb-3.5">Datos del cliente</h3>
         <div className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div className="grid gap-2">
-            <label className="text-[13px] font-bold text-label">Nombre</label>
-            <input
-              {...register('name')}
-              className="w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
-            />
-            {errors.name && <p className="text-[13px] text-danger">{errors.name.message}</p>}
-          </div>
-
-          <div className="grid gap-2">
             <label className="text-[13px] font-bold text-label">Razón Social</label>
             <input
               {...register('razon_social')}
               className="w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
             />
             {errors.razon_social && <p className="text-[13px] text-danger">{errors.razon_social.message}</p>}
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-[13px] font-bold text-label">NIT</label>
+            <input
+              {...register('nit')}
+              className="w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder"
+            />
+            {errors.nit && <p className="text-[13px] text-danger">{errors.nit.message}</p>}
           </div>
 
           <div className="grid gap-2">

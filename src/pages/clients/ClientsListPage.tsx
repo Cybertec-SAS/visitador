@@ -71,8 +71,8 @@ export function ClientsListPage() {
           <table className="w-full text-sm">
             <thead className="bg-input-bg">
               <tr>
-                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Nombre</th>
                 <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Razón Social</th>
+                <th className="text-left px-4 py-3 font-bold text-[13px] text-label">NIT</th>
                 <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Email</th>
                 <th className="text-left px-4 py-3 font-bold text-[13px] text-label">Teléfono</th>
                 <th className="text-right px-4 py-3 font-bold text-[13px] text-label">Acciones</th>
@@ -83,10 +83,10 @@ export function ClientsListPage() {
                 <tr key={client.id} className="hover:bg-primary-soft/50">
                   <td className="px-4 py-3">
                     <Link to={`/clients/${client.id}`} className="text-primary hover:underline">
-                      {client.name}
+                      {client.razon_social}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-heading">{client.razon_social}</td>
+                  <td className="px-4 py-3 text-heading">{client.nit}</td>
                   <td className="px-4 py-3 text-heading">{client.email}</td>
                   <td className="px-4 py-3 text-heading">{client.phone_number}</td>
                   <td className="px-4 py-3 text-right">
@@ -115,7 +115,7 @@ export function ClientsListPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title="Eliminar cliente"
-        message={`¿Estás seguro de eliminar a "${deleteTarget?.name}"? Se eliminarán todas sus granjas, georreferencias y contactos.`}
+        message={`¿Estás seguro de eliminar a "${deleteTarget?.razon_social}"? Se eliminarán todas sus granjas, georreferencias y contactos.`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         isLoading={isDeleting}

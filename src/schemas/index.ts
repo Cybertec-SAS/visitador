@@ -8,8 +8,8 @@ export const loginSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const clientSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido').max(255),
   razon_social: z.string().min(1, 'La razón social es requerida').max(255),
+  nit: z.string().min(1, 'El NIT es requerido').max(255),
   email: z.string().min(1, 'El email es requerido').email('Email inválido').max(255),
   phone_number: z.string().min(1, 'El teléfono es requerido').max(50),
 });

@@ -55,8 +55,8 @@ export interface LogoutResponse {
 // Client
 export interface Client {
   id: number;
-  name: string;
   razon_social: string;
+  nit: string;
   email: string;
   phone_number: string;
   farms?: Farm[];
@@ -65,8 +65,8 @@ export interface Client {
 }
 
 export interface ClientFormData {
-  name: string;
   razon_social: string;
+  nit: string;
   email: string;
   phone_number: string;
 }

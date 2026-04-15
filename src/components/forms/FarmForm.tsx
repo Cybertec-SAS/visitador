@@ -55,7 +55,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
             <select {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })} className={inputClass} disabled={!!defaultValues}>
               <option value="">Seleccionar cliente...</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>{c.razon_social}</option>
               ))}
             </select>
             {errors.client_id && <p className="mt-1 text-[13px] text-danger">{errors.client_id.message}</p>}

@@ -33,7 +33,7 @@ export function ClientDetailPage() {
           <Link to="/clients" className="text-sm text-primary hover:underline">
             ← Volver a clientes
           </Link>
-          <h2 className="text-[28px] font-bold text-heading m-0 mt-1 max-[640px]:text-2xl">{client.name}</h2>
+          <h2 className="text-[28px] font-bold text-heading m-0 mt-1 max-[640px]:text-2xl">{client.razon_social}</h2>
         </div>
         <button
           onClick={() => navigate(`/clients/${client.id}/edit`)}
@@ -46,8 +46,8 @@ export function ClientDetailPage() {
       <div className="border border-line rounded-section p-4.5 bg-white">
         <dl className="grid grid-cols-2 gap-3.5 max-[640px]:grid-cols-1">
           <div>
-            <dt className="text-[13px] text-muted">Razón Social</dt>
-            <dd className="font-medium text-heading">{client.razon_social}</dd>
+            <dt className="text-[13px] text-muted">NIT</dt>
+            <dd className="font-medium text-heading">{client.nit}</dd>
           </div>
           <div>
             <dt className="text-[13px] text-muted">Email</dt>

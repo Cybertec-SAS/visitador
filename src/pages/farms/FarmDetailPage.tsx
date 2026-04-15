@@ -124,7 +124,7 @@ export function FarmDetailPage() {
           <h2 className="text-[28px] font-bold text-heading m-0 mt-1 max-[640px]:text-2xl">{farm.nombre}</h2>
           {farm.client && (
             <Link to={`/clients/${farm.client.id}`} className="text-sm text-muted hover:underline">
-              Cliente: {farm.client.name}
+              Cliente: {farm.client.razon_social}
             </Link>
           )}
         </div>
