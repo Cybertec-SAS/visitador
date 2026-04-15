@@ -23,8 +23,8 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
           farm_id: defaultValues.farm_id,
           type: defaultValues.type,
           name: defaultValues.name,
-          email: defaultValues.email,
-          phone: defaultValues.phone,
+          email: defaultValues.email ?? undefined,
+          phone: defaultValues.phone ?? undefined,
         }
       : { farm_id: farmId },
   });
@@ -34,12 +34,12 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <input type="hidden" {...register('farm_id')} />
+      <input type="hidden" {...register('farm_id', { setValueAs: (v) => Number(v) })} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Tipo</label>
-          <select {...register('type')} className={inputClass}>
+          <select {...register('type', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
             <option value="">Seleccionar...</option>
             <option value="administrador">Administrador</option>
             <option value="veterinario">Veterinario</option>
@@ -55,7 +55,7 @@ export function FarmContactForm({ farmId, onSubmit, defaultValues, isLoading, on
         </div>
         <div>
           <label className={labelClass}>Email</label>
-          <input type="email" {...register('email')} className={inputClass} />
+          <input type="email" {...register('email', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass} />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
         <div>

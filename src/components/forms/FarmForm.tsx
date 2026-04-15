@@ -21,20 +21,22 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
       ? {
           client_id: defaultValues.client_id,
           nombre: defaultValues.nombre,
-          transformator_capacity_kva: defaultValues.transformator_capacity_kva,
-          access_ways: defaultValues.access_ways,
-          observations: defaultValues.observations,
-          farm_voltage: defaultValues.farm_voltage,
-          farm_electric_current: defaultValues.farm_electric_current,
-          have_own_transformator: defaultValues.have_own_transformator,
-          is_transformator_feeds_other_installations: defaultValues.is_transformator_feeds_other_installations,
-          distance_to_neighbor_boundary_m: defaultValues.distance_to_neighbor_boundary_m ? Number(defaultValues.distance_to_neighbor_boundary_m) : null,
-          transformator_are_feeding_installations: defaultValues.transformator_are_feeding_installations,
-          neighboring_properties_notes: defaultValues.neighboring_properties_notes,
-          have_easy_access_for_trailer: defaultValues.have_easy_access_for_trailer,
-          staff_availability: defaultValues.staff_availability,
-          has_storage_warehouse: defaultValues.has_storage_warehouse,
-          how_many_warehouses: defaultValues.how_many_warehouses,
+          transformator_capacity_kva: defaultValues.transformator_capacity_kva ?? undefined,
+          access_ways: defaultValues.access_ways ?? undefined,
+          observations: defaultValues.observations ?? undefined,
+          farm_voltage: defaultValues.farm_voltage ?? undefined,
+          farm_electric_current: defaultValues.farm_electric_current ?? undefined,
+          have_own_transformator: defaultValues.have_own_transformator ?? undefined,
+          is_transformator_feeds_other_installations: defaultValues.is_transformator_feeds_other_installations ?? undefined,
+          distance_to_neighbor_boundary_m: defaultValues.distance_to_neighbor_boundary_m != null
+            ? Number(defaultValues.distance_to_neighbor_boundary_m)
+            : undefined,
+          transformator_are_feeding_installations: defaultValues.transformator_are_feeding_installations ?? undefined,
+          neighboring_properties_notes: defaultValues.neighboring_properties_notes ?? undefined,
+          have_easy_access_for_trailer: defaultValues.have_easy_access_for_trailer ?? undefined,
+          staff_availability: defaultValues.staff_availability ?? undefined,
+          has_storage_warehouse: defaultValues.has_storage_warehouse ?? undefined,
+          how_many_warehouses: defaultValues.how_many_warehouses ?? undefined,
         }
       : undefined,
   });
@@ -50,7 +52,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Cliente</label>
-            <select {...register('client_id')} className={inputClass} disabled={!!defaultValues}>
+            <select {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })} className={inputClass} disabled={!!defaultValues}>
               <option value="">Seleccionar cliente...</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -72,7 +74,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Voltaje</label>
-            <select {...register('farm_voltage')} className={inputClass}>
+              <select {...register('farm_voltage', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
               <option value="">Sin especificar</option>
               <option value="110V">110V</option>
               <option value="220V">220V</option>
@@ -80,7 +82,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           </div>
           <div>
             <label className={labelClass}>Corriente eléctrica</label>
-            <select {...register('farm_electric_current')} className={inputClass}>
+              <select {...register('farm_electric_current', { setValueAs: (v) => (v === '' ? undefined : v) })} className={inputClass}>
               <option value="">Sin especificar</option>
               <option value="monophase">Monofásica</option>
               <option value="biphase">Bifásica</option>
@@ -89,7 +91,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           </div>
           <div>
             <label className={labelClass}>Capacidad transformador (KVA)</label>
-            <input type="number" min={0} {...register('transformator_capacity_kva')} className={inputClass} />
+            <input type="number" min={0} {...register('transformator_capacity_kva', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} className={inputClass} />
           </div>
           <div className="flex items-center gap-2 pt-6">
             <input type="checkbox" id="have_own_transformator" {...register('have_own_transformator')} className="rounded" />
@@ -116,7 +118,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           </div>
           <div>
             <label className={labelClass}>Distancia a lindero vecino (m)</label>
-            <input type="number" min={0} step="0.01" {...register('distance_to_neighbor_boundary_m')} className={inputClass} />
+            <input type="number" min={0} step="0.01" {...register('distance_to_neighbor_boundary_m', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Notas propiedades vecinas</label>
@@ -124,7 +126,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           </div>
           <div>
             <label className={labelClass}>Cantidad de bodegas</label>
-            <input type="number" min={0} {...register('how_many_warehouses')} className={inputClass} />
+            <input type="number" min={0} {...register('how_many_warehouses', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} className={inputClass} />
           </div>
           <div className="flex items-center gap-2 pt-6">
             <input type="checkbox" id="have_easy_access_for_trailer" {...register('have_easy_access_for_trailer')} className="rounded" />

@@ -20,10 +20,10 @@ export function GeorreferenceForm({ farmId, onSubmit, defaultValues, isLoading }
     defaultValues: defaultValues
       ? {
           farm_id: defaultValues.farm_id,
-          address: defaultValues.address,
-          town: defaultValues.town,
-          department: defaultValues.department,
-          map_url_reference: defaultValues.map_url_reference,
+          address: defaultValues.address ?? undefined,
+          town: defaultValues.town ?? undefined,
+          department: defaultValues.department ?? undefined,
+          map_url_reference: defaultValues.map_url_reference ?? undefined,
         }
       : { farm_id: farmId },
   });
@@ -33,7 +33,7 @@ export function GeorreferenceForm({ farmId, onSubmit, defaultValues, isLoading }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <input type="hidden" {...register('farm_id')} />
+      <input type="hidden" {...register('farm_id', { setValueAs: (v) => Number(v) })} />
       {errors.farm_id && <p className="text-sm text-red-600">{errors.farm_id.message}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
