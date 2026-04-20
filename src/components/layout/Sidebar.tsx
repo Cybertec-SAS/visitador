@@ -6,6 +6,9 @@ import {
   HiOutlineViewGrid,
   HiOutlineUserGroup,
   HiOutlineOfficeBuilding,
+  HiOutlineHome,
+  HiOutlineClipboardList,
+  HiOutlineCollection,
   HiOutlineUserAdd,
   HiOutlinePlus,
   HiOutlineLogout,
@@ -17,10 +20,30 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navItems: { to: string; label: string; icon: IconType; end: boolean }[] = [
-  { to: '/',        label: 'Dashboard', icon: HiOutlineViewGrid,     end: true  },
-  { to: '/clients', label: 'Clientes',  icon: HiOutlineUserGroup,    end: false },
-  { to: '/farms',   label: 'Granjas',   icon: HiOutlineOfficeBuilding, end: false },
+const navSections: {
+  label?: string;
+  items: { to: string; label: string; icon: IconType; end: boolean }[];
+}[] = [
+  {
+    items: [
+      { to: '/', label: 'Dashboard', icon: HiOutlineViewGrid, end: true },
+    ],
+  },
+  {
+    label: 'Gestión',
+    items: [
+      { to: '/clients', label: 'Clientes', icon: HiOutlineUserGroup, end: false },
+      { to: '/farms', label: 'Granjas', icon: HiOutlineOfficeBuilding, end: false },
+      { to: '/structures', label: 'Estructuras', icon: HiOutlineHome, end: false },
+    ],
+  },
+  {
+    label: 'Operaciones',
+    items: [
+      { to: '/visits', label: 'Visitas', icon: HiOutlineClipboardList, end: false },
+      { to: '/projects', label: 'Proyectos', icon: HiOutlineCollection, end: false },
+    ],
+  },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
@@ -57,60 +80,69 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
         <div>
           <h1 className="text-[15px] font-bold m-0 leading-tight">Visitador</h1>
-          <p className="text-[11px] text-muted m-0">cliente → granja</p>
+          <p className="text-[11px] text-muted m-0">Gestión técnica de campo</p>
         </div>
       </div>
 
-      {/* Quick Actions — compact rows */}
+      {/* Quick Actions */}
       <div className="grid gap-1.5">
         <Link
-          to="/clients/new"
+          to="/visits/new"
           onClick={onClose}
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-control bg-primary text-white no-underline hover:bg-primary-hover transition-colors"
         >
-          <HiOutlineUserAdd className="w-4 h-4 shrink-0" />
-          <span className="text-[13px] font-semibold">Nuevo cliente</span>
+          <HiOutlinePlus className="w-4 h-4 shrink-0" />
+          <span className="text-[13px] font-semibold">Nueva visita</span>
         </Link>
         <Link
-          to="/farms/new"
+          to="/clients/new"
           onClick={onClose}
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-control border border-line bg-white text-heading no-underline hover:border-primary/30 hover:bg-primary-soft/50 transition-colors"
         >
-          <HiOutlinePlus className="w-4 h-4 text-primary shrink-0" />
-          <span className="text-[13px] font-semibold">Nueva granja</span>
+          <HiOutlineUserAdd className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-[13px] font-semibold">Nuevo cliente</span>
         </Link>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-line" />
 
-      {/* Navigation */}
-      <nav className="grid gap-0.5">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2.5 rounded-control no-underline transition-colors ${
-                isActive
-                  ? 'bg-primary-soft text-primary'
-                  : 'text-heading hover:bg-primary-soft/50 hover:text-primary'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-primary' : 'text-muted'}`} />
-                <span className="text-[13px] font-semibold">{item.label}</span>
-              </>
+      {/* Navigation sections */}
+      <nav className="space-y-3">
+        {navSections.map((section, si) => (
+          <div key={si}>
+            {section.label && (
+              <p className="text-[10px] font-bold text-muted uppercase tracking-wider px-3 mb-1">
+                {section.label}
+              </p>
             )}
-          </NavLink>
+            <div className="grid gap-0.5">
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2.5 rounded-control no-underline transition-colors ${
+                      isActive
+                        ? 'bg-primary-soft text-primary'
+                        : 'text-heading hover:bg-primary-soft/50 hover:text-primary'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-primary' : 'text-muted'}`} />
+                      <span className="text-[13px] font-semibold">{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
       {/* User row */}

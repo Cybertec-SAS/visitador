@@ -429,6 +429,36 @@ export function FarmDetailPage() {
         )}
       </div>
 
+      {/* Structures quick access */}
+      <div>
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-base font-semibold text-heading m-0 flex items-center gap-2">
+            <HiOutlineHome className="w-5 h-5 text-primary" />
+            Estructuras
+          </h3>
+          <Link
+            to={`/structures?farm_id=${farm.id}`}
+            className="flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-hover transition-colors no-underline"
+          >
+            Ver todas
+            <HiOutlineExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <Link
+          to={`/structures?farm_id=${farm.id}`}
+          className="flex items-center gap-3 border border-dashed border-line rounded-action p-4 hover:border-primary/40 hover:bg-primary-soft/20 transition-colors no-underline group"
+        >
+          <div className="w-10 h-10 rounded-logo grid place-items-center bg-primary-soft shrink-0">
+            <HiOutlineHome className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-heading m-0 text-[14px]">Gestionar estructuras</p>
+            <p className="text-[12px] text-muted mt-0.5 m-0">Galpones, silos, extractores y más</p>
+          </div>
+          <HiOutlineChevronLeft className="w-4 h-4 text-muted rotate-180 group-hover:text-primary transition-colors" />
+        </Link>
+      </div>
+
       <ConfirmDialog
         open={!!deleteContactTarget}
         title="Eliminar contacto"
