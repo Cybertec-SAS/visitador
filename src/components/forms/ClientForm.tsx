@@ -46,7 +46,7 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
     formState: { errors },
   } = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
-    mode: 'onChange',
+    mode: 'onTouched',
     defaultValues: defaultValues
       ? {
           razon_social: defaultValues.razon_social,
@@ -77,7 +77,7 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
   const progressPct = (filled / 4) * 100;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
       {/* ── Step indicator ── */}
       <div className="border border-line rounded-section p-4 bg-white space-y-3">
         {/* Steps row */}
@@ -285,9 +285,10 @@ export function ClientForm({ onSubmit, defaultValues, isLoading }: ClientFormPro
           </button>
         ) : (
           <button
-            type="submit"
+            type="button"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
+            onClick={() => handleSubmit(onSubmit)()}
+            className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
           >
             {isLoading ? (
               <>

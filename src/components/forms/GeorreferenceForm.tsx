@@ -41,7 +41,7 @@ export function GeorreferenceForm({
     formState: { errors },
   } = useForm<GeorreferenceFormValues>({
     resolver: zodResolver(georreferenceSchema),
-    mode: 'onChange',
+    mode: 'onTouched',
     defaultValues: defaultValues
       ? {
           farm_id: defaultValues.farm_id,
@@ -74,7 +74,7 @@ export function GeorreferenceForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
       <input type="hidden" {...register('farm_id', { setValueAs: (v) => Number(v) })} />
       {errors.farm_id && (
         <p className="text-[12px] text-danger">{errors.farm_id.message}</p>
@@ -246,9 +246,10 @@ export function GeorreferenceForm({
           </button>
         ) : (
           <button
-            type="submit"
+            type="button"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
+            onClick={() => handleSubmit(onSubmit)()}
+            className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
           >
             {isLoading ? (
               <>

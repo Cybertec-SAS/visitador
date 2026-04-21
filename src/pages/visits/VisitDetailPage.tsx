@@ -469,6 +469,14 @@ export function VisitDetailPage() {
             current={visit.status as VisitStatus}
             onTransition={isChangingStatus ? () => {} : handleStatusTransition}
           />
+          {['scheduled', 'in_progress'].includes(visit.status) && (
+            <button
+              onClick={() => navigate(`/visits/${visit.id}/capture`)}
+              className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 transition-colors cursor-pointer border-none"
+            >
+              Modo captura
+            </button>
+          )}
           <button
             onClick={() => navigate(`/visits/${visit.id}/edit`)}
             className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"

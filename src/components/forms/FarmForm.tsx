@@ -64,7 +64,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
     formState: { errors },
   } = useForm<FarmFormValues>({
     resolver: zodResolver(farmSchema),
-    mode: 'onChange',
+    mode: 'onTouched',
     defaultValues: defaultValues
       ? {
           client_id: defaultValues.client_id,
@@ -129,7 +129,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
       {/* ── Step indicator ── */}
       <div className="border border-line rounded-section p-4 bg-white space-y-3">
         <div className="flex items-center gap-0 overflow-x-auto pb-1 w-fit max-w-full">
@@ -424,12 +424,12 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
               </p>
               <ToggleField
                 id="have_easy_access_for_trailer"
-                label="Acceso fácil para tráiler"
+                label="Acceso fácil para tractomula"
                 {...register('have_easy_access_for_trailer')}
               />
               <ToggleField
                 id="staff_availability"
-                label="Personal disponible en la granja"
+                label="Se puede conseguir personal no menor de edad para ayudar en la instalación"
                 {...register('staff_availability')}
               />
               <ToggleField
@@ -536,9 +536,10 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           </button>
         ) : (
           <button
-            type="submit"
+            type="button"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors cursor-pointer border-none"
+            onClick={() => handleSubmit(onSubmit)()}
+            className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
           >
             {isLoading ? (
               <>

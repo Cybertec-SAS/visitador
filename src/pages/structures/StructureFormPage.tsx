@@ -6,14 +6,26 @@ import { z } from 'zod';
 import { structuresApi } from '@/api/structures';
 import { farmsApi } from '@/api/farms';
 import type { Farm, Structure, StructureStatus } from '@/types/api';
+import { STRUCTURE_TYPE_OPTIONS } from '@/constants/structureTypes';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
-import { HiOutlineChevronLeft } from 'react-icons/hi';
+import {
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight,
+  HiOutlineCheck,
+  HiOutlineHome,
+  HiOutlineOfficeBuilding,
+  HiOutlineTag,
+  HiOutlineAnnotation,
+  HiOutlineSwitchVertical,
+} from 'react-icons/hi';
+
+// ── Schema ────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   farm_id: z.coerce.number().int().positive('Selecciona una granja'),
   parent_structure_id: z.coerce.number().int().nullable().optional(),
-  structure_type: z.string().min(1, 'Ingresa el tipo de estructura'),
+  structure_type: z.string().min(1, 'Selecciona el tipo de estructura'),
   name: z.string().min(1, 'El nombre es requerido'),
   code: z.string().nullable().optional(),
   status: z.enum(['active', 'inactive', 'under_construction', 'retired']),
@@ -34,7 +46,63 @@ interface FormValues {
   sort_order: number;
 }
 
-import { STRUCTURE_TYPE_OPTIONS } from '@/constants/structureTypes';
+// ── Steps ─────────────────────────────────────────────────────────────────────
+
+const STEPS = [
+  {
+    title: 'Identificación',
+    description: 'Granja, tipo y nombre',
+    icon: HiOutlineHome,
+    fields: ['farm_id', 'structure_type', 'name'] as (keyof FormValues)[],
+  },
+  {
+    title: 'Detalles',
+    description: 'Estado y descripción',
+    icon: HiOutlineAnnotation,
+    fields: [] as (keyof FormValues)[],
+  },
+];
+
+// ── FieldCard ─────────────────────────────────────────────────────────────────
+
+interface FieldCardProps {
+  icon: React.ElementType;
+  label: string;
+  hint?: string;
+  required?: boolean;
+  filled: boolean;
+  error?: string;
+  children: React.ReactNode;
+}
+
+function FieldCard({ icon: Icon, label, hint, required, filled, error, children }: FieldCardProps) {
+  return (
+    <div className={`border rounded-control p-3 transition-colors ${
+      error ? 'border-danger/50 bg-red-50/40' : filled ? 'border-primary/30 bg-primary-soft/30' : 'border-line bg-white'
+    }`}>
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className={`w-7 h-7 rounded-lg grid place-items-center shrink-0 transition-colors ${filled ? 'bg-primary text-white' : 'bg-input-bg text-muted'}`}>
+            {filled ? <HiOutlineCheck className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+          </div>
+          <div>
+            <span className="text-[13px] font-semibold text-label">
+              {label}{required && <span className="text-danger ml-0.5">*</span>}
+            </span>
+            {hint && <p className="text-[11px] text-muted m-0 leading-tight">{hint}</p>}
+          </div>
+        </div>
+      </div>
+      {children}
+      {error && <p className="text-[12px] text-danger mt-1.5 m-0">{error}</p>}
+    </div>
+  );
+}
+
+const inputClass = 'w-full min-h-11 border border-line rounded-control px-3.5 py-3 bg-input-bg text-[14px] text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder transition-colors';
+const selectClass = `${inputClass} bg-white`;
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 export function StructureFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,33 +111,31 @@ export function StructureFormPage() {
   const navigate = useNavigate();
   const isEdit = !!id;
 
+  const [step, setStep] = useState(0);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [parentStructures, setParentStructures] = useState<Structure[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: { status: 'active', sort_order: 0 },
+    mode: 'onChange',
   });
 
-  const selectedFarmId = watch('farm_id');
+  const values = watch();
+  const selectedFarmId = values.farm_id;
+
+  const requiredFilled = [values.farm_id, values.structure_type, values.name].filter(Boolean).length;
+  const progressPct = Math.round((requiredFilled / 3) * 100);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const farmsRes = await farmsApi.list(1);
+        const farmsRes = await farmsApi.list(1, { per_page: 100 });
         setFarms(farmsRes.data);
-
         if (isEdit) {
-          const res = await structuresApi.get(Number(id));
-          const s = res.data;
+          const s = await structuresApi.get(Number(id));
           setValue('farm_id', s.farm_id);
           setValue('parent_structure_id', s.parent_structure_id ?? undefined);
           setValue('structure_type', s.structure_type);
@@ -82,8 +148,12 @@ export function StructureFormPage() {
         } else if (farmIdParam) {
           setValue('farm_id', Number(farmIdParam));
         }
-      } catch {
-        sileo.error({ title: 'Error al cargar datos' });
+      } catch (err) {
+        const msg = (err as { response?: { data?: { message?: string }; status?: number } })?.response?.data?.message
+          ?? (err as Error)?.message
+          ?? 'Error desconocido';
+        console.error('[StructureFormPage] loadData error:', err);
+        sileo.error({ title: 'Error al cargar datos', description: msg });
       } finally {
         setIsLoadingData(false);
       }
@@ -97,6 +167,12 @@ export function StructureFormPage() {
       .then((data) => setParentStructures(data))
       .catch(() => {});
   }, [selectedFarmId]);
+
+  const handleNext = async () => {
+    const fields = STEPS[step].fields;
+    const valid = fields.length === 0 || await trigger(fields);
+    if (valid) setStep((s) => s + 1);
+  };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -123,6 +199,10 @@ export function StructureFormPage() {
     }
   };
 
+  const isLastStep = step === STEPS.length - 1;
+  const selectedFarm = farms.find((f) => f.id === Number(values.farm_id));
+  const selectedTypeName = STRUCTURE_TYPE_OPTIONS.find((t) => t.code === values.structure_type)?.name;
+
   if (isLoadingData) return <LoadingSpinner className="mt-12" />;
 
   return (
@@ -135,145 +215,208 @@ export function StructureFormPage() {
         Volver a estructuras
       </Link>
 
-      <div className="border border-line rounded-section bg-white p-5">
-        <h2 className="text-[20px] font-bold text-heading m-0 mb-5">
-          {isEdit ? 'Editar estructura' : 'Nueva estructura'}
-        </h2>
+      <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(onSubmit)(e); }} className="space-y-3.5">
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Farm */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Granja *</label>
-            <select
-              {...register('farm_id', { valueAsNumber: true })}
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-            >
-              <option value="">Selecciona una granja</option>
-              {farms.map((f) => (
-                <option key={f.id} value={f.id}>{f.nombre}</option>
-              ))}
-            </select>
-            {errors.farm_id && <p className="text-danger text-[12px] mt-1">{errors.farm_id.message}</p>}
+        {/* ── Step indicator ── */}
+        <div className="border border-line rounded-section p-4 bg-white space-y-3">
+          <div className="flex items-center gap-0 w-fit">
+            {STEPS.map((s, i) => {
+              const Icon = s.icon;
+              const isActive = i === step;
+              const isDone = i < step;
+              return (
+                <div key={i} className="flex items-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => { if (isDone) setStep(i); }}
+                    disabled={!isDone}
+                    className={`flex items-center gap-2.5 rounded-control px-3 py-2 transition-colors border-none ${
+                      isActive ? 'bg-primary-soft cursor-default'
+                        : isDone ? 'hover:bg-primary-soft/60 cursor-pointer bg-transparent'
+                        : 'opacity-40 cursor-default bg-transparent'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-logo grid place-items-center shrink-0 transition-colors ${
+                      isDone || isActive ? 'bg-primary text-white' : 'bg-input-bg text-muted'
+                    }`}>
+                      {isDone ? <HiOutlineCheck className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    </div>
+                    <div className="text-left hidden min-[480px]:block">
+                      <p className={`text-[13px] font-semibold m-0 ${isActive ? 'text-primary' : isDone ? 'text-heading' : 'text-muted'}`}>
+                        {s.title}
+                      </p>
+                      <p className="text-[11px] text-muted m-0">{s.description}</p>
+                    </div>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className="w-12 mx-1 shrink-0">
+                      <div className="h-0.5 bg-line rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all duration-300" style={{ width: isDone ? '100%' : '0%' }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Parent structure */}
-          {parentStructures.length > 0 && (
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Estructura padre (opcional)</label>
-              <select
-                {...register('parent_structure_id', { setValueAs: (v) => v === '' ? null : Number(v) })}
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-              >
-                <option value="">Sin estructura padre</option>
-                {parentStructures.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[12px] text-muted">Datos requeridos</span>
+              <span className="text-[12px] font-semibold text-primary">{progressPct}%</span>
+            </div>
+            <div className="h-1.5 bg-line rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Step content ── */}
+        <div className="border border-line rounded-section p-4 bg-white space-y-3">
+
+          {/* Step 0 — Identificación */}
+          {step === 0 && (
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <h3 className="text-[15px] font-semibold text-heading m-0">¿Qué estructura vas a registrar?</h3>
+                <p className="text-[13px] text-muted m-0">Indica la granja, el tipo de instalación y su nombre</p>
+              </div>
+
+              <FieldCard icon={HiOutlineOfficeBuilding} label="Granja" hint="¿A qué granja pertenece?" required filled={!!values.farm_id} error={errors.farm_id?.message}>
+                <select {...register('farm_id', { valueAsNumber: true })} className={selectClass} autoFocus>
+                  <option value="">Selecciona una granja</option>
+                  {farms.map((f) => <option key={f.id} value={f.id}>{f.nombre}</option>)}
+                </select>
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineTag} label="Tipo de estructura" hint="Categoría de la instalación" required filled={!!values.structure_type} error={errors.structure_type?.message}>
+                <select {...register('structure_type')} className={selectClass}>
+                  <option value="">Selecciona un tipo</option>
+                  {STRUCTURE_TYPE_OPTIONS.map(({ code, name }) => (
+                    <option key={code} value={code}>{name}</option>
+                  ))}
+                </select>
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineHome} label="Nombre" hint="Identificación única dentro de la granja" required filled={!!values.name} error={errors.name?.message}>
+                <input
+                  {...register('name')}
+                  placeholder={`Ej: ${selectedTypeName ?? 'Galpón'} 10`}
+                  className={inputClass}
+                />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineTag} label="Código" hint="Código corto de referencia (opcional)" filled={!!values.code}>
+                <input {...register('code')} placeholder="Ej: G10" className={inputClass} />
+              </FieldCard>
             </div>
           )}
 
-          {/* Type + Name */}
-          <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Tipo *</label>
-              <select
-                {...register('structure_type')}
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-              >
-                <option value="">Selecciona un tipo</option>
-                {STRUCTURE_TYPE_OPTIONS.map(({ code, name }) => (
+          {/* Step 1 — Detalles */}
+          {step === 1 && (
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <h3 className="text-[15px] font-semibold text-heading m-0">Detalles de la estructura</h3>
+                <p className="text-[13px] text-muted m-0">Estado operativo, relación con otras estructuras y notas</p>
+              </div>
 
-                  <option key={code} value={code}>{name}</option>
-                ))}
-              </select>
-              {errors.structure_type && <p className="text-danger text-[12px] mt-1">{errors.structure_type.message}</p>}
+              {/* Summary del paso anterior */}
+              <div className="border border-primary/20 rounded-control p-3 bg-primary-soft/40 space-y-1">
+                <p className="text-[11px] font-bold text-primary m-0 uppercase tracking-wide">Estructura</p>
+                <p className="text-[13px] text-heading m-0">
+                  <span className="text-muted">Granja: </span>{selectedFarm?.nombre ?? '—'}
+                  <span className="text-muted ml-3">Tipo: </span>{selectedTypeName ?? '—'}
+                  <span className="text-muted ml-3">Nombre: </span>{values.name || '—'}
+                </p>
+              </div>
+
+              <FieldCard icon={HiOutlineSwitchVertical} label="Estado" hint="Condición operativa actual" filled={!!values.status}>
+                <select {...register('status')} className={selectClass}>
+                  <option value="active">Activo — en operación normal</option>
+                  <option value="inactive">Inactivo — fuera de servicio</option>
+                  <option value="under_construction">En construcción — en obras</option>
+                  <option value="retired">Retirado — desmantelado</option>
+                </select>
+              </FieldCard>
+
+              {parentStructures.length > 0 && (
+                <FieldCard icon={HiOutlineHome} label="Estructura padre" hint="Si es una sub-estructura, indica el contenedor" filled={!!values.parent_structure_id}>
+                  <select
+                    {...register('parent_structure_id', { setValueAs: (v) => v === '' ? null : Number(v) })}
+                    className={selectClass}
+                  >
+                    <option value="">Sin estructura padre</option>
+                    {parentStructures.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </FieldCard>
+              )}
+
+              <FieldCard icon={HiOutlineAnnotation} label="Descripción" hint="Características generales de la instalación" filled={!!values.description}>
+                <textarea
+                  {...register('description')}
+                  rows={2}
+                  placeholder="Describe brevemente la estructura..."
+                  className={`${inputClass} resize-none`}
+                />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineAnnotation} label="Observaciones" hint="Notas técnicas adicionales" filled={!!values.observations}>
+                <textarea
+                  {...register('observations')}
+                  rows={2}
+                  placeholder="Condiciones especiales, restricciones..."
+                  className={`${inputClass} resize-none`}
+                />
+              </FieldCard>
             </div>
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Nombre *</label>
-              <input
-                {...register('name')}
-                placeholder="Ej: Galpón 10"
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-              />
-              {errors.name && <p className="text-danger text-[12px] mt-1">{errors.name.message}</p>}
-            </div>
-          </div>
+          )}
+        </div>
 
-          {/* Code + Status */}
-          <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Código</label>
-              <input
-                {...register('code')}
-                placeholder="Ej: G10"
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Estado</label>
-              <select
-                {...register('status')}
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-              >
-                <option value="active">Activo</option>
-                <option value="inactive">Inactivo</option>
-                <option value="under_construction">En construcción</option>
-                <option value="retired">Retirado</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Descripción</label>
-            <textarea
-              {...register('description')}
-              rows={2}
-              placeholder="Descripción de la estructura..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Observations */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Observaciones</label>
-            <textarea
-              {...register('observations')}
-              rows={2}
-              placeholder="Observaciones adicionales..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Sort order */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Orden</label>
-            <input
-              {...register('sort_order', { valueAsNumber: true })}
-              type="number"
-              defaultValue={0}
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
+        {/* ── Navigation ── */}
+        <div className="flex items-center justify-between gap-3">
+          {step > 0 ? (
             <button
               type="button"
-              onClick={() => navigate(farmIdParam ? `/structures?farm_id=${farmIdParam}` : '/structures')}
-              className="rounded-btn px-5 py-2.5 text-sm font-semibold text-heading border border-line hover:bg-input-bg transition-colors cursor-pointer bg-white"
+              onClick={() => setStep((s) => s - 1)}
+              className="flex items-center gap-2 rounded-btn px-4 py-3 text-sm font-semibold text-muted hover:text-heading border border-line bg-white hover:bg-input-bg transition-colors cursor-pointer"
             >
-              Cancelar
+              <HiOutlineChevronLeft className="w-4 h-4" />
+              Anterior
             </button>
+          ) : <div />}
+
+          {!isLastStep ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+            >
+              Siguiente
+              <HiOutlineChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-btn px-5 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none disabled:opacity-60"
+              className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
             >
-              {isSubmitting ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear estructura'}
+              {isSubmitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <HiOutlineCheck className="w-4 h-4" />
+                  {isEdit ? 'Actualizar estructura' : 'Crear estructura'}
+                </>
+              )}
             </button>
-          </div>
-        </form>
-      </div>
+          )}
+        </div>
+      </form>
     </div>
   );
 }

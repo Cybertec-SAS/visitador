@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,18 +10,32 @@ import { farmsApi } from '@/api/farms';
 import type { VisitType, Client, Farm, VisitStatus } from '@/types/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
-import { HiOutlineChevronLeft } from 'react-icons/hi';
+import {
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight,
+  HiOutlineCheck,
+  HiOutlineClipboardList,
+  HiOutlineLocationMarker,
+  HiOutlineAnnotation,
+  HiOutlineOfficeBuilding,
+  HiOutlineCalendar,
+  HiOutlineTag,
+  HiOutlineUserGroup,
+  HiOutlineDocumentText,
+} from 'react-icons/hi';
+
+// ── Schema ────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   client_id: z.coerce.number().int().positive('Selecciona un cliente'),
   farm_id: z.coerce.number().int().positive('Selecciona una granja'),
   visit_type_id: z.coerce.number().int().positive('Selecciona el tipo de visita'),
   title: z.string().min(1, 'El título es requerido'),
-  subject: z.string().nullable().optional(),
   status: z.enum(['draft', 'scheduled', 'in_progress', 'completed', 'signed', 'closed', 'cancelled']),
   report_date: z.string().nullable().optional(),
   city: z.string().nullable().optional(),
   department: z.string().nullable().optional(),
+  subject: z.string().nullable().optional(),
   context: z.string().nullable().optional(),
   development: z.string().nullable().optional(),
   general_observations: z.string().nullable().optional(),
@@ -34,11 +48,11 @@ interface FormValues {
   farm_id: number;
   visit_type_id: number;
   title: string;
-  subject?: string | null;
   status: VisitStatus;
   report_date?: string | null;
   city?: string | null;
   department?: string | null;
+  subject?: string | null;
   context?: string | null;
   development?: string | null;
   general_observations?: string | null;
@@ -46,41 +60,112 @@ interface FormValues {
   internal_notes?: string | null;
 }
 
+// ── Steps config ──────────────────────────────────────────────────────────────
+
+const STEPS = [
+  {
+    title: 'Identificación',
+    description: 'Cliente, granja y tipo',
+    icon: HiOutlineClipboardList,
+    fields: ['client_id', 'farm_id', 'visit_type_id', 'title'] as (keyof FormValues)[],
+  },
+  {
+    title: 'Ubicación',
+    description: 'Lugar, fecha y estado',
+    icon: HiOutlineLocationMarker,
+    fields: [] as (keyof FormValues)[],
+  },
+  {
+    title: 'Narrativa',
+    description: 'Contexto y observaciones',
+    icon: HiOutlineAnnotation,
+    fields: [] as (keyof FormValues)[],
+  },
+];
+
+// ── FieldCard ─────────────────────────────────────────────────────────────────
+
+interface FieldCardProps {
+  icon: React.ElementType;
+  label: string;
+  hint?: string;
+  required?: boolean;
+  filled: boolean;
+  error?: string;
+  children: React.ReactNode;
+}
+
+function FieldCard({ icon: Icon, label, hint, required, filled, error, children }: FieldCardProps) {
+  return (
+    <div className={`border rounded-control p-3 transition-colors ${
+      error ? 'border-danger/50 bg-red-50/40' : filled ? 'border-primary/30 bg-primary-soft/30' : 'border-line bg-white'
+    }`}>
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className={`w-7 h-7 rounded-lg grid place-items-center shrink-0 transition-colors ${filled ? 'bg-primary text-white' : 'bg-input-bg text-muted'}`}>
+            {filled ? <HiOutlineCheck className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+          </div>
+          <div>
+            <span className="text-[13px] font-semibold text-label">
+              {label}{required && <span className="text-danger ml-0.5">*</span>}
+            </span>
+            {hint && <p className="text-[11px] text-muted m-0 leading-tight">{hint}</p>}
+          </div>
+        </div>
+      </div>
+      {children}
+      {error && <p className="text-[12px] text-danger mt-1.5 m-0">{error}</p>}
+    </div>
+  );
+}
+
+const inputClass = 'w-full min-h-11 border border-line rounded-control px-3.5 py-3 bg-input-bg text-[14px] text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder transition-colors';
+const selectClass = `${inputClass} bg-white`;
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
 export function VisitFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = !!id;
 
+  const [step, setStep] = useState(0);
   const [visitTypes, setVisitTypes] = useState<VisitType[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Prevents the client-change effect from resetting farms during initial edit load
+  const skipFarmsEffect = useRef(isEdit);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: { status: 'draft' },
+    mode: 'onTouched',
   });
 
-  const selectedClientId = watch('client_id');
+  const values = watch();
+  const selectedClientId = values.client_id;
+
+  // Progress: count filled required fields (client, farm, type, title)
+  const requiredFilled = [values.client_id, values.farm_id, values.visit_type_id, values.title].filter(Boolean).length;
+  const progressPct = Math.round((requiredFilled / 4) * 100);
 
   useEffect(() => {
     async function loadData() {
-      try {
-        const [typesData, clientsData] = await Promise.all([
-          visitTypesApi.list(),
-          clientsApi.list(1).then((r) => r.data),
-        ]);
-        setVisitTypes(typesData);
-        setClients(clientsData);
+      // Load visit types and clients independently so one failure doesn't block the other
+      const [typesRes, clientsRes] = await Promise.allSettled([
+        visitTypesApi.list(),
+        clientsApi.list(1, { per_page: 100 }).then((r) => r.data),
+      ]);
+      if (typesRes.status === 'fulfilled') setVisitTypes(typesRes.value);
+      else sileo.error({ title: 'No se pudieron cargar los tipos de visita' });
 
-        if (isEdit) {
+      if (clientsRes.status === 'fulfilled') setClients(clientsRes.value);
+      else sileo.error({ title: 'No se pudieron cargar los clientes' });
+
+      if (isEdit) {
+        try {
           const res = await visitsApi.get(Number(id));
           const v = res.data;
           setValue('client_id', v.client_id);
@@ -97,23 +182,32 @@ export function VisitFormPage() {
           setValue('general_observations', v.general_observations);
           setValue('conclusions', v.conclusions);
           setValue('internal_notes', v.internal_notes);
-
-          const farmsData = await farmsApi.list(1).then((r) => r.data);
+          const farmsData = await farmsApi.list(1, { client_id: v.client_id, per_page: 100 }).then((r) => r.data);
           setFarms(farmsData);
+        } catch {
+          sileo.error({ title: 'No se pudo cargar la visita' });
         }
-      } catch {
-        sileo.error({ title: 'Error al cargar datos' });
-      } finally {
-        setIsLoadingData(false);
       }
+
+      setIsLoadingData(false);
+      // Allow the client-change effect to run from now on
+      skipFarmsEffect.current = false;
     }
     loadData();
   }, [id, isEdit, setValue]);
 
   useEffect(() => {
-    if (!selectedClientId) return;
-    farmsApi.list(1, { client_id: selectedClientId }).then((r) => setFarms(r.data)).catch(() => {});
+    if (skipFarmsEffect.current) return;
+    if (!selectedClientId) { setFarms([]); return; }
+    if (!isEdit) setValue('farm_id', undefined as unknown as number);
+    farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data)).catch(() => {});
   }, [selectedClientId]);
+
+  const handleNext = async () => {
+    const fields = STEPS[step].fields;
+    const valid = fields.length === 0 || await trigger(fields);
+    if (valid) setStep((s) => s + 1);
+  };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -130,7 +224,6 @@ export function VisitFormPage() {
         conclusions: values.conclusions || null,
         internal_notes: values.internal_notes || null,
       };
-
       if (isEdit) {
         await visitsApi.update(Number(id), payload);
         sileo.success({ title: 'Visita actualizada' });
@@ -147,6 +240,12 @@ export function VisitFormPage() {
     }
   };
 
+  const isLastStep = step === STEPS.length - 1;
+
+  const selectedType = visitTypes.find((t) => t.id === Number(values.visit_type_id));
+  const selectedClient = clients.find((c) => c.id === Number(values.client_id));
+  const selectedFarm = farms.find((f) => f.id === Number(values.farm_id));
+
   if (isLoadingData) return <LoadingSpinner className="mt-12" />;
 
   return (
@@ -159,194 +258,223 @@ export function VisitFormPage() {
         {isEdit ? 'Volver a la visita' : 'Volver a visitas'}
       </Link>
 
-      <div className="border border-line rounded-section bg-white p-5">
-        <h2 className="text-[20px] font-bold text-heading m-0 mb-5">
-          {isEdit ? 'Editar visita' : 'Nueva visita'}
-        </h2>
+      <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(onSubmit)(e); }} className="space-y-3.5">
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Client */}
-          {!isEdit && (
-            <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
-              <div>
-                <label className="block text-[13px] font-semibold text-label mb-1.5">Cliente *</label>
-                <select
-                  {...register('client_id', { valueAsNumber: true })}
-                  className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-                >
+        {/* ── Step indicator ── */}
+        <div className="border border-line rounded-section p-4 bg-white space-y-3">
+          <div className="flex items-center gap-0 w-fit">
+            {STEPS.map((s, i) => {
+              const Icon = s.icon;
+              const isActive = i === step;
+              const isDone = i < step;
+              return (
+                <div key={i} className="flex items-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => { if (isDone) setStep(i); }}
+                    disabled={!isDone}
+                    className={`flex items-center gap-2.5 rounded-control px-3 py-2 transition-colors border-none ${
+                      isActive ? 'bg-primary-soft cursor-default'
+                        : isDone ? 'hover:bg-primary-soft/60 cursor-pointer bg-transparent'
+                        : 'opacity-40 cursor-default bg-transparent'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-logo grid place-items-center shrink-0 transition-colors ${
+                      isDone || isActive ? 'bg-primary text-white' : 'bg-input-bg text-muted'
+                    }`}>
+                      {isDone ? <HiOutlineCheck className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    </div>
+                    <div className="text-left hidden min-[480px]:block">
+                      <p className={`text-[13px] font-semibold m-0 ${isActive ? 'text-primary' : isDone ? 'text-heading' : 'text-muted'}`}>
+                        {s.title}
+                      </p>
+                      <p className="text-[11px] text-muted m-0">{s.description}</p>
+                    </div>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className="w-12 mx-1 shrink-0">
+                      <div className="h-0.5 bg-line rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all duration-300" style={{ width: isDone ? '100%' : '0%' }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[12px] text-muted">Datos requeridos</span>
+              <span className="text-[12px] font-semibold text-primary">{progressPct}%</span>
+            </div>
+            <div className="h-1.5 bg-line rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Step content ── */}
+        <div className="border border-line rounded-section p-4 bg-white space-y-3">
+
+          {/* Step 0 — Identificación */}
+          {step === 0 && (
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <h3 className="text-[15px] font-semibold text-heading m-0">¿Qué visita vas a registrar?</h3>
+                <p className="text-[13px] text-muted m-0">Vincula la visita a un cliente, granja y tipo</p>
+              </div>
+
+              <FieldCard icon={HiOutlineUserGroup} label="Cliente" hint="¿A quién pertenece esta visita?" required filled={!!values.client_id} error={errors.client_id?.message}>
+                <select {...register('client_id', { valueAsNumber: true })} className={selectClass} autoFocus>
                   <option value="">Selecciona un cliente</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>{c.razon_social}</option>
-                  ))}
+                  {clients.map((c) => <option key={c.id} value={c.id}>{c.razon_social}</option>)}
                 </select>
-                {errors.client_id && <p className="text-danger text-[12px] mt-1">{errors.client_id.message}</p>}
-              </div>
-              <div>
-                <label className="block text-[13px] font-semibold text-label mb-1.5">Granja *</label>
-                <select
-                  {...register('farm_id', { valueAsNumber: true })}
-                  className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-                  disabled={!selectedClientId}
-                >
-                  <option value="">Selecciona una granja</option>
-                  {farms.map((f) => (
-                    <option key={f.id} value={f.id}>{f.nombre}</option>
-                  ))}
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineOfficeBuilding} label="Granja" hint="Instalación que se va a visitar" required filled={!!values.farm_id} error={errors.farm_id?.message}>
+                <select {...register('farm_id', { valueAsNumber: true })} className={selectClass} disabled={!selectedClientId}>
+                  <option value="">{selectedClientId ? 'Selecciona una granja' : 'Primero selecciona un cliente'}</option>
+                  {farms.map((f) => <option key={f.id} value={f.id}>{f.nombre}</option>)}
                 </select>
-                {errors.farm_id && <p className="text-danger text-[12px] mt-1">{errors.farm_id.message}</p>}
-              </div>
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineTag} label="Tipo de visita" hint="Categoría del reporte técnico" required filled={!!values.visit_type_id} error={errors.visit_type_id?.message}>
+                <select {...register('visit_type_id', { valueAsNumber: true })} className={selectClass}>
+                  <option value="">Selecciona un tipo</option>
+                  {visitTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineDocumentText} label="Título" hint="Nombre descriptivo del informe" required filled={!!values.title} error={errors.title?.message}>
+                <input
+                  {...register('title')}
+                  placeholder={`Ej: ${selectedType ? selectedType.name : 'Visita técnica'} — ${selectedFarm ? selectedFarm.nombre : 'Granja Norte'}`}
+                  className={inputClass}
+                />
+              </FieldCard>
             </div>
           )}
 
-          {/* Visit type */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Tipo de visita *</label>
-            <select
-              {...register('visit_type_id', { valueAsNumber: true })}
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-            >
-              <option value="">Selecciona un tipo</option>
-              {visitTypes.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-            {errors.visit_type_id && <p className="text-danger text-[12px] mt-1">{errors.visit_type_id.message}</p>}
-          </div>
+          {/* Step 1 — Ubicación & Estado */}
+          {step === 1 && (
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <h3 className="text-[15px] font-semibold text-heading m-0">¿Cuándo y dónde?</h3>
+                <p className="text-[13px] text-muted m-0">Fecha, lugar y estado actual de la visita</p>
+              </div>
 
-          {/* Title */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Título *</label>
-            <input
-              {...register('title')}
-              placeholder="Ej: Visita técnico-comercial — Granja Norte"
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-            />
-            {errors.title && <p className="text-danger text-[12px] mt-1">{errors.title.message}</p>}
-          </div>
+              {/* Context summary */}
+              <div className="border border-primary/20 rounded-control p-3 bg-primary-soft/40 space-y-1.5">
+                <p className="text-[11px] font-bold text-primary m-0 uppercase tracking-wide">Visita en curso</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  <p className="text-[12px] text-heading m-0"><span className="text-muted">Cliente: </span>{selectedClient?.razon_social ?? '—'}</p>
+                  <p className="text-[12px] text-heading m-0"><span className="text-muted">Granja: </span>{selectedFarm?.nombre ?? '—'}</p>
+                  <p className="text-[12px] text-heading m-0"><span className="text-muted">Tipo: </span>{selectedType?.name ?? '—'}</p>
+                </div>
+              </div>
 
-          {/* Status + Date */}
-          <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Estado</label>
-              <select
-                {...register('status')}
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading bg-white focus:outline-none focus:border-primary"
-              >
-                <option value="draft">Borrador</option>
-                <option value="scheduled">Programada</option>
-                <option value="in_progress">En progreso</option>
-                <option value="completed">Completada</option>
-                <option value="signed">Firmada</option>
-                <option value="closed">Cerrada</option>
-                <option value="cancelled">Cancelada</option>
-              </select>
+              <FieldCard icon={HiOutlineCalendar} label="Fecha del informe" hint="Día en que se realiza la visita" filled={!!values.report_date}>
+                <input {...register('report_date')} type="date" className={inputClass} />
+              </FieldCard>
+
+              <div className="grid grid-cols-2 gap-3 max-[540px]:grid-cols-1">
+                <FieldCard icon={HiOutlineLocationMarker} label="Ciudad" hint="Ciudad donde está la granja" filled={!!values.city}>
+                  <input {...register('city')} placeholder="Ej: Bogotá" className={inputClass} />
+                </FieldCard>
+                <FieldCard icon={HiOutlineLocationMarker} label="Departamento" hint="Departamento o estado" filled={!!values.department}>
+                  <input {...register('department')} placeholder="Ej: Cundinamarca" className={inputClass} />
+                </FieldCard>
+              </div>
+
+              <FieldCard icon={HiOutlineClipboardList} label="Estado" hint="Situación actual del informe" filled={!!values.status}>
+                <select {...register('status')} className={selectClass}>
+                  <option value="draft">Borrador — aún en edición</option>
+                  <option value="scheduled">Programada — fecha confirmada</option>
+                  <option value="in_progress">En progreso — visita activa</option>
+                  <option value="completed">Completada — actividad finalizada</option>
+                  <option value="signed">Firmada — con firma del cliente</option>
+                  <option value="closed">Cerrada — archivada</option>
+                  <option value="cancelled">Cancelada</option>
+                </select>
+              </FieldCard>
             </div>
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Fecha del informe</label>
-              <input
-                {...register('report_date')}
-                type="date"
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-              />
+          )}
+
+          {/* Step 2 — Narrativa */}
+          {step === 2 && (
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <h3 className="text-[15px] font-semibold text-heading m-0">Contenido del informe</h3>
+                <p className="text-[13px] text-muted m-0">Describe el desarrollo técnico de la visita. Todos los campos son opcionales.</p>
+              </div>
+
+              <FieldCard icon={HiOutlineAnnotation} label="Contexto" hint="Antecedentes o motivo de la visita" filled={!!values.context}>
+                <textarea {...register('context')} rows={3} placeholder="¿Por qué se realizó esta visita? ¿Qué situación la originó?" className={`${inputClass} resize-none`} />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineAnnotation} label="Desarrollo de actividades" hint="¿Qué se hizo durante la visita?" filled={!!values.development}>
+                <textarea {...register('development')} rows={3} placeholder="Describe paso a paso las actividades realizadas..." className={`${inputClass} resize-none`} />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineAnnotation} label="Observaciones generales" hint="Situaciones relevantes encontradas" filled={!!values.general_observations}>
+                <textarea {...register('general_observations')} rows={3} placeholder="Hallazgos o situaciones a destacar..." className={`${inputClass} resize-none`} />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineCheck} label="Conclusiones" hint="Cierre y recomendaciones del informe" filled={!!values.conclusions}>
+                <textarea {...register('conclusions')} rows={2} placeholder="Síntesis de la visita y próximos pasos..." className={`${inputClass} resize-none`} />
+              </FieldCard>
+
+              <FieldCard icon={HiOutlineAnnotation} label="Notas internas" hint="No se imprimen en el PDF final" filled={!!values.internal_notes}>
+                <textarea {...register('internal_notes')} rows={2} placeholder="Comentarios privados del equipo técnico..." className={`${inputClass} resize-none bg-amber-50/50`} />
+              </FieldCard>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* City + Department */}
-          <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1">
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Ciudad</label>
-              <input
-                {...register('city')}
-                placeholder="Bogotá"
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-[13px] font-semibold text-label mb-1.5">Departamento</label>
-              <input
-                {...register('department')}
-                placeholder="Cundinamarca"
-                className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-
-          {/* Context */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Contexto</label>
-            <textarea
-              {...register('context')}
-              rows={3}
-              placeholder="Contexto narrativo de la visita..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Development */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Desarrollo de actividades</label>
-            <textarea
-              {...register('development')}
-              rows={3}
-              placeholder="Describe las actividades realizadas..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Observations */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Observaciones generales</label>
-            <textarea
-              {...register('general_observations')}
-              rows={3}
-              placeholder="Observaciones generales de la visita..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Conclusions */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">Conclusiones</label>
-            <textarea
-              {...register('conclusions')}
-              rows={2}
-              placeholder="Conclusiones del informe..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* Internal notes */}
-          <div>
-            <label className="block text-[13px] font-semibold text-label mb-1.5">
-              Notas internas
-              <span className="text-[11px] text-muted font-normal ml-1.5">(no se imprimen en PDF)</span>
-            </label>
-            <textarea
-              {...register('internal_notes')}
-              rows={2}
-              placeholder="Notas para uso interno..."
-              className="w-full border border-line rounded-control px-3 py-2.5 text-[14px] text-heading focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
+        {/* ── Navigation ── */}
+        <div className="flex items-center justify-between gap-3">
+          {step > 0 ? (
             <button
               type="button"
-              onClick={() => navigate(isEdit ? `/visits/${id}` : '/visits')}
-              className="rounded-btn px-5 py-2.5 text-sm font-semibold text-heading border border-line hover:bg-input-bg transition-colors cursor-pointer bg-white"
+              onClick={() => setStep((s) => s - 1)}
+              className="flex items-center gap-2 rounded-btn px-4 py-3 text-sm font-semibold text-muted hover:text-heading border border-line bg-white hover:bg-input-bg transition-colors cursor-pointer"
             >
-              Cancelar
+              <HiOutlineChevronLeft className="w-4 h-4" />
+              Anterior
             </button>
+          ) : <div />}
+
+          {!isLastStep ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+            >
+              Siguiente
+              <HiOutlineChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-btn px-5 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none disabled:opacity-60"
+              className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
             >
-              {isSubmitting ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear visita'}
+              {isSubmitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <HiOutlineCheck className="w-4 h-4" />
+                  {isEdit ? 'Actualizar visita' : 'Crear visita'}
+                </>
+              )}
             </button>
-          </div>
-        </form>
-      </div>
+          )}
+        </div>
+      </form>
     </div>
   );
 }

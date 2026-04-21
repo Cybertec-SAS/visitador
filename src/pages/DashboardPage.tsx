@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -5,131 +6,194 @@ import {
   HiOutlineOfficeBuilding,
   HiOutlineClipboardList,
   HiOutlineArrowRight,
-  HiOutlineUserAdd,
-  HiOutlinePlus,
+  HiOutlineLightningBolt,
   HiOutlineChevronRight,
+  HiOutlineClock,
+  HiOutlineCalendar,
 } from 'react-icons/hi';
+import { visitsApi } from '@/api/visits';
+import { StartVisitModal } from '@/components/visits/StartVisitModal';
+import type { Visit } from '@/types/api';
+
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  draft: { label: 'Borrador', color: 'bg-gray-100 text-gray-600' },
+  scheduled: { label: 'Programada', color: 'bg-blue-100 text-blue-700' },
+  in_progress: { label: 'En progreso', color: 'bg-yellow-100 text-yellow-700' },
+  completed: { label: 'Completada', color: 'bg-green-100 text-green-700' },
+  signed: { label: 'Firmada', color: 'bg-purple-100 text-purple-700' },
+  closed: { label: 'Cerrada', color: 'bg-gray-100 text-gray-500' },
+  cancelled: { label: 'Cancelada', color: 'bg-red-100 text-red-500' },
+};
+
+const todayStr = () => new Date().toISOString().slice(0, 10);
 
 export function DashboardPage() {
   const { user } = useAuth();
-
   const firstName = user?.name?.split(' ')[0] ?? 'Usuario';
 
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [todayVisits, setTodayVisits] = useState<Visit[]>([]);
+  const [recentVisits, setRecentVisits] = useState<Visit[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const today = todayStr();
+    visitsApi.list({ per_page: 10 }).then((res) => {
+      const all = res.data;
+      setTodayVisits(
+        all.filter(
+          (v) =>
+            ['scheduled', 'in_progress'].includes(v.status) &&
+            (!v.report_date || v.report_date === today),
+        ),
+      );
+      setRecentVisits(all.slice(0, 5));
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const activeVisits = todayVisits;
+
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div>
-        <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">
-          Hola, {firstName} 👋
-        </h2>
-        <p className="mt-1.5 text-sm text-muted">
-          Aquí tienes un resumen rápido de tu sistema.
-        </p>
-      </div>
+    <>
+      <div className="space-y-5">
+        {/* Header */}
+        <div>
+          <h2 className="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl">
+            Hola, {firstName} 👋
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+        </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 min-[640px]:grid-cols-2 gap-3.5">
-        <Link
-          to="/clients/new"
-          className="flex items-center gap-4 border-2 border-primary rounded-section p-5 bg-primary text-white no-underline hover:bg-primary-hover transition-colors group"
+        {/* Hero CTA */}
+        <button
+          type="button"
+          onClick={() => setShowStartModal(true)}
+          className="w-full flex items-center gap-4 bg-primary hover:bg-primary-hover text-white rounded-section p-5 transition-colors group shadow-sm"
         >
-          <div className="w-12 h-12 rounded-logo grid place-items-center bg-white/20 shrink-0">
-            <HiOutlineUserAdd className="w-6 h-6" />
+          <div className="w-14 h-14 rounded-logo grid place-items-center bg-white/20 shrink-0">
+            <HiOutlineLightningBolt className="w-7 h-7" />
           </div>
-          <div className="flex-1">
-            <strong className="block text-[15px]">Crear nuevo cliente</strong>
-            <span className="text-[13px] opacity-75">Primer paso del flujo</span>
+          <div className="flex-1 text-left">
+            <strong className="block text-lg">+ Iniciar visita</strong>
+            <span className="text-sm opacity-80">Captura hallazgos, compromisos y mediciones</span>
           </div>
-          <HiOutlineChevronRight className="w-5 h-5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+          <HiOutlineChevronRight className="w-6 h-6 opacity-70 group-hover:translate-x-1 transition-transform" />
+        </button>
 
-        <Link
-          to="/farms/new"
-          className="flex items-center gap-4 border border-line rounded-section p-4 bg-white text-heading no-underline hover:border-primary/40 hover:bg-primary-soft transition-colors group"
-        >
-          <div className="w-12 h-12 rounded-logo grid place-items-center bg-primary-soft shrink-0">
-            <HiOutlinePlus className="w-6 h-6 text-primary" />
+        {/* Today's visits */}
+        {!loading && activeVisits.length > 0 && (
+          <div className="border border-line rounded-section bg-white overflow-hidden">
+            <div className="px-4 py-3 border-b border-line flex items-center gap-2">
+              <HiOutlineCalendar className="w-4 h-4 text-primary" />
+              <p className="text-[13px] font-semibold text-muted uppercase tracking-wide m-0">
+                Visitas de hoy ({activeVisits.length})
+              </p>
+            </div>
+            <div className="divide-y divide-line">
+              {activeVisits.map((v) => (
+                <Link
+                  key={v.id}
+                  to={`/visits/${v.id}/capture`}
+                  className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 no-underline group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-heading truncate m-0">{v.title}</p>
+                    <p className="text-xs text-muted truncate m-0">
+                      {v.farm?.nombre ?? '—'} · {v.client?.razon_social ?? '—'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_LABELS[v.status]?.color}`}>
+                      {STATUS_LABELS[v.status]?.label}
+                    </span>
+                    <HiOutlineArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="flex-1">
-            <strong className="block text-[15px]">Crear nueva granja</strong>
-            <span className="text-[13px] text-muted">Necesitas un cliente previo</span>
-          </div>
-          <HiOutlineChevronRight className="w-5 h-5 text-muted group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      </div>
+        )}
 
-      {/* Flujo visual */}
-      <div className="border border-line rounded-section p-4 bg-white">
-        <p className="text-[13px] font-semibold text-muted uppercase tracking-wide mb-3">
-          Flujo de trabajo
-        </p>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-3 border border-primary/20 rounded-action px-4 py-3 bg-primary-soft">
-            <HiOutlineUserGroup className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <p className="text-[13px] font-semibold text-primary m-0">1. Cliente</p>
-              <p className="text-[11px] text-muted m-0">Razón social + NIT</p>
+        {/* Recent visits */}
+        <div className="border border-line rounded-section bg-white overflow-hidden">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <HiOutlineClock className="w-4 h-4 text-muted" />
+              <p className="text-[13px] font-semibold text-muted uppercase tracking-wide m-0">
+                Visitas recientes
+              </p>
             </div>
+            <Link to="/visits" className="text-xs text-primary hover:underline">
+              Ver todas
+            </Link>
           </div>
-          <HiOutlineArrowRight className="w-5 h-5 text-muted shrink-0" />
-          <div className="flex items-center gap-3 border border-line rounded-action px-4 py-3">
-            <HiOutlineOfficeBuilding className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <p className="text-[13px] font-semibold text-heading m-0">2. Granja</p>
-              <p className="text-[11px] text-muted m-0">Datos eléctricos</p>
+
+          {loading ? (
+            <div className="px-4 py-6 text-center">
+              <p className="text-sm text-muted">Cargando...</p>
             </div>
-          </div>
-          <HiOutlineArrowRight className="w-5 h-5 text-muted shrink-0" />
-          <div className="flex items-center gap-3 border border-line rounded-action px-4 py-3">
-            <HiOutlineClipboardList className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <p className="text-[13px] font-semibold text-heading m-0">3. Contactos</p>
-              <p className="text-[11px] text-muted m-0">Personal de la granja</p>
+          ) : recentVisits.length === 0 ? (
+            <div className="px-4 py-6 text-center">
+              <p className="text-sm text-muted">No hay visitas aún.</p>
+              <button
+                type="button"
+                onClick={() => setShowStartModal(true)}
+                className="mt-2 text-sm text-primary hover:underline"
+              >
+                Inicia la primera visita
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="divide-y divide-line">
+              {recentVisits.map((v) => (
+                <Link
+                  key={v.id}
+                  to={
+                    ['in_progress', 'scheduled'].includes(v.status)
+                      ? `/visits/${v.id}/capture`
+                      : `/visits/${v.id}`
+                  }
+                  className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 no-underline group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-medium text-heading truncate m-0">{v.title}</p>
+                    <p className="text-xs text-muted truncate m-0">
+                      {v.farm?.nombre ?? '—'} · {v.report_date ?? '—'}
+                    </p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_LABELS[v.status]?.color}`}>
+                    {STATUS_LABELS[v.status]?.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Admin shortcuts */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
+            { to: '/clients', icon: HiOutlineUserGroup, label: 'Clientes' },
+            { to: '/farms', icon: HiOutlineOfficeBuilding, label: 'Granjas' },
+            { to: '/visits', icon: HiOutlineClipboardList, label: 'Todas las visitas' },
+          ].map(({ to, icon: Icon, label }) => (
+            <Link
+              key={label}
+              to={to}
+              className="flex flex-col items-center gap-2 border border-line rounded-section p-3 bg-white no-underline hover:border-primary/30 hover:bg-primary-soft transition-all"
+            >
+              <div className="w-9 h-9 rounded-logo grid place-items-center bg-primary-soft">
+                <Icon className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-[11px] font-medium text-heading text-center leading-tight">{label}</span>
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Module cards */}
-      <div className="grid grid-cols-1 min-[640px]:grid-cols-3 gap-3.5">
-        {[
-          {
-            to: '/clients',
-            icon: HiOutlineUserGroup,
-            label: 'Clientes',
-            desc: 'Ver y gestionar todos los clientes registrados',
-          },
-          {
-            to: '/farms',
-            icon: HiOutlineOfficeBuilding,
-            label: 'Granjas',
-            desc: 'Administrar granjas y su infraestructura eléctrica',
-          },
-          {
-            to: '/clients',
-            icon: HiOutlineClipboardList,
-            label: 'Contactos',
-            desc: 'Contactos asociados a cada granja',
-          },
-        ].map(({ to, icon: Icon, label, desc }) => (
-          <Link
-            key={label}
-            to={to}
-            className="flex flex-col gap-3 border border-line rounded-section p-4 bg-white no-underline hover:border-primary/30 hover:shadow-panel transition-all group"
-          >
-            <div className="w-11 h-11 rounded-logo grid place-items-center bg-primary-soft">
-              <Icon className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-[15px] font-semibold text-heading m-0 flex items-center gap-1.5">
-                {label}
-                <HiOutlineArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </h3>
-              <p className="text-[13px] text-muted mt-1 m-0">{desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+      {showStartModal && <StartVisitModal onClose={() => setShowStartModal(false)} />}
+    </>
   );
 }

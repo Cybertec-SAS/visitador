@@ -6,7 +6,7 @@ export const structuresApi = {
     return apiClient.get('/structures', { params }).then((r) => r.data);
   },
 
-  get(id: number): Promise<SingleResponse<Structure>> {
+  get(id: number): Promise<Structure> {
     return apiClient.get(`/structures/${id}`).then((r) => r.data);
   },
 

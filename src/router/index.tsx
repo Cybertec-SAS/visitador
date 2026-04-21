@@ -17,6 +17,7 @@ import { StructureFormPage } from '@/pages/structures/StructureFormPage';
 import { VisitsListPage } from '@/pages/visits/VisitsListPage';
 import { VisitFormPage } from '@/pages/visits/VisitFormPage';
 import { VisitDetailPage } from '@/pages/visits/VisitDetailPage';
+import { VisitCapturePage } from '@/pages/visits/VisitCapturePage';
 import { ProjectsListPage } from '@/pages/projects/ProjectsListPage';
 import { ProjectFormPage } from '@/pages/projects/ProjectFormPage';
 import { ProjectDetailPage } from '@/pages/projects/ProjectDetailPage';
@@ -58,6 +59,7 @@ export const router = createBrowserRouter([
       { path: 'visits/new', element: <VisitFormPage /> },
       { path: 'visits/:id', element: <VisitDetailPage /> },
       { path: 'visits/:id/edit', element: <VisitFormPage /> },
+      { path: 'visits/:id/capture', element: <VisitCapturePage /> },
       // Projects
       { path: 'projects', element: <ProjectsListPage /> },
       { path: 'projects/new', element: <ProjectFormPage /> },

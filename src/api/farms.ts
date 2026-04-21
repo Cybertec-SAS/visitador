@@ -7,7 +7,7 @@ import type {
 } from '@/types/api';
 
 export const farmsApi = {
-  list: async (page = 1, extra?: { client_id?: number }): Promise<PaginatedResponse<Farm>> => {
+  list: async (page = 1, extra?: { client_id?: number; per_page?: number }): Promise<PaginatedResponse<Farm>> => {
     const response = await apiClient.get<PaginatedResponse<Farm>>('/farms', {
       params: { page, ...extra },
     });
