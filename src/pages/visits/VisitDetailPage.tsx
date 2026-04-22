@@ -478,6 +478,12 @@ export function VisitDetailPage() {
             </button>
           )}
           <button
+            onClick={() => navigate(`/visits/${visit.id}/visita-inicial`)}
+            className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer border-none"
+          >
+            Acta inicial
+          </button>
+          <button
             onClick={() => navigate(`/visits/${visit.id}/edit`)}
             className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
           >

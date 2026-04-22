@@ -13,7 +13,6 @@ import {
   HiOutlineClipboardList,
   HiOutlineOfficeBuilding,
   HiOutlinePlus,
-  HiOutlineTrash,
   HiOutlineInformationCircle,
   HiOutlineChevronDown,
 } from 'react-icons/hi';

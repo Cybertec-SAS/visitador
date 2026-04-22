@@ -23,11 +23,11 @@ export const visitsApi = {
   },
 
   update(id: number, data: VisitUpdateData): Promise<SingleResponse<Visit>> {
-    return apiClient.put(`/visits/${id}`, data).then((r) => r.data);
+    return apiClient.patch(`/visits/${id}`, data).then((r) => r.data);
   },
 
   updateStatus(id: number, status: VisitStatus): Promise<SingleResponse<Visit>> {
-    return apiClient.patch(`/visits/${id}/status`, { status }).then((r) => r.data);
+    return apiClient.patch(`/visits/${id}`, { status }).then((r) => r.data);
   },
 
   delete(id: number): Promise<void> {

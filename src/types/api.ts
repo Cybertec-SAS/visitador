@@ -195,6 +195,8 @@ export interface StructureFormData {
   description?: string | null;
   observations?: string | null;
   sort_order?: number;
+  dimensions_json?: Record<string, unknown> | null;
+  technical_attributes_json?: Record<string, unknown> | null;
 }
 
 // Visit Type
@@ -278,12 +280,12 @@ export interface VisitUpdateData {
   title?: string;
   subject?: string | null;
   status?: VisitStatus;
+  context?: string | null;
   started_at?: string | null;
   ended_at?: string | null;
   report_date?: string | null;
   city?: string | null;
   department?: string | null;
-  context?: string | null;
   development?: string | null;
   general_observations?: string | null;
   conclusions?: string | null;

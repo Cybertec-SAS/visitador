@@ -3,13 +3,15 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { farmsApi } from '@/api/farms';
 import { georreferencesApi } from '@/api/georreferences';
 import { farmContactsApi } from '@/api/farmContacts';
+import { structuresApi } from '@/api/structures';
 import { GeorreferenceForm } from '@/components/forms/GeorreferenceForm';
 import { FarmContactForm } from '@/components/forms/FarmContactForm';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
-import type { Farm, FarmContact } from '@/types/api';
+import type { Farm, FarmContact, Structure } from '@/types/api';
 import type { GeorreferenceFormValues, FarmContactFormValues } from '@/schemas';
+import { getStructureTypeName } from '@/constants/structureTypes';
 import axios from 'axios';
 import {
   HiOutlineChevronLeft,
@@ -30,6 +32,7 @@ import {
   HiOutlineOfficeBuilding,
   HiOutlineMail,
   HiOutlinePhone,
+  HiOutlineChevronRight,
 } from 'react-icons/hi';
 
 const CONTACT_TYPE_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -42,6 +45,7 @@ const CONTACT_TYPE_META: Record<string, { label: string; icon: React.ElementType
 export function FarmDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [farm, setFarm] = useState<Farm | null>(null);
+  const [structures, setStructures] = useState<Structure[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showGeoForm, setShowGeoForm] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
@@ -55,8 +59,12 @@ export function FarmDetailPage() {
   const fetchFarm = useCallback(async () => {
     if (!id) return;
     try {
-      const res = await farmsApi.get(Number(id));
-      setFarm(res.data);
+      const [farmRes, structsRes] = await Promise.all([
+        farmsApi.get(Number(id)),
+        structuresApi.list({ farm_id: Number(id) }),
+      ]);
+      setFarm(farmRes.data);
+      setStructures(structsRes);
     } catch {
       sileo.error({ title: 'Granja no encontrada' });
       navigate('/farms');
@@ -429,34 +437,51 @@ export function FarmDetailPage() {
         )}
       </div>
 
-      {/* Structures quick access */}
-      <div>
-        <div className="flex items-center justify-between mb-3.5">
-          <h3 className="text-base font-semibold text-heading m-0 flex items-center gap-2">
-            <HiOutlineHome className="w-5 h-5 text-primary" />
-            Estructuras
-          </h3>
+      {/* ── Estructuras ── */}
+      <div className="border border-line rounded-section bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0">
+              <HiOutlineHome className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-[15px] font-semibold text-heading m-0">
+                Estructuras
+                {structures.length > 0 && (
+                  <span className="ml-1.5 text-[12px] font-normal text-muted">({structures.length})</span>
+                )}
+              </h3>
+              <p className="text-[12px] text-muted m-0">Galpones, silos, bodegas y más</p>
+            </div>
+          </div>
           <Link
-            to={`/structures?farm_id=${farm.id}`}
-            className="flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary-hover transition-colors no-underline"
+            to={`/structures/new?farm_id=${farm.id}`}
+            className="flex items-center gap-1.5 text-[13px] font-semibold text-primary bg-primary-soft hover:bg-primary hover:text-white rounded-btn px-3 py-1.5 no-underline transition-colors"
           >
-            Ver todas
-            <HiOutlineExternalLink className="w-3.5 h-3.5" />
+            <HiOutlinePlus className="w-3.5 h-3.5" />
+            Nueva
           </Link>
         </div>
-        <Link
-          to={`/structures?farm_id=${farm.id}`}
-          className="flex items-center gap-3 border border-dashed border-line rounded-action p-4 hover:border-primary/40 hover:bg-primary-soft/20 transition-colors no-underline group"
-        >
-          <div className="w-10 h-10 rounded-logo grid place-items-center bg-primary-soft shrink-0">
-            <HiOutlineHome className="w-5 h-5 text-primary" />
+
+        {structures.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-10 text-center px-4">
+            <HiOutlineHome className="w-8 h-8 text-muted" />
+            <p className="text-[13px] text-muted m-0">Esta granja aún no tiene estructuras registradas</p>
+            <Link
+              to={`/structures/new?farm_id=${farm.id}`}
+              className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors no-underline"
+            >
+              <HiOutlinePlus className="w-4 h-4" />
+              Agregar primera estructura
+            </Link>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-heading m-0 text-[14px]">Gestionar estructuras</p>
-            <p className="text-[12px] text-muted mt-0.5 m-0">Galpones, silos, extractores y más</p>
+        ) : (
+          <div className="divide-y divide-line">
+            {structures.map((s) => (
+              <StructureRow key={s.id} structure={s} />
+            ))}
           </div>
-          <HiOutlineChevronLeft className="w-4 h-4 text-muted rotate-180 group-hover:text-primary transition-colors" />
-        </Link>
+        )}
       </div>
 
       <ConfirmDialog
@@ -510,6 +535,45 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <p className="text-[12px] text-muted m-0">{label}</p>
       <p className="text-[14px] font-medium text-heading m-0 mt-0.5">{value}</p>
     </div>
+  );
+}
+
+const STATUS_META: Record<string, { label: string; color: string }> = {
+  active:            { label: 'Activo',          color: 'bg-green-100 text-green-700' },
+  inactive:          { label: 'Inactivo',         color: 'bg-gray-100 text-gray-500' },
+  under_construction:{ label: 'En construcción',  color: 'bg-yellow-100 text-yellow-700' },
+  retired:           { label: 'Retirado',         color: 'bg-red-50 text-red-500' },
+};
+
+function StructureRow({ structure }: { structure: Structure }) {
+  const status = STATUS_META[structure.status] ?? { label: structure.status, color: 'bg-gray-100 text-gray-500' };
+  const typeName = getStructureTypeName(structure.structure_type);
+  return (
+    <Link
+      to={`/structures/${structure.id}`}
+      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 no-underline group transition-colors"
+    >
+      <div className="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0">
+        <HiOutlineHome className="w-4 h-4 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[14px] font-semibold text-heading truncate">{structure.name}</span>
+          {structure.code && (
+            <span className="text-[11px] font-mono text-muted bg-input-bg px-1.5 py-0.5 rounded shrink-0">
+              {structure.code}
+            </span>
+          )}
+        </div>
+        <span className="text-[12px] text-muted">{typeName}</span>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${status.color}`}>
+          {status.label}
+        </span>
+        <HiOutlineChevronRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+    </Link>
   );
 }
 

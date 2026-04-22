@@ -3,11 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiArrowLeft,
   FiCheckCircle,
-  FiAlertTriangle,
   FiTrash2,
   FiChevronDown,
   FiChevronUp,
-  FiPlus,
 } from 'react-icons/fi';
 import { visitsApi } from '@/api/visits';
 import { visitFindingsApi } from '@/api/visitFindings';
@@ -103,15 +101,16 @@ export function VisitCapturePage() {
       visitMeasurementsApi.list(visitId),
       visitMaterialRequestsApi.list(visitId),
     ]).then(([v, f, c, m, mat]) => {
-      setVisit(v.data);
+      const visitData = v?.data ?? (v as unknown as Visit);
+      setVisit(visitData);
       setFindings(f);
       setCommitments(c);
       setMeasurements(m);
       setMaterials(mat);
-      setContext(v.data.context ?? '');
-      setDevelopment(v.data.development ?? '');
-      setObservations(v.data.general_observations ?? '');
-      setConclusions(v.data.conclusions ?? '');
+      setContext(visitData?.context ?? '');
+      setDevelopment(visitData?.development ?? '');
+      setObservations(visitData?.general_observations ?? '');
+      setConclusions(visitData?.conclusions ?? '');
     });
   }, [visitId]);
 
@@ -183,7 +182,7 @@ export function VisitCapturePage() {
       const res = await visitMaterialRequestsApi.create(visitId, {
         description: matDesc.trim(),
         unit: matUnit.trim() || 'und',
-        requested_quantity: matQty.trim() || '1',
+        requested_quantity: Number(matQty.trim()) || 1,
       });
       setMaterials((prev) => [...prev, res.data]);
       setMatDesc(''); setMatQty(''); setMatUnit('');

@@ -25,7 +25,7 @@ export const clientsApi = {
   },
 
   update: async (id: number, data: Partial<ClientFormData>): Promise<SingleResponse<Client>> => {
-    const response = await apiClient.put<SingleResponse<Client>>(`/clients/${id}`, data);
+    const response = await apiClient.patch<SingleResponse<Client>>(`/clients/${id}`, data);
     return response.data;
   },
 

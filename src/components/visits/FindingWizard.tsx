@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiX, FiCamera, FiArrowLeft, FiArrowRight, FiCheck } from 'react-icons/fi';
-import type { FindingCategory, FindingSeverity, VisitFinding } from '@/types/api';
+import type { FindingCategory, FindingSeverity } from '@/types/api';
 
 const CATEGORIES: { value: FindingCategory; label: string }[] = [
   { value: 'civil', label: 'Civil' },

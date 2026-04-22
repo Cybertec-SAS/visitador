@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +18,9 @@ import {
   HiOutlineTag,
   HiOutlineAnnotation,
   HiOutlineSwitchVertical,
+  HiOutlineCamera,
+  HiOutlinePhotograph,
+  HiOutlineX,
 } from 'react-icons/hi';
 
 // ── Schema ────────────────────────────────────────────────────────────────────
@@ -117,10 +120,15 @@ export function StructureFormPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Observations photo state
+  const [obsRequiresPhoto, setObsRequiresPhoto] = useState(false);
+  const [obsPhotoDataUrl, setObsPhotoDataUrl] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
   const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: { status: 'active', sort_order: 0 },
-    mode: 'onChange',
+    mode: 'onTouched',
   });
 
   const values = watch();
@@ -144,6 +152,9 @@ export function StructureFormPage() {
           setValue('status', s.status);
           setValue('description', s.description);
           setValue('observations', s.observations);
+          const ta = s.technical_attributes_json as Record<string, unknown> | null;
+          if (ta?.observations_requires_photo) setObsRequiresPhoto(true);
+          if (typeof ta?.observations_photo_data === 'string') setObsPhotoDataUrl(ta.observations_photo_data);
           setValue('sort_order', s.sort_order);
         } else if (farmIdParam) {
           setValue('farm_id', Number(farmIdParam));
@@ -183,6 +194,10 @@ export function StructureFormPage() {
         code: values.code || null,
         description: values.description || null,
         observations: values.observations || null,
+        technical_attributes_json: {
+          observations_requires_photo: obsRequiresPhoto,
+          ...(obsRequiresPhoto && obsPhotoDataUrl ? { observations_photo_data: obsPhotoDataUrl } : {}),
+        },
       };
       if (isEdit) {
         await structuresApi.update(Number(id), payload);
@@ -215,7 +230,7 @@ export function StructureFormPage() {
         Volver a estructuras
       </Link>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(onSubmit)(e); }} className="space-y-3.5">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
 
         {/* ── Step indicator ── */}
         <div className="border border-line rounded-section p-4 bg-white space-y-3">
@@ -362,14 +377,108 @@ export function StructureFormPage() {
                 />
               </FieldCard>
 
-              <FieldCard icon={HiOutlineAnnotation} label="Observaciones" hint="Notas técnicas adicionales" filled={!!values.observations}>
+              {/* Observaciones con opción de foto */}
+              <div className={`border rounded-control p-3 transition-colors ${
+                obsRequiresPhoto ? 'border-amber-300 bg-amber-50/40' : values.observations ? 'border-primary/30 bg-primary-soft/30' : 'border-line bg-white'
+              }`}>
+                {/* Header */}
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-lg grid place-items-center shrink-0 transition-colors ${
+                      obsRequiresPhoto ? 'bg-amber-500 text-white' : values.observations ? 'bg-primary text-white' : 'bg-input-bg text-muted'
+                    }`}>
+                      {obsRequiresPhoto ? <HiOutlineCamera className="w-3.5 h-3.5" /> : values.observations ? <HiOutlineCheck className="w-3.5 h-3.5" /> : <HiOutlineAnnotation className="w-3.5 h-3.5" />}
+                    </div>
+                    <div>
+                      <span className="text-[13px] font-semibold text-label">Observaciones</span>
+                      <p className="text-[11px] text-muted m-0 leading-tight">Notas técnicas adicionales</p>
+                    </div>
+                  </div>
+                  {/* Toggle "Requiere foto" */}
+                  <label htmlFor="obs-requires-photo" className="flex items-center gap-2 cursor-pointer shrink-0">
+                    <span className={`text-[11px] font-semibold transition-colors ${obsRequiresPhoto ? 'text-amber-600' : 'text-muted'}`}>
+                      {obsRequiresPhoto ? 'Con foto' : 'Requiere foto'}
+                    </span>
+                    <input
+                      id="obs-requires-photo"
+                      type="checkbox"
+                      checked={obsRequiresPhoto}
+                      onChange={(e) => {
+                        setObsRequiresPhoto(e.target.checked);
+                        if (!e.target.checked) setObsPhotoDataUrl(null);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-9 h-5 bg-line rounded-full transition-colors peer-checked:bg-amber-500 shrink-0 after:content-[''] after:absolute after:left-0.5 after:top-0.5 after:w-4 after:h-4 after:bg-white after:rounded-full after:shadow after:transition-transform peer-checked:after:translate-x-4" />
+                  </label>
+                </div>
+
+                {/* Textarea */}
                 <textarea
                   {...register('observations')}
-                  rows={2}
-                  placeholder="Condiciones especiales, restricciones..."
+                  rows={obsRequiresPhoto ? 2 : 3}
+                  placeholder={obsRequiresPhoto ? 'Describe lo que debe quedar documentado en la foto...' : 'Condiciones especiales, restricciones...'}
                   className={`${inputClass} resize-none`}
                 />
-              </FieldCard>
+
+                {/* Photo section — visible when toggle is ON */}
+                {obsRequiresPhoto && (
+                  <div className="mt-3 space-y-2">
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setObsPhotoDataUrl(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+
+                    {obsPhotoDataUrl ? (
+                      <div className="relative rounded-control overflow-hidden border border-amber-200">
+                        <img
+                          src={obsPhotoDataUrl}
+                          alt="Foto de observación"
+                          className="w-full max-h-52 object-cover"
+                        />
+                        <div className="absolute top-2 right-2 flex gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => photoInputRef.current?.click()}
+                            className="flex items-center gap-1 bg-black/60 text-white text-[11px] font-semibold px-2 py-1 rounded-lg backdrop-blur-sm hover:bg-black/80 transition-colors"
+                          >
+                            <HiOutlineCamera className="w-3.5 h-3.5" />
+                            Cambiar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setObsPhotoDataUrl(null)}
+                            className="flex items-center gap-1 bg-red-500/80 text-white text-[11px] font-semibold px-2 py-1 rounded-lg backdrop-blur-sm hover:bg-red-600 transition-colors"
+                          >
+                            <HiOutlineX className="w-3.5 h-3.5" />
+                            Quitar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => photoInputRef.current?.click()}
+                        className="w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed border-amber-300 rounded-control py-5 text-amber-600 hover:bg-amber-50 transition-colors"
+                      >
+                        <HiOutlinePhotograph className="w-7 h-7 opacity-70" />
+                        <span className="text-[13px] font-semibold">Tomar o adjuntar foto</span>
+                        <span className="text-[11px] text-amber-500">Cámara o galería de imágenes</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -398,8 +507,9 @@ export function StructureFormPage() {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
               disabled={isSubmitting}
+              onClick={() => handleSubmit(onSubmit)()}
               className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
             >
               {isSubmitting ? (

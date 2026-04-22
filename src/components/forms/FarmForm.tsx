@@ -267,9 +267,10 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
             <StepHeader
               icon={HiOutlineLightningBolt}
               title="Sistema eléctrico"
-              desc="Información sobre la infraestructura eléctrica de la granja"
+              desc="Activa cada opción para revelar los campos relacionados"
             />
 
+            {/* Voltaje y corriente — siempre visibles */}
             <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
               <div>
                 <label className="text-[13px] font-semibold text-label block mb-1.5">Voltaje</label>
@@ -297,52 +298,62 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
                   <option value="triphase">Trifásica</option>
                 </select>
               </div>
-
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Capacidad transformador (KVA)
-                </label>
-                <div className="relative">
-                  <HiOutlineCog className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="Ej: 50"
-                    {...register('transformator_capacity_kva', {
-                      setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                    })}
-                    className={`${inputClass} pl-10`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Instalaciones que alimenta
-                </label>
-                <input
-                  {...register('transformator_are_feeding_installations')}
-                  placeholder="Ej: Galpones, oficinas..."
-                  className={inputClass}
-                />
-              </div>
             </div>
 
-            {/* Toggle group */}
-            <div className="border border-line rounded-control p-4 space-y-3">
-              <p className="text-[12px] font-semibold text-muted uppercase tracking-wide m-0">
-                Opciones del transformador
-              </p>
-              <ToggleField
-                id="have_own_transformator"
-                label="Tiene transformador propio"
-                {...register('have_own_transformator')}
-              />
-              <ToggleField
-                id="is_transformator_feeds"
-                label="El transformador alimenta otras instalaciones"
-                {...register('is_transformator_feeds_other_installations')}
-              />
+            {/* Switch cards con progressive disclosure */}
+            <div className="space-y-2">
+              {/* Transformador propio */}
+              <div className={`border rounded-control overflow-hidden transition-colors ${values.have_own_transformator ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white'}`}>
+                <div className="px-4 py-3">
+                  <ToggleField
+                    id="have_own_transformator"
+                    label="Tiene transformador propio"
+                    {...register('have_own_transformator')}
+                  />
+                </div>
+                {values.have_own_transformator && (
+                  <div className="px-4 pb-3 border-t border-primary/20">
+                    <label className="text-[13px] font-semibold text-label block mb-1.5 mt-3">
+                      Capacidad del transformador (KVA)
+                    </label>
+                    <div className="relative">
+                      <HiOutlineCog className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Ej: 50"
+                        {...register('transformator_capacity_kva', {
+                          setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                        })}
+                        className={`${inputClass} pl-10`}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Alimenta otras instalaciones */}
+              <div className={`border rounded-control overflow-hidden transition-colors ${values.is_transformator_feeds_other_installations ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white'}`}>
+                <div className="px-4 py-3">
+                  <ToggleField
+                    id="is_transformator_feeds"
+                    label="El transformador alimenta otras instalaciones"
+                    {...register('is_transformator_feeds_other_installations')}
+                  />
+                </div>
+                {values.is_transformator_feeds_other_installations && (
+                  <div className="px-4 pb-3 border-t border-primary/20">
+                    <label className="text-[13px] font-semibold text-label block mb-1.5 mt-3">
+                      ¿Qué instalaciones alimenta?
+                    </label>
+                    <input
+                      {...register('transformator_are_feeding_installations')}
+                      placeholder="Ej: Galpones, oficinas, vivienda..."
+                      className={inputClass}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -353,90 +364,109 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
             <StepHeader
               icon={HiOutlineHome}
               title="Acceso e infraestructura"
-              desc="Condiciones físicas y logísticas de la granja"
+              desc="Activa cada opción para revelar los campos relacionados"
             />
 
-            <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Vías de acceso
-                </label>
-                <div className="relative">
-                  <HiOutlineLocationMarker className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-                  <input
-                    {...register('access_ways')}
-                    placeholder="Ej: Carretera pavimentada 2km"
-                    className={`${inputClass} pl-10`}
+            {/* Switch cards with progressive disclosure */}
+            <div className="space-y-2">
+              {/* Tractomula access */}
+              <div className={`border rounded-control overflow-hidden transition-colors ${values.have_easy_access_for_trailer ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white'}`}>
+                <div className="px-4 py-3">
+                  <ToggleField
+                    id="have_easy_access_for_trailer"
+                    label="Acceso fácil para tractomula"
+                    {...register('have_easy_access_for_trailer')}
                   />
                 </div>
+                {values.have_easy_access_for_trailer && (
+                  <div className="px-4 pb-3 border-t border-primary/20">
+                    <label className="text-[12px] font-semibold text-label block mb-1.5 mt-3">
+                      Describe las vías de acceso
+                    </label>
+                    <div className="relative">
+                      <HiOutlineLocationMarker className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                      <input
+                        {...register('access_ways')}
+                        placeholder="Ej: Carretera pavimentada 2km hasta la entrada"
+                        className={`${inputClass} pl-10`}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Distancia a lindero vecino (m)
-                </label>
-                <div className="relative">
-                  <HiOutlineScale className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    placeholder="Ej: 50"
-                    {...register('distance_to_neighbor_boundary_m', {
-                      setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                    })}
-                    className={`${inputClass} pl-10`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Notas propiedades vecinas
-                </label>
-                <input
-                  {...register('neighboring_properties_notes')}
-                  placeholder="Observaciones sobre vecinos..."
-                  className={inputClass}
+              {/* Staff availability */}
+              <div className={`border rounded-control px-4 py-3 transition-colors ${values.staff_availability ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white'}`}>
+                <ToggleField
+                  id="staff_availability"
+                  label="Se puede conseguir personal no menor de edad para ayudar en la instalación"
+                  {...register('staff_availability')}
                 />
               </div>
 
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Cantidad de bodegas
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Ej: 2"
-                  {...register('how_many_warehouses', {
-                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                  })}
-                  className={inputClass}
-                />
+              {/* Storage warehouse */}
+              <div className={`border rounded-control overflow-hidden transition-colors ${values.has_storage_warehouse ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white'}`}>
+                <div className="px-4 py-3">
+                  <ToggleField
+                    id="has_storage_warehouse"
+                    label="Tiene bodega de almacenamiento"
+                    {...register('has_storage_warehouse')}
+                  />
+                </div>
+                {values.has_storage_warehouse && (
+                  <div className="px-4 pb-3 border-t border-primary/20">
+                    <label className="text-[12px] font-semibold text-label block mb-1.5 mt-3">
+                      ¿Cuántas bodegas tiene?
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Ej: 2"
+                      {...register('how_many_warehouses', {
+                        setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                      })}
+                      className={inputClass}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Toggle group */}
-            <div className="border border-line rounded-control p-4 space-y-3">
+            {/* Neighbor info — always visible */}
+            <div className="border border-line rounded-control p-4 space-y-3 bg-white">
               <p className="text-[12px] font-semibold text-muted uppercase tracking-wide m-0">
-                Condiciones de acceso y personal
+                Propiedades vecinas
               </p>
-              <ToggleField
-                id="have_easy_access_for_trailer"
-                label="Acceso fácil para tractomula"
-                {...register('have_easy_access_for_trailer')}
-              />
-              <ToggleField
-                id="staff_availability"
-                label="Se puede conseguir personal no menor de edad para ayudar en la instalación"
-                {...register('staff_availability')}
-              />
-              <ToggleField
-                id="has_storage_warehouse"
-                label="Tiene bodega de almacenamiento"
-                {...register('has_storage_warehouse')}
-              />
+              <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
+                <div>
+                  <label className="text-[13px] font-semibold text-label block mb-1.5">
+                    Distancia a lindero vecino (m)
+                  </label>
+                  <div className="relative">
+                    <HiOutlineScale className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="Ej: 50"
+                      {...register('distance_to_neighbor_boundary_m', {
+                        setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                      })}
+                      className={`${inputClass} pl-10`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[13px] font-semibold text-label block mb-1.5">
+                    Notas propiedades vecinas
+                  </label>
+                  <input
+                    {...register('neighboring_properties_notes')}
+                    placeholder="Observaciones sobre vecinos..."
+                    className={inputClass}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

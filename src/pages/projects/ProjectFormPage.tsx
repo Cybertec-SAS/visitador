@@ -119,7 +119,7 @@ export function ProjectFormPage() {
   const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: { status: 'draft' },
-    mode: 'onChange',
+    mode: 'onTouched',
   });
 
   const values = watch();
@@ -212,7 +212,7 @@ export function ProjectFormPage() {
         {isEdit ? 'Volver al proyecto' : 'Volver a proyectos'}
       </Link>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(onSubmit)(e); }} className="space-y-3.5">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
 
         {/* ── Step indicator ── */}
         <div className="border border-line rounded-section p-4 bg-white space-y-3">
@@ -380,8 +380,9 @@ export function ProjectFormPage() {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
               disabled={isSubmitting}
+              onClick={() => handleSubmit(onSubmit)()}
               className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
             >
               {isSubmitting ? (

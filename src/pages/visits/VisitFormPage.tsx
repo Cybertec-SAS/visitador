@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useForm, type Resolver } from 'react-hook-form';
+import { useColombiaLocation } from '@/hooks/useColombiaLocation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { visitsApi } from '@/api/visits';
@@ -137,6 +138,8 @@ export function VisitFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Prevents the client-change effect from resetting farms during initial edit load
   const skipFarmsEffect = useRef(isEdit);
+  // Prevents location auto-fill from overriding the visit's own city/department on edit load
+  const skipLocationAutoFill = useRef(isEdit);
 
   const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
@@ -146,6 +149,28 @@ export function VisitFormPage() {
 
   const values = watch();
   const selectedClientId = values.client_id;
+
+  const {
+    departments,
+    cities,
+    loadingDepartments,
+    loadingCities,
+    selectedDepartmentId,
+    setSelectedDepartmentId,
+    setDepartmentByName,
+  } = useColombiaLocation();
+
+  const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const deptId = Number(e.target.value) || null;
+    const dept = departments.find((d) => d.id === deptId);
+    setSelectedDepartmentId(deptId);
+    setValue('department', dept?.name ?? null);
+    setValue('city', null);
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue('city', e.target.value || null);
+  };
 
   // Progress: count filled required fields (client, farm, type, title)
   const requiredFilled = [values.client_id, values.farm_id, values.visit_type_id, values.title].filter(Boolean).length;
@@ -177,6 +202,7 @@ export function VisitFormPage() {
           setValue('report_date', v.report_date);
           setValue('city', v.city);
           setValue('department', v.department);
+          setDepartmentByName(v.department);
           setValue('context', v.context);
           setValue('development', v.development);
           setValue('general_observations', v.general_observations);
@@ -190,8 +216,9 @@ export function VisitFormPage() {
       }
 
       setIsLoadingData(false);
-      // Allow the client-change effect to run from now on
+      // Allow the client-change effect and location auto-fill to run from now on
       skipFarmsEffect.current = false;
+      skipLocationAutoFill.current = false;
     }
     loadData();
   }, [id, isEdit, setValue]);
@@ -202,6 +229,36 @@ export function VisitFormPage() {
     if (!isEdit) setValue('farm_id', undefined as unknown as number);
     farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data)).catch(() => {});
   }, [selectedClientId]);
+
+  const selectedFarmId = values.farm_id;
+  const selectedVisitTypeId = values.visit_type_id;
+
+  // Auto-fill city/department from farm georreference when farm changes
+  useEffect(() => {
+    if (skipLocationAutoFill.current) return;
+    if (!selectedFarmId) return;
+    farmsApi.get(Number(selectedFarmId)).then((res) => {
+      const farm = res.data;
+      const geo = farm.georreference;
+      if (geo?.department) {
+        setDepartmentByName(geo.department);
+        setValue('department', geo.department);
+      }
+      if (geo?.town) {
+        setValue('city', geo.town);
+      }
+    }).catch(() => {});
+  }, [selectedFarmId]);
+
+  // Auto-generate title when farm + visit type are selected and title is still empty
+  useEffect(() => {
+    if (!selectedFarmId || !selectedVisitTypeId) return;
+    if (values.title) return;
+    const type = visitTypes.find((t) => t.id === Number(selectedVisitTypeId));
+    const farm = farms.find((f) => f.id === Number(selectedFarmId));
+    if (type && farm) setValue('title', `${type.name} – ${farm.nombre}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFarmId, selectedVisitTypeId]);
 
   const handleNext = async () => {
     const fields = STEPS[step].fields;
@@ -230,8 +287,9 @@ export function VisitFormPage() {
         navigate(`/visits/${id}`);
       } else {
         const res = await visitsApi.create(payload as Parameters<typeof visitsApi.create>[0]);
+        const created = (res as { data?: { id: number } }).data ?? (res as unknown as { id: number });
         sileo.success({ title: 'Visita creada' });
-        navigate(`/visits/${res.data.id}`);
+        navigate(`/visits/${created.id}`);
       }
     } catch {
       sileo.error({ title: 'Error al guardar la visita' });
@@ -258,7 +316,7 @@ export function VisitFormPage() {
         {isEdit ? 'Volver a la visita' : 'Volver a visitas'}
       </Link>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(onSubmit)(e); }} className="space-y-3.5">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
 
         {/* ── Step indicator ── */}
         <div className="border border-line rounded-section p-4 bg-white space-y-3">
@@ -379,11 +437,39 @@ export function VisitFormPage() {
               </FieldCard>
 
               <div className="grid grid-cols-2 gap-3 max-[540px]:grid-cols-1">
-                <FieldCard icon={HiOutlineLocationMarker} label="Ciudad" hint="Ciudad donde está la granja" filled={!!values.city}>
-                  <input {...register('city')} placeholder="Ej: Bogotá" className={inputClass} />
+                <FieldCard icon={HiOutlineLocationMarker} label="Departamento" hint="Departamento" filled={!!values.department}>
+                  <select
+                    value={selectedDepartmentId ?? ''}
+                    onChange={handleDepartmentChange}
+                    disabled={loadingDepartments}
+                    className={`${selectClass} appearance-none`}
+                  >
+                    <option value="">
+                      {loadingDepartments ? 'Cargando...' : 'Selecciona departamento'}
+                    </option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
                 </FieldCard>
-                <FieldCard icon={HiOutlineLocationMarker} label="Departamento" hint="Departamento o estado" filled={!!values.department}>
-                  <input {...register('department')} placeholder="Ej: Cundinamarca" className={inputClass} />
+                <FieldCard icon={HiOutlineLocationMarker} label="Municipio" hint="Ciudad donde está la granja" filled={!!values.city}>
+                  <select
+                    value={values.city ?? ''}
+                    onChange={handleCityChange}
+                    disabled={!selectedDepartmentId || loadingCities}
+                    className={`${selectClass} appearance-none disabled:opacity-50`}
+                  >
+                    <option value="">
+                      {loadingCities
+                        ? 'Cargando...'
+                        : !selectedDepartmentId
+                        ? 'Primero selecciona departamento'
+                        : 'Selecciona municipio'}
+                    </option>
+                    {cities.map((c) => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
                 </FieldCard>
               </div>
 
@@ -456,8 +542,9 @@ export function VisitFormPage() {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
               disabled={isSubmitting}
+              onClick={() => handleSubmit(onSubmit)()}
               className="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer border-none"
             >
               {isSubmitting ? (

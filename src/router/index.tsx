@@ -13,11 +13,13 @@ import { FarmsListPage } from '@/pages/farms/FarmsListPage';
 import { FarmDetailPage } from '@/pages/farms/FarmDetailPage';
 import { FarmFormPage } from '@/pages/farms/FarmFormPage';
 import { StructuresListPage } from '@/pages/structures/StructuresListPage';
+import { StructureDetailPage } from '@/pages/structures/StructureDetailPage';
 import { StructureFormPage } from '@/pages/structures/StructureFormPage';
 import { VisitsListPage } from '@/pages/visits/VisitsListPage';
 import { VisitFormPage } from '@/pages/visits/VisitFormPage';
 import { VisitDetailPage } from '@/pages/visits/VisitDetailPage';
 import { VisitCapturePage } from '@/pages/visits/VisitCapturePage';
+import { VisitaInicialPage } from '@/pages/visits/VisitaInicialPage';
 import { ProjectsListPage } from '@/pages/projects/ProjectsListPage';
 import { ProjectFormPage } from '@/pages/projects/ProjectFormPage';
 import { ProjectDetailPage } from '@/pages/projects/ProjectDetailPage';
@@ -53,6 +55,7 @@ export const router = createBrowserRouter([
       // Structures
       { path: 'structures', element: <StructuresListPage /> },
       { path: 'structures/new', element: <StructureFormPage /> },
+      { path: 'structures/:id', element: <StructureDetailPage /> },
       { path: 'structures/:id/edit', element: <StructureFormPage /> },
       // Visits
       { path: 'visits', element: <VisitsListPage /> },
@@ -60,6 +63,7 @@ export const router = createBrowserRouter([
       { path: 'visits/:id', element: <VisitDetailPage /> },
       { path: 'visits/:id/edit', element: <VisitFormPage /> },
       { path: 'visits/:id/capture', element: <VisitCapturePage /> },
+      { path: 'visits/:id/visita-inicial', element: <VisitaInicialPage /> },
       // Projects
       { path: 'projects', element: <ProjectsListPage /> },
       { path: 'projects/new', element: <ProjectFormPage /> },

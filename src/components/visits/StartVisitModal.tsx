@@ -44,6 +44,28 @@ export function StartVisitModal({ onClose }: StartVisitModalProps) {
     setFarmId('');
   }, [clientId]);
 
+  // Auto-fill city/department from farm georreference when farm is selected
+  useEffect(() => {
+    if (!farmId) return;
+    farmsApi.get(farmId as number).then((res) => {
+      const geo = res.data.georreference;
+      if (geo?.department) setDepartment((prev) => prev || geo.department!);
+      if (geo?.town) setCity((prev) => prev || geo.town!);
+    }).catch(() => {});
+  }, [farmId]);
+
+  // Auto-generate title when farm + visit type are both selected and title is empty
+  useEffect(() => {
+    if (!farmId || !visitTypeId) return;
+    setTitle((prev) => {
+      if (prev.trim()) return prev;
+      const type = visitTypes.find((t) => t.id === visitTypeId);
+      const farm = farms.find((f) => f.id === farmId);
+      return type && farm ? `${type.name} – ${farm.nombre}` : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [farmId, visitTypeId]);
+
   const step0Valid = clientId !== '' && farmId !== '' && visitTypeId !== '' && title.trim().length > 0;
   const step1Valid = reportDate.length > 0;
 

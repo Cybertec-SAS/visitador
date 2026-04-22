@@ -25,7 +25,7 @@ export const farmsApi = {
   },
 
   update: async (id: number, data: Partial<FarmFormData>): Promise<SingleResponse<Farm>> => {
-    const response = await apiClient.put<SingleResponse<Farm>>(`/farms/${id}`, data);
+    const response = await apiClient.patch<SingleResponse<Farm>>(`/farms/${id}`, data);
     return response.data;
   },
 
