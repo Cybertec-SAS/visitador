@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +7,7 @@ import { projectsApi } from '@/api/projects';
 import { clientsApi } from '@/api/clients';
 import { farmsApi } from '@/api/farms';
 import type { Client, Farm, ProjectStatus } from '@/types/api';
+import axios from 'axios';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
 import {
@@ -106,6 +107,8 @@ const selectClass = `${inputClass} bg-white`;
 
 export function ProjectFormPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const preselectedClientId = searchParams.get('client_id') ? Number(searchParams.get('client_id')) : undefined;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -144,15 +147,18 @@ export function ProjectFormPage() {
           setValue('start_date', p.start_date);
           setValue('end_date', p.end_date);
           setValue('description', p.description);
-          const farmsData = await farmsApi.list(1, { client_id: p.client_id, per_page: 100 }).then((r) => r.data);
+          const farmsData = await farmsApi.list(1, { client_id: p.client_id, per_page: 100 }).then((r) => r.data.filter((f) => f.client_id === p.client_id));
           setFarms(farmsData);
         }
       } catch {
         sileo.error({ title: 'Error al cargar datos' });
-      } finally {
-        setIsLoadingData(false);
-        skipFarmsEffect.current = false;
+      if (!isEdit && preselectedClientId) {
+        setValue('client_id', preselectedClientId);
       }
+    } finally {
+      setIsLoadingData(false);
+      skipFarmsEffect.current = false;
+    }
     }
     loadData();
   }, [id, isEdit, setValue]);
@@ -161,7 +167,7 @@ export function ProjectFormPage() {
     if (skipFarmsEffect.current) return;
     if (!selectedClientId) { setFarms([]); return; }
     if (!isEdit) setValue('farm_id', undefined as unknown as number);
-    farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data)).catch(() => {});
+    farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data.filter((f) => f.client_id === selectedClientId))).catch(() => {});
   }, [selectedClientId]);
 
   const handleNext = async () => {
@@ -187,10 +193,17 @@ export function ProjectFormPage() {
       } else {
         const res = await projectsApi.create(payload as Parameters<typeof projectsApi.create>[0]);
         sileo.success({ title: 'Proyecto creado' });
-        navigate(`/projects/${res.data.id}`);
+        navigate(`/projects/${res.id}`);
       }
-    } catch {
-      sileo.error({ title: 'Error al guardar el proyecto' });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 422) {
+        const errors = error.response.data.errors;
+        const messages = Object.values(errors).flat() as string[];
+        messages.forEach((msg) => sileo.error({ title: msg as string }));
+      } else {
+        console.error(error);
+        sileo.error({ title: 'Error al guardar el proyecto' });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -280,10 +293,17 @@ export function ProjectFormPage() {
               </div>
 
               <FieldCard icon={HiOutlineUserGroup} label="Cliente" hint="Propietario del proyecto" required filled={!!values.client_id} error={errors.client_id?.message}>
-                <select {...register('client_id', { valueAsNumber: true })} className={selectClass} autoFocus>
-                  <option value="">Selecciona un cliente</option>
-                  {clients.map((c) => <option key={c.id} value={c.id}>{c.razon_social}</option>)}
-                </select>
+                {preselectedClientId && selectedClient ? (
+                  <div className="border border-primary/40 bg-primary-soft/30 rounded-control px-3.5 py-2.5 text-[14px] font-semibold text-heading">
+                    {selectedClient.razon_social}
+                    <span className="ml-2 text-[11px] font-normal text-muted">NIT {selectedClient.nit}</span>
+                  </div>
+                ) : (
+                  <select {...register('client_id', { valueAsNumber: true })} className={selectClass} autoFocus>
+                    <option value="">Selecciona un cliente</option>
+                    {clients.map((c) => <option key={c.id} value={c.id}>{c.razon_social}</option>)}
+                  </select>
+                )}
               </FieldCard>
 
               <FieldCard icon={HiOutlineOfficeBuilding} label="Granja" hint="Instalación donde se ejecuta el proyecto" required filled={!!values.farm_id} error={errors.farm_id?.message}>

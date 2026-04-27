@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useForm, type Resolver } from 'react-hook-form';
 import { useColombiaLocation } from '@/hooks/useColombiaLocation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -127,6 +127,8 @@ const selectClass = `${inputClass} bg-white`;
 
 export function VisitFormPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const preselectedClientId = searchParams.get('client_id') ? Number(searchParams.get('client_id')) : undefined;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -208,13 +210,16 @@ export function VisitFormPage() {
           setValue('general_observations', v.general_observations);
           setValue('conclusions', v.conclusions);
           setValue('internal_notes', v.internal_notes);
-          const farmsData = await farmsApi.list(1, { client_id: v.client_id, per_page: 100 }).then((r) => r.data);
+          const farmsData = await farmsApi.list(1, { client_id: v.client_id, per_page: 100 }).then((r) => r.data.filter((f) => f.client_id === v.client_id));
           setFarms(farmsData);
         } catch {
           sileo.error({ title: 'No se pudo cargar la visita' });
         }
       }
 
+      if (!isEdit && preselectedClientId) {
+        setValue('client_id', preselectedClientId);
+      }
       setIsLoadingData(false);
       // Allow the client-change effect and location auto-fill to run from now on
       skipFarmsEffect.current = false;
@@ -227,7 +232,7 @@ export function VisitFormPage() {
     if (skipFarmsEffect.current) return;
     if (!selectedClientId) { setFarms([]); return; }
     if (!isEdit) setValue('farm_id', undefined as unknown as number);
-    farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data)).catch(() => {});
+    farmsApi.list(1, { client_id: selectedClientId, per_page: 100 }).then((r) => setFarms(r.data.filter((f) => f.client_id === selectedClientId))).catch(() => {});
   }, [selectedClientId]);
 
   const selectedFarmId = values.farm_id;
@@ -384,10 +389,17 @@ export function VisitFormPage() {
               </div>
 
               <FieldCard icon={HiOutlineUserGroup} label="Cliente" hint="¿A quién pertenece esta visita?" required filled={!!values.client_id} error={errors.client_id?.message}>
-                <select {...register('client_id', { valueAsNumber: true })} className={selectClass} autoFocus>
-                  <option value="">Selecciona un cliente</option>
-                  {clients.map((c) => <option key={c.id} value={c.id}>{c.razon_social}</option>)}
-                </select>
+                {preselectedClientId && selectedClient ? (
+                  <div className="border border-primary/40 bg-primary-soft/30 rounded-control px-3.5 py-2.5 text-[14px] font-semibold text-heading">
+                    {selectedClient.razon_social}
+                    <span className="ml-2 text-[11px] font-normal text-muted">NIT {selectedClient.nit}</span>
+                  </div>
+                ) : (
+                  <select {...register('client_id', { valueAsNumber: true })} className={selectClass} autoFocus>
+                    <option value="">Selecciona un cliente</option>
+                    {clients.map((c) => <option key={c.id} value={c.id}>{c.razon_social}</option>)}
+                  </select>
+                )}
               </FieldCard>
 
               <FieldCard icon={HiOutlineOfficeBuilding} label="Granja" hint="Instalación que se va a visitar" required filled={!!values.farm_id} error={errors.farm_id?.message}>

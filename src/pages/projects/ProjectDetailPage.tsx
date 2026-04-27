@@ -15,6 +15,7 @@ import {
   HiOutlinePlus,
   HiOutlineInformationCircle,
   HiOutlineChevronDown,
+  HiOutlineChevronRight,
 } from 'react-icons/hi';
 
 // ─── Status config ────────────────────────────────────────────────────────────
@@ -302,21 +303,32 @@ export function ProjectDetailPage() {
       {/* Tab: Estructuras */}
       {activeTab === 'structures' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <p className="text-[13px] text-muted m-0">{projectStructures.length} estructura(s) asociadas</p>
-            <button
-              onClick={() => setShowAddStructure((v) => !v)}
-              className="flex items-center gap-1.5 rounded-btn px-3.5 py-2 text-[13px] font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
-            >
-              <HiOutlinePlus className="w-4 h-4" />
-              Asociar estructura
-              <HiOutlineChevronDown className={`w-3.5 h-3.5 transition-transform ${showAddStructure ? 'rotate-180' : ''}`} />
-            </button>
+            <div className="flex items-center gap-2">
+              {project.farm_id && (
+                <Link
+                  to={`/structures/new?farm_id=${project.farm_id}&project_id=${projectId}`}
+                  className="flex items-center gap-1.5 rounded-btn px-3.5 py-2 text-[13px] font-semibold text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors no-underline border border-primary/20"
+                >
+                  <HiOutlinePlus className="w-4 h-4" />
+                  Nueva estructura
+                </Link>
+              )}
+              <button
+                onClick={() => setShowAddStructure((v) => !v)}
+                className="flex items-center gap-1.5 rounded-btn px-3.5 py-2 text-[13px] font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+              >
+                <HiOutlinePlus className="w-4 h-4" />
+                Asociar existente
+                <HiOutlineChevronDown className={`w-3.5 h-3.5 transition-transform ${showAddStructure ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
           </div>
 
           {showAddStructure && (
             <div className="border border-line rounded-section p-4 bg-white flex items-end gap-3 flex-wrap">
-              <div className="flex-1 min-w-[200px]">
+              <div className="flex-1 min-w-50">
                 <label className="block text-[11px] font-semibold text-label mb-1.5">Estructura</label>
                 <select
                   value={selectedStructureId}
@@ -360,12 +372,16 @@ export function ProjectDetailPage() {
                     <th className="text-left px-4 py-3 font-bold text-[12px] text-label">Nombre</th>
                     <th className="text-left px-4 py-3 font-bold text-[12px] text-label">Tipo</th>
                     <th className="text-left px-4 py-3 font-bold text-[12px] text-label">Estado</th>
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
                   {projectStructures.map((s) => (
-                    <tr key={s.id} className="hover:bg-primary-soft/20">
-                      <td className="px-4 py-3 font-medium text-heading">{s.name}</td>
+                    <tr key={s.id} className="hover:bg-primary-soft/20 cursor-pointer" onClick={() => navigate(`/structures/${s.id}`)}>
+                      <td className="px-4 py-3 font-medium text-heading">
+                        {s.name}
+                        {s.code && <span className="ml-2 text-[11px] font-mono text-muted bg-input-bg px-1.5 py-0.5 rounded border border-line">{s.code}</span>}
+                      </td>
                       <td className="px-4 py-3 text-muted">{s.structure_type}</td>
                       <td className="px-4 py-3">
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
@@ -375,6 +391,9 @@ export function ProjectDetailPage() {
                         }`}>
                           {s.status === 'active' ? 'Activa' : s.status === 'inactive' ? 'Inactiva' : s.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <HiOutlineChevronRight className="w-4 h-4 text-muted inline" />
                       </td>
                     </tr>
                   ))}

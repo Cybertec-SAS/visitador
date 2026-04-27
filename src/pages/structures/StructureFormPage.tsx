@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { structuresApi } from '@/api/structures';
 import { farmsApi } from '@/api/farms';
+import { projectsApi } from '@/api/projects';
 import type { Farm, Structure, StructureStatus } from '@/types/api';
 import { STRUCTURE_TYPE_OPTIONS } from '@/constants/structureTypes';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -111,6 +112,7 @@ export function StructureFormPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const farmIdParam = searchParams.get('farm_id');
+  const projectIdParam = searchParams.get('project_id') ? Number(searchParams.get('project_id')) : undefined;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -202,11 +204,16 @@ export function StructureFormPage() {
       if (isEdit) {
         await structuresApi.update(Number(id), payload);
         sileo.success({ title: 'Estructura actualizada' });
+        navigate(projectIdParam ? `/projects/${projectIdParam}` : farmIdParam ? `/structures?farm_id=${farmIdParam}` : '/structures');
       } else {
-        await structuresApi.create(payload as Parameters<typeof structuresApi.create>[0]);
-        sileo.success({ title: 'Estructura creada' });
+        const created = await structuresApi.create(payload as Parameters<typeof structuresApi.create>[0]);
+        const newId = created?.data?.id ?? (created as unknown as Structure)?.id;
+        if (projectIdParam && newId) {
+          await projectsApi.addStructure(projectIdParam, newId).catch(() => {});
+        }
+        sileo.success({ title: projectIdParam ? 'Estructura creada y asociada al proyecto' : 'Estructura creada' });
+        navigate(projectIdParam ? `/projects/${projectIdParam}` : farmIdParam ? `/structures?farm_id=${farmIdParam}` : '/structures');
       }
-      navigate(farmIdParam ? `/structures?farm_id=${farmIdParam}` : '/structures');
     } catch {
       sileo.error({ title: 'Error al guardar la estructura' });
     } finally {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { farmsApi } from '@/api/farms';
 import { clientsApi } from '@/api/clients';
 import { FarmForm } from '@/components/forms/FarmForm';
@@ -12,6 +12,8 @@ import { HiOutlineChevronLeft, HiOutlineOfficeBuilding } from 'react-icons/hi';
 
 export function FarmFormPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const preselectedClientId = searchParams.get('client_id') ? Number(searchParams.get('client_id')) : undefined;
   const isEdit = !!id;
   const [farm, setFarm] = useState<Farm | undefined>();
   const [clients, setClients] = useState<Client[]>([]);
@@ -73,11 +75,11 @@ export function FarmFormPage() {
     <div className="space-y-4 max-w-2xl">
       {/* Back nav */}
       <Link
-        to={isEdit && id ? `/farms/${id}` : '/farms'}
+        to={isEdit && id ? `/farms/${id}` : preselectedClientId ? `/clients/${preselectedClientId}` : '/farms'}
         className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors no-underline"
       >
         <HiOutlineChevronLeft className="w-4 h-4" />
-        {isEdit ? 'Volver a la granja' : 'Volver a granjas'}
+        {isEdit ? 'Volver a la granja' : preselectedClientId ? 'Volver al cliente' : 'Volver a granjas'}
       </Link>
 
       {/* Page header */}
@@ -112,7 +114,7 @@ export function FarmFormPage() {
         </div>
       )}
 
-      <FarmForm onSubmit={handleSubmit} clients={clients} defaultValues={farm} isLoading={isSaving} />
+      <FarmForm onSubmit={handleSubmit} clients={clients} defaultValues={farm} preselectedClientId={preselectedClientId} isLoading={isSaving} />
     </div>
   );
 }

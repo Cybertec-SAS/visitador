@@ -22,6 +22,7 @@ interface FarmFormProps {
   onSubmit: (data: FarmFormValues) => Promise<void>;
   clients: Client[];
   defaultValues?: Farm;
+  preselectedClientId?: number;
   isLoading: boolean;
 }
 
@@ -52,9 +53,10 @@ const STEPS = [
   },
 ];
 
-export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFormProps) {
+export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId, isLoading }: FarmFormProps) {
   const [step, setStep] = useState(0);
   const isEdit = !!defaultValues;
+  const isClientLocked = isEdit || !!preselectedClientId;
 
   const {
     register,
@@ -91,7 +93,9 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
           has_storage_warehouse: defaultValues.has_storage_warehouse ?? undefined,
           how_many_warehouses: defaultValues.how_many_warehouses ?? undefined,
         }
-      : undefined,
+      : preselectedClientId
+        ? { client_id: preselectedClientId }
+        : undefined,
   });
 
   const values = watch();
@@ -218,26 +222,38 @@ export function FarmForm({ onSubmit, clients, defaultValues, isLoading }: FarmFo
               <label className="text-[13px] font-semibold text-label block mb-1.5">
                 Cliente <span className="text-danger">*</span>
               </label>
-              <div className="relative">
-                <HiOutlineUserGroup className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted pointer-events-none" />
-                <select
-                  {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })}
-                  disabled={isEdit}
-                  className={`${inputClass} pl-10 appearance-none`}
-                >
-                  <option value="">Seleccionar cliente...</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.razon_social} — {c.nit}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {errors.client_id && (
-                <p className="text-[12px] text-danger mt-1.5">{errors.client_id.message}</p>
-              )}
-              {isEdit && (
-                <p className="text-[12px] text-muted mt-1">El cliente no se puede cambiar al editar</p>
+              {isClientLocked ? (
+                <div className="flex items-center gap-3 border border-primary/30 bg-primary-soft/30 rounded-control px-3.75 py-3">
+                  <HiOutlineUserGroup className="w-4 h-4 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-heading m-0 truncate">
+                      {clients.find((c) => c.id === Number(values.client_id))?.razon_social ?? '—'}
+                    </p>
+                    <p className="text-[11px] text-muted m-0">
+                      {isEdit ? 'No se puede cambiar al editar' : 'Cliente pre-seleccionado'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <HiOutlineUserGroup className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted pointer-events-none" />
+                    <select
+                      {...register('client_id', { setValueAs: (v) => (v === '' ? 0 : Number(v)) })}
+                      className={`${inputClass} pl-10 appearance-none`}
+                    >
+                      <option value="">Seleccionar cliente...</option>
+                      {clients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.razon_social} — {c.nit}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {errors.client_id && (
+                    <p className="text-[12px] text-danger mt-1.5">{errors.client_id.message}</p>
+                  )}
+                </>
               )}
             </div>
 

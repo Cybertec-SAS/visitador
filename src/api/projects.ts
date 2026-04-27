@@ -16,7 +16,7 @@ export const projectsApi = {
     return apiClient.get(`/projects/${id}`).then((r) => r.data);
   },
 
-  create(data: ProjectFormData): Promise<SingleResponse<Project>> {
+  create(data: ProjectFormData): Promise<Project> {
     return apiClient.post('/projects', data).then((r) => r.data);
   },
 
@@ -29,7 +29,7 @@ export const projectsApi = {
   },
 
   addStructure(projectId: number, structureId: number): Promise<void> {
-    return apiClient.post(`/projects/${projectId}/structures`, { structure_id: structureId }).then(() => undefined);
+    return apiClient.post(`/projects/${projectId}/structures`, { structure_ids: [structureId] }).then(() => undefined);
   },
 };
 
