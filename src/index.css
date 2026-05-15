@@ -14,6 +14,12 @@
   --color-placeholder: #98a2b3;
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
+  --color-field: #059669;
+  --color-field-hover: #047857;
+  --color-field-soft: #ecfdf5;
+  --color-report: #ea580c;
+  --color-report-hover: #c2410c;
+  --color-report-soft: #fff7ed;
   --shadow-panel: 0 10px 30px rgba(20, 32, 60, 0.08);
   --radius-panel: 28px;
   --radius-section: 20px;

@@ -5,6 +5,7 @@ import type {
   PaginatedResponse,
   SingleResponse,
 } from '@/types/api';
+import { normalizePayload } from './payloadTransforms';
 
 export const georreferencesApi = {
   list: async (page = 1): Promise<PaginatedResponse<FarmGeorreference>> => {
@@ -27,7 +28,7 @@ export const georreferencesApi = {
   ): Promise<SingleResponse<FarmGeorreference>> => {
     const response = await apiClient.post<SingleResponse<FarmGeorreference>>(
       '/farm-georreferences',
-      data,
+      normalizePayload(data),
     );
     return response.data;
   },
@@ -38,7 +39,7 @@ export const georreferencesApi = {
   ): Promise<SingleResponse<FarmGeorreference>> => {
     const response = await apiClient.put<SingleResponse<FarmGeorreference>>(
       `/farm-georreferences/${id}`,
-      data,
+      normalizePayload(data),
     );
     return response.data;
   },

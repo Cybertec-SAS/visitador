@@ -12,7 +12,6 @@ import {
   HiOutlineChevronRight,
   HiOutlineChevronLeft,
   HiOutlineOfficeBuilding,
-  HiOutlineScale,
   HiOutlineLocationMarker,
   HiOutlineCog,
   HiOutlineAnnotation,
@@ -79,19 +78,15 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
           have_own_transformator: defaultValues.have_own_transformator ?? undefined,
           is_transformator_feeds_other_installations:
             defaultValues.is_transformator_feeds_other_installations ?? undefined,
-          distance_to_neighbor_boundary_m:
-            defaultValues.distance_to_neighbor_boundary_m != null
-              ? Number(defaultValues.distance_to_neighbor_boundary_m)
-              : undefined,
           transformator_are_feeding_installations:
             defaultValues.transformator_are_feeding_installations ?? undefined,
-          neighboring_properties_notes:
-            defaultValues.neighboring_properties_notes ?? undefined,
           have_easy_access_for_trailer:
             defaultValues.have_easy_access_for_trailer ?? undefined,
           staff_availability: defaultValues.staff_availability ?? undefined,
           has_storage_warehouse: defaultValues.has_storage_warehouse ?? undefined,
           how_many_warehouses: defaultValues.how_many_warehouses ?? undefined,
+          total_galpones: defaultValues.total_galpones ?? undefined,
+          galpones_a_cotizar: defaultValues.galpones_a_cotizar ?? undefined,
         }
       : preselectedClientId
         ? { client_id: preselectedClientId }
@@ -117,15 +112,16 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
     values.farm_electric_current,
     values.transformator_capacity_kva,
     values.access_ways,
-    values.distance_to_neighbor_boundary_m,
+    values.total_galpones,
+    values.galpones_a_cotizar,
     values.observations,
   ].filter((v) => v !== undefined && v !== '' && v !== null).length;
 
   const requiredFilled = values.client_id && values.nombre ? 2 : values.client_id || values.nombre ? 1 : 0;
   const totalFilled = requiredFilled + optionalFilled;
-  const progressPct = Math.min((totalFilled / 8) * 100, 100);
+  const progressPct = Math.min((totalFilled / 9) * 100, 100);
 
-  const voltageLabel: Record<string, string> = { '110V': '110V', '220V': '220V' };
+  const voltageLabel: Record<string, string> = { '110V': '110V', '220V': '220V', '440V': '440V' };
   const currentLabel: Record<string, string> = {
     monophase: 'Monofásica',
     biphase: 'Bifásica',
@@ -297,6 +293,7 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
                   <option value="">Sin especificar</option>
                   <option value="110V">110V</option>
                   <option value="220V">220V</option>
+                  <option value="440V">440V</option>
                 </select>
               </div>
 
@@ -448,40 +445,34 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
               </div>
             </div>
 
-            {/* Neighbor info — always visible */}
-            <div className="border border-line rounded-control p-4 space-y-3 bg-white">
-              <p className="text-[12px] font-semibold text-muted uppercase tracking-wide m-0">
-                Propiedades vecinas
-              </p>
-              <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
-                <div>
-                  <label className="text-[13px] font-semibold text-label block mb-1.5">
-                    Distancia a lindero vecino (m)
-                  </label>
-                  <div className="relative">
-                    <HiOutlineScale className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder="Ej: 50"
-                      {...register('distance_to_neighbor_boundary_m', {
-                        setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                      })}
-                      className={`${inputClass} pl-10`}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[13px] font-semibold text-label block mb-1.5">
-                    Notas propiedades vecinas
-                  </label>
-                  <input
-                    {...register('neighboring_properties_notes')}
-                    placeholder="Observaciones sobre vecinos..."
-                    className={inputClass}
-                  />
-                </div>
+            <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
+              <div>
+                <label className="text-[13px] font-semibold text-label block mb-1.5">
+                  Total galpones
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Ej: 2"
+                  {...register('total_galpones', {
+                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                  })}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="text-[13px] font-semibold text-label block mb-1.5">
+                  Galpones a cotizar
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Ej: 2"
+                  {...register('galpones_a_cotizar', {
+                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                  })}
+                  className={inputClass}
+                />
               </div>
             </div>
           </div>
@@ -528,11 +519,12 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
                 onEdit={() => setStep(2)}
                 items={[
                   { label: 'Vías de acceso', value: values.access_ways || 'No especificado' },
-                  { label: 'Distancia lindero', value: values.distance_to_neighbor_boundary_m ? `${values.distance_to_neighbor_boundary_m} m` : 'No especificado' },
                   { label: 'Acceso tráiler', value: values.have_easy_access_for_trailer ? 'Sí' : 'No' },
                   { label: 'Personal disponible', value: values.staff_availability ? 'Sí' : 'No' },
                   { label: 'Tiene bodega', value: values.has_storage_warehouse ? 'Sí' : 'No' },
                   { label: 'N° bodegas', value: values.how_many_warehouses?.toString() ?? 'No especificado' },
+                  { label: 'Total galpones', value: values.total_galpones?.toString() ?? 'No especificado' },
+                  { label: 'Galpones a cotizar', value: values.galpones_a_cotizar?.toString() ?? 'No especificado' },
                 ]}
               />
             </div>

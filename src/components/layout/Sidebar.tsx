@@ -1,47 +1,65 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { sileo } from 'sileo';
-import { useNavigate } from 'react-router-dom';
 import {
-  HiOutlineViewGrid,
+  HiOutlineHome,
   HiOutlineUserGroup,
   HiOutlineOfficeBuilding,
-  HiOutlineHome,
-  HiOutlineClipboardList,
-  HiOutlineCollection,
-  HiOutlineUserAdd,
-  HiOutlinePlus,
+  HiOutlineLocationMarker,
+  HiOutlineDocumentReport,
+  HiOutlineClock,
   HiOutlineLogout,
+  HiOutlinePlus,
 } from 'react-icons/hi';
-import type { IconType } from 'react-icons';
 
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
 }
 
-const navSections: {
-  label?: string;
-  items: { to: string; label: string; icon: IconType; end: boolean }[];
-}[] = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ElementType;
+  end?: boolean;
+  disabled?: boolean;
+}
+
+const sections: { label: string; color: string; items: NavItem[] }[] = [
   {
+    label: 'Inicio',
+    color: '',
     items: [
-      { to: '/', label: 'Dashboard', icon: HiOutlineViewGrid, end: true },
+      { to: '/', label: 'Inicio operativo', icon: HiOutlineHome, end: true },
     ],
   },
   {
-    label: 'Gestión',
+    label: 'Registrar',
+    color: 'text-primary',
     items: [
-      { to: '/clients', label: 'Clientes', icon: HiOutlineUserGroup, end: false },
-      { to: '/farms', label: 'Granjas', icon: HiOutlineOfficeBuilding, end: false },
-      { to: '/structures', label: 'Estructuras', icon: HiOutlineHome, end: false },
+      { to: '/clients', label: 'Clientes', icon: HiOutlineUserGroup },
+      { to: '/farms', label: 'Granjas', icon: HiOutlineOfficeBuilding },
     ],
   },
   {
-    label: 'Operaciones',
+    label: 'Visitas técnicas',
+    color: 'text-field',
     items: [
-      { to: '/visits', label: 'Visitas', icon: HiOutlineClipboardList, end: false },
-      { to: '/projects', label: 'Proyectos', icon: HiOutlineCollection, end: false },
+      { to: '/visits', label: 'Mis visitas', icon: HiOutlineLocationMarker, disabled: true },
+    ],
+  },
+  {
+    label: 'Reportes',
+    color: 'text-report',
+    items: [
+      { to: '/reports', label: 'Reportes técnicos', icon: HiOutlineDocumentReport, disabled: true },
+    ],
+  },
+  {
+    label: 'Bandeja',
+    color: 'text-muted',
+    items: [
+      { to: '/pending', label: 'Pendientes', icon: HiOutlineClock, disabled: true },
     ],
   },
 ];
@@ -60,10 +78,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     }
   };
 
+  const initial = (user?.name ?? 'U')[0].toUpperCase();
+
   return (
     <aside
       className={`
-        flex flex-col gap-3 bg-surface border border-line p-4 shadow-panel
+        flex flex-col gap-4 bg-surface border border-line p-4 shadow-panel
         fixed inset-y-0 left-0 z-40 w-72 overflow-y-auto
         transition-transform duration-200
         ${open ? 'translate-x-0' : '-translate-x-full'}
@@ -74,49 +94,38 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       `}
     >
       {/* Brand */}
-      <div className="flex items-center gap-2.5 px-1">
-        <div className="w-9 h-9 rounded-logo bg-primary text-white grid place-items-center font-extrabold text-base shrink-0">
+      <div className="flex items-center gap-3 rounded-section bg-input-bg px-3 py-3">
+        <div className="w-10 h-10 rounded-logo bg-primary text-white grid place-items-center font-black text-base shrink-0 shadow-sm">
           V
         </div>
         <div>
-          <h1 className="text-[15px] font-bold m-0 leading-tight">Visitador</h1>
-          <p className="text-[11px] text-muted m-0">Gestión técnica de campo</p>
+          <h1 className="text-[15px] font-black m-0 leading-tight text-heading">Visitador</h1>
+          <p className="text-[11px] text-muted m-0 font-medium">Gestión técnica agropecuaria</p>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid gap-1.5">
-        <Link
-          to="/visits/new"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-control bg-primary text-white no-underline hover:bg-primary-hover transition-colors"
-        >
-          <HiOutlinePlus className="w-4 h-4 shrink-0" />
-          <span className="text-[13px] font-semibold">Nueva visita</span>
-        </Link>
-        <Link
-          to="/clients/new"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-control border border-line bg-white text-heading no-underline hover:border-primary/30 hover:bg-primary-soft/50 transition-colors"
-        >
-          <HiOutlineUserAdd className="w-4 h-4 text-primary shrink-0" />
-          <span className="text-[13px] font-semibold">Nuevo cliente</span>
-        </Link>
-      </div>
-
-      <div className="border-t border-line" />
-
-      {/* Navigation sections */}
-      <nav className="space-y-3">
-        {navSections.map((section, si) => (
-          <div key={si}>
-            {section.label && (
-              <p className="text-[10px] font-bold text-muted uppercase tracking-wider px-3 mb-1">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1">
+        {sections.map((section) => (
+          <div key={section.label} className="space-y-0.5">
+            {section.label !== 'Inicio' && (
+              <p className={`text-[10px] font-black uppercase tracking-[0.16em] px-3 pt-3 pb-1 m-0 ${section.color || 'text-muted'}`}>
                 {section.label}
               </p>
             )}
-            <div className="grid gap-0.5">
-              {section.items.map((item) => (
+            {section.items.map((item) =>
+              item.disabled ? (
+                <div
+                  key={item.to}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-control opacity-40 cursor-not-allowed"
+                >
+                  <item.icon className="w-4 h-4 shrink-0 text-muted" />
+                  <span className="text-[13px] font-semibold text-muted">{item.label}</span>
+                  <span className="ml-auto text-[10px] font-black uppercase tracking-wide text-muted bg-input-bg rounded-full px-2 py-0.5">
+                    Pronto
+                  </span>
+                </div>
+              ) : (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -125,39 +134,52 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2.5 rounded-control no-underline transition-colors ${
                       isActive
-                        ? 'bg-primary-soft text-primary'
-                        : 'text-heading hover:bg-primary-soft/50 hover:text-primary'
+                        ? 'bg-primary-soft text-primary font-bold'
+                        : 'text-heading hover:bg-input-bg'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-primary' : 'text-muted'}`} />
+                      <item.icon
+                        className={`w-4 h-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted'}`}
+                      />
                       <span className="text-[13px] font-semibold">{item.label}</span>
+                      {isActive && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                      )}
                     </>
                   )}
                 </NavLink>
-              ))}
-            </div>
+              )
+            )}
           </div>
         ))}
       </nav>
 
-      <div className="flex-1" />
+      {/* Quick action */}
+      <Link
+        to="/clients/new"
+        onClick={onClose}
+        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-heading text-white no-underline text-[13px] font-black hover:opacity-80 transition-opacity"
+      >
+        <HiOutlinePlus className="w-4 h-4" />
+        Registrar nuevo
+      </Link>
 
-      {/* User row */}
+      {/* User */}
       <div className="border-t border-line pt-3 flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-logo grid place-items-center bg-primary text-white font-bold text-sm shrink-0">
-          {(user?.name ?? 'U')[0].toUpperCase()}
+        <div className="w-9 h-9 rounded-logo grid place-items-center bg-primary text-white font-black text-sm shrink-0">
+          {initial}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-heading m-0 truncate">{user?.name ?? 'Usuario'}</p>
+          <p className="text-[13px] font-bold text-heading m-0 truncate">{user?.name ?? 'Usuario'}</p>
           <p className="text-[11px] text-muted m-0 truncate">{user?.email ?? ''}</p>
         </div>
         <button
           onClick={handleLogout}
           title="Cerrar sesión"
-          className="w-8 h-8 rounded-lg grid place-items-center text-muted hover:bg-red-50 hover:text-danger transition-colors cursor-pointer border-none bg-transparent shrink-0"
+          className="w-8 h-8 rounded-control grid place-items-center text-muted hover:bg-red-50 hover:text-danger transition-colors cursor-pointer border-none bg-transparent shrink-0"
         >
           <HiOutlineLogout className="w-4 h-4" />
         </button>

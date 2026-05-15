@@ -1,0 +1,1 @@
+export { GeorreferenceForm as FarmGeolocationForm } from './GeorreferenceForm';

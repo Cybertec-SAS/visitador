@@ -5,6 +5,7 @@ import type {
   PaginatedResponse,
   SingleResponse,
 } from '@/types/api';
+import { normalizePayload } from './payloadTransforms';
 
 export const clientsApi = {
   list: async (page = 1, extra?: { per_page?: number }): Promise<PaginatedResponse<Client>> => {
@@ -20,12 +21,12 @@ export const clientsApi = {
   },
 
   create: async (data: ClientFormData): Promise<SingleResponse<Client>> => {
-    const response = await apiClient.post<SingleResponse<Client>>('/clients', data);
+    const response = await apiClient.post<SingleResponse<Client>>('/clients', normalizePayload(data));
     return response.data;
   },
 
   update: async (id: number, data: Partial<ClientFormData>): Promise<SingleResponse<Client>> => {
-    const response = await apiClient.patch<SingleResponse<Client>>(`/clients/${id}`, data);
+    const response = await apiClient.patch<SingleResponse<Client>>(`/clients/${id}`, normalizePayload(data));
     return response.data;
   },
 

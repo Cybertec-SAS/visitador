@@ -22,17 +22,17 @@ export const farmSchema = z.object({
   transformator_capacity_kva: z.number().min(0).optional(),
   access_ways: z.string().max(500).optional(),
   observations: z.string().max(5000).optional(),
-  farm_voltage: z.enum(['110V', '220V']).optional(),
+  farm_voltage: z.enum(['110V', '220V', '440V']).optional(),
   farm_electric_current: z.enum(['monophase', 'biphase', 'triphase']).optional(),
   have_own_transformator: z.boolean().optional(),
   is_transformator_feeds_other_installations: z.boolean().optional(),
-  distance_to_neighbor_boundary_m: z.number().min(0).optional(),
   transformator_are_feeding_installations: z.string().max(500).optional(),
-  neighboring_properties_notes: z.string().max(500).optional(),
   have_easy_access_for_trailer: z.boolean().optional(),
   staff_availability: z.boolean().optional(),
   has_storage_warehouse: z.boolean().optional(),
   how_many_warehouses: z.number().min(0).optional(),
+  total_galpones: z.number().min(0).optional(),
+  galpones_a_cotizar: z.number().min(0).optional(),
 });
 
 export type FarmFormValues = z.infer<typeof farmSchema>;
