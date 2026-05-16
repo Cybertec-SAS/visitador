@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { z } from 'zod';
 import { galponSchema, type GalponFormValues } from '@/schemas';
 import type { Galpon } from '@/types/api';
 import {
@@ -7,6 +8,8 @@ import {
   HiOutlineCheck,
   HiOutlineX,
 } from 'react-icons/hi';
+
+type GalponFormInputValues = z.input<typeof galponSchema>;
 
 interface GalponFormProps {
   onSubmit: (data: GalponFormValues) => Promise<void>;
@@ -22,7 +25,7 @@ export function GalponForm({ onSubmit, onCancel, defaultValues, isLoading }: Gal
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<GalponFormValues>({
+  } = useForm<GalponFormInputValues, unknown, GalponFormValues>({
     resolver: zodResolver(galponSchema),
     defaultValues: defaultValues
       ? {
