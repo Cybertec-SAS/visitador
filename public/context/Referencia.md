@@ -2,13 +2,11 @@
 
 ## Scope
 
-El modulo deja de trabajar con visitas. El flujo activo queda asi:
+El modulo deja de trabajar con visitas y con la estructura generica anterior. El flujo activo queda asi:
 
-- 1 cliente -> muchas granjas
-- 1 granja -> muchos galpones
-- 1 galpon -> muchos sistemas
+- 1 cliente -> muchas granjas -> muchos galpones -> muchos sistemas
 
-Los endpoints de visitas, tipos de visita, formularios de visita, media de visita, mediciones de visita, hallazgos, compromisos y solicitudes de materiales dejan de usarse desde frontend.
+Los endpoints de visitas, tipos de visita, formularios de visita, media de visita, mediciones de visita, hallazgos, compromisos, solicitudes de materiales y la ruta legacy `/api/structures` dejan de usarse desde frontend.
 
 ## Business Rules
 
@@ -17,18 +15,19 @@ Los endpoints de visitas, tipos de visita, formularios de visita, media de visit
 - `farm_voltage` ahora acepta `110V`, `220V` y `440V`.
 - `neighboring_properties_notes` y `distance_to_neighbor_boundary_m` salen del flujo y no deben enviarse.
 - `map_url_reference` se mantiene sin transformaciones para no romper enlaces de geolocalizacion.
-- `total_galpones` queda sincronizado por backend con la cantidad real de galpones asociados a la granja.
-- `structure_type` solo acepta `GALPON` y `SYSTEM`.
-- Un `SYSTEM` siempre debe tener `parent_structure_id` apuntando a un `GALPON` de la misma granja.
-- Un `GALPON` no puede tener padre.
-- Si frontend envia `dimensions_json.largo` y `dimensions_json.ancho`, backend calcula `dimensions_json.area_total` cuando no venga informado.
+- `total_galpones` se conserva en la granja y ahora se sincroniza cuando se crean o eliminan galpones desde sus endpoints dedicados.
+- `projects.tipo` solo acepta `SOLUCION TOTAL`, `AMBIENTE CONTROLADO` o `AMBIENTE ABIERTO`.
+- `projects.linea` solo acepta `AVICULTURA: LEVANTE Y PRODUCCION`, `AVICULTURA: ENGORDE DE POLLO`, `PORCICULTURA` o `BOVINO`.
+- `systems-catalog` expone 20 sistemas activos actualizados y desactiva catalogos legacy fuera de esa lista.
+- Las medidas del galpon viajan dentro de `dimensions_json`.
+- Los sistemas instalados en un galpon se crean desde `systems_catalog` usando `system_id`.
 
 ## Frontend Responsibilities
 
 - Convertir a mayusculas los valores de inputs tipo texto antes de armar el payload.
 - No modificar automaticamente campos `email`, `url`, `map_url_reference` ni selects cerrados.
-- Modelar el bloque de medidas del galpon dentro de `dimensions_json`.
-- Consumir `systems` como la coleccion hija oficial de cada galpon.
+- Eliminar del frontend cualquier pantalla o store que dependa de `/api/structures`.
+- Reemplazar cualquier pantalla vieja de estructuras por el flujo `/api/farms/{farm}/galpones` y `/api/galpones/{galpon}/systems`.
 
 ## Endpoints In Scope
 
@@ -112,7 +111,6 @@ Respuesta esperada:
     "client": { "id": 1 },
     "georreference": null,
     "contacts": [],
-    "galpones": [],
     "created_at": "ISO8601",
     "updated_at": "ISO8601"
   }
@@ -166,30 +164,43 @@ Respuesta esperada:
     "id": 10,
     "client_id": 1,
     "nombre": "GRANJA LA ESPERANZA",
-    "total_galpones": 2,
+    "total_galpones": 1,
+    "galpones_a_cotizar": 2,
+    "client": { "id": 1 },
+    "georreference": {
+      "id": 7,
+      "farm_id": 10,
+      "address": "KM 5 VIA SONSON"
+    },
+    "contacts": [],
     "galpones": [
       {
-        "id": 101,
+        "id": 21,
         "farm_id": 10,
-        "parent_structure_id": null,
-        "structure_type": "GALPON",
-        "name": "GALPON NORTE",
+        "name": "GALPON 1",
+        "code": "GAL-01",
+        "status": "active",
         "dimensions_json": {
-          "largo": 120,
-          "ancho": 15,
-          "alto": 4.5,
-          "area_total": 1800
+          "largo_m": 110,
+          "ancho_m": 13,
+          "altura_canal_m": 3,
+          "altura_cumbrera_m": 4.5
         },
         "technical_attributes_json": {
-          "tipo_estructura": "METALICA"
+          "tipo_estructura": "CONVENCIONAL",
+          "tipo_cubierta": "DOS AGUAS"
         },
         "systems": [
           {
-            "id": 201,
-            "farm_id": 10,
-            "parent_structure_id": 101,
-            "structure_type": "SYSTEM",
-            "name": "VENTILACION TUNEL"
+            "id": 5,
+            "system_id": 8,
+            "quantity": 10,
+            "notes": "AJUSTE FINAL",
+            "system": {
+              "id": 8,
+              "code": "ventiladores",
+              "name": "Ventiladores"
+            }
           }
         ]
       }
@@ -198,113 +209,127 @@ Respuesta esperada:
 }
 ```
 
-### POST `/api/structures`
+### POST `/api/farms/{farm}/galpones`
 
-Uso para crear galpones y sistemas.
-
-#### Crear galpon
+Body enviado:
 
 ```json
 {
-  "farm_id": 10,
-  "structure_type": "GALPON",
-  "name": "GALPON NORTE",
-  "code": "G-01",
+  "name": "GALPON 1",
+  "code": "GAL-01",
   "status": "active",
-  "description": "GALPON PRINCIPAL",
   "dimensions_json": {
-    "largo": 120,
-    "ancho": 15,
-    "alto": 4.5
+    "largo_m": 100,
+    "ancho_m": 12,
+    "altura_canal_m": 2.8,
+    "altura_cumbrera_m": 4.2
   },
   "technical_attributes_json": {
-    "tipo_estructura": "METALICA",
-    "tipo_cubierta": "TERMOACUSTICA"
+    "tipo_estructura": "CONVENCIONAL",
+    "tipo_cubierta": "DOS AGUAS"
   },
-  "observations": "REQUIERE CORTINAS NUEVAS",
-  "sort_order": 1
+  "observations": "REQUIERE AISLAMIENTO"
 }
 ```
 
-Reglas:
+Uso: crea un galpon asociado a una granja. El backend responde en formato `data`.
 
-- `parent_structure_id` no se envia para galpon.
-- `dimensions_json` representa el bloque "Medidas del galpon".
-- Si no mandas `area_total`, backend la calcula con `largo * ancho`.
+### PATCH `/api/galpones/{galpon}`
 
-#### Crear sistema
+Body enviado:
 
 ```json
 {
-  "farm_id": 10,
-  "parent_structure_id": 101,
-  "structure_type": "SYSTEM",
-  "name": "VENTILACION TUNEL",
-  "code": "SYS-VE-01",
-  "status": "active",
-  "description": "VENTILACION LONGITUDINAL",
-  "technical_attributes_json": {
-    "marca": "ACME"
-  },
-  "sort_order": 1
-}
-```
-
-Reglas:
-
-- `parent_structure_id` es obligatorio.
-- El padre debe ser un `GALPON`.
-- `farm_id` del sistema debe coincidir con la granja del galpon padre.
-
-Respuesta esperada para `POST /api/structures`:
-
-```json
-{
-  "id": 101,
-  "farm_id": 10,
-  "parent_structure_id": null,
-  "structure_type": "GALPON",
-  "name": "GALPON NORTE",
-  "code": "G-01",
-  "status": "active",
-  "description": "GALPON PRINCIPAL",
   "dimensions_json": {
-    "largo": 120,
-    "ancho": 15,
-    "alto": 4.5,
-    "area_total": 1800
+    "largo_m": 110,
+    "ancho_m": 13,
+    "altura_canal_m": 3,
+    "altura_cumbrera_m": 4.5
   },
-  "technical_attributes_json": {
-    "tipo_estructura": "METALICA"
-  },
-  "observations": "REQUIERE CORTINAS NUEVAS",
-  "sort_order": 1,
-  "parent": null,
-  "systems": [],
-  "created_at": "ISO8601",
-  "updated_at": "ISO8601"
+  "observations": "LISTO PARA MONTAJE"
 }
 ```
 
-### GET `/api/structures`
+Uso: actualiza medidas y observaciones del galpon.
 
-Query params vigentes:
+### POST `/api/galpones/{galpon}/systems`
 
-- `farm_id`
-- `structure_type` con valores `GALPON` o `SYSTEM`
-- `status`
-- `parent_only=true` para listar solo galpones raiz
+Body enviado:
 
-Respuesta:
+```json
+{
+  "system_id": 8,
+  "quantity": 10,
+  "notes": "AJUSTE FINAL",
+  "technical_attributes_json": {
+    "capacidad": "36 PULGADAS"
+  }
+}
+```
 
-- Array JSON plano, sin paginacion.
-- Cada galpon usa `systems` como coleccion hija.
+Uso: agrega un sistema del catalogo activo a un galpon concreto.
+
+### POST `/api/projects`
+
+Body enviado:
+
+```json
+{
+  "client_id": 1,
+  "farm_id": 10,
+  "name": "PROYECTO ALPHA",
+  "code": "PR-001",
+  "tipo": "AMBIENTE CONTROLADO",
+  "linea": "AVICULTURA: ENGORDE DE POLLO",
+  "status": "active",
+  "description": "IMPLEMENTACION INTEGRAL"
+}
+```
+
+Opciones permitidas:
+
+- `tipo`: `SOLUCION TOTAL`, `AMBIENTE CONTROLADO`, `AMBIENTE ABIERTO`
+- `linea`: `AVICULTURA: LEVANTE Y PRODUCCION`, `AVICULTURA: ENGORDE DE POLLO`, `PORCICULTURA`, `BOVINO`
+
+### GET `/api/systems-catalog`
+
+El catalogo activo esperado ahora contiene 20 sistemas:
+
+- `Comedero Automatico`
+- `Bebedero Niple`
+- `Falso Techo`
+- `Cortina Lateral`
+- `Calefaccion`
+- `Silos`
+- `Alimentacion`
+- `Ventiladores`
+- `Nebulizadores`
+- `Iluminacion`
+- `Extractores`
+- `Panel Humedo`
+- `Inlet`
+- `Tunel Door`
+- `Red Electrica`
+- `Tablero de Control y Potencia`
+- `Controlador`
+- `Sistema Pesaje`
+- `Sistema Comunicacion`
+- `Aislamiento`
+
+## Endpoints Pausados
+
+- `/api/structures`
+- `/api/projects/{project}/structures`
+- Todos los endpoints de visitas y sus derivados
+
+Regla: si el frontend todavia tiene pantallas o stores para estructuras legacy, deben ocultarse o migrarse al nuevo flujo de galpones porque el backend ya no expone esas rutas.
 
 ## Frontend Migration Checklist
 
 1. Eliminar pantallas, stores y llamados HTTP relacionados con visitas.
-2. Sacar del formulario de granja el bloque de propiedades vecinas.
-3. Agregar `440V` al selector de voltaje.
-4. Renderizar `dimensions_json` como bloque de medidas del galpon.
-5. Mostrar `systems` dentro de cada galpon y no como listado plano.
-6. Convertir a mayusculas los text inputs antes de enviar la peticion.
+2. Eliminar pantallas, stores y llamados HTTP relacionados con estructuras.
+3. Sacar del formulario de granja el bloque de propiedades vecinas.
+4. Agregar `440V` al selector de voltaje.
+5. Crear la gestion de galpones con `POST /api/farms/{farm}/galpones` y `PATCH /api/galpones/{galpon}`.
+6. Crear la gestion de sistemas por galpon con `POST /api/galpones/{galpon}/systems` y `PATCH /api/galpon-systems/{id}`.
+7. Convertir a mayusculas los text inputs antes de enviar la peticion.

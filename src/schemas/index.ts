@@ -58,3 +58,63 @@ export const farmContactSchema = z.object({
 });
 
 export type FarmContactFormValues = z.infer<typeof farmContactSchema>;
+
+// ── Galpon ────────────────────────────────────────────────────────────────────
+
+const galponDimensionsSchema = z.object({
+  largo_m: z.number({ error: 'Ingresa un número' }).min(0).optional(),
+  ancho_m: z.number({ error: 'Ingresa un número' }).min(0).optional(),
+  altura_canal_m: z.number({ error: 'Ingresa un número' }).min(0).optional(),
+  altura_cumbrera_m: z.number({ error: 'Ingresa un número' }).min(0).optional(),
+});
+
+export const galponSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido').max(255),
+  code: z.string().max(100).optional(),
+  status: z.enum(['active', 'inactive']).default('active'),
+  dimensions_json: galponDimensionsSchema.optional(),
+  technical_attributes_json: z
+    .object({
+      tipo_estructura: z.string().max(255).optional(),
+      tipo_cubierta: z.string().max(255).optional(),
+    })
+    .optional(),
+  observations: z.string().max(5000).optional(),
+});
+
+export type GalponFormValues = z.infer<typeof galponSchema>;
+
+// ── Galpon System ─────────────────────────────────────────────────────────────
+
+export const galponSystemSchema = z.object({
+  system_id: z.number().min(1, 'Selecciona un sistema'),
+  quantity: z.number().min(1, 'La cantidad debe ser al menos 1'),
+  notes: z.string().max(5000).optional(),
+  technical_attributes_json: z
+    .object({
+      capacidad: z.string().max(255).optional(),
+    })
+    .optional(),
+});
+
+export type GalponSystemFormValues = z.infer<typeof galponSystemSchema>;
+
+// ── Project ───────────────────────────────────────────────────────────────────
+
+export const projectSchema = z.object({
+  client_id: z.number().min(1, 'El cliente es requerido'),
+  farm_id: z.number().min(1, 'La granja es requerida'),
+  name: z.string().min(1, 'El nombre es requerido').max(255),
+  code: z.string().min(1, 'El código es requerido').max(100),
+  tipo: z.enum(['SOLUCION TOTAL', 'AMBIENTE CONTROLADO', 'AMBIENTE ABIERTO'], {
+    error: 'Selecciona un tipo',
+  }),
+  linea: z.enum(
+    ['AVICULTURA: LEVANTE Y PRODUCCION', 'AVICULTURA: ENGORDE DE POLLO', 'PORCICULTURA', 'BOVINO'],
+    { error: 'Selecciona una línea' },
+  ),
+  status: z.string().default('active'),
+  description: z.string().max(5000).optional(),
+});
+
+export type ProjectFormValues = z.infer<typeof projectSchema>;

@@ -3,3 +3,7 @@ export { clientsApi } from './clients';
 export { farmsApi } from './farms';
 export { georreferencesApi } from './georreferences';
 export { farmContactsApi } from './farmContacts';
+export { galponesPorGranjaApi, galponesApi } from './galpones';
+export { galponSystemsApi } from './galponSystems';
+export { systemsCatalogApi } from './systemsCatalog';
+export { projectsApi } from './projects';

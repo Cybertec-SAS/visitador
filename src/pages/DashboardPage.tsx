@@ -46,7 +46,7 @@ export function DashboardPage() {
               ¿Qué vas a gestionar hoy, {userName}?
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
-              Elige la acción principal y entra directamente al flujo: registro maestro, visita técnica o reporte de hallazgos.
+              Elige la acción principal y entra directamente al flujo: registro de clientes, granjas, galpones y sistemas.
             </p>
           </div>
 
@@ -67,7 +67,7 @@ export function DashboardPage() {
 
       {/* Tarjetas de acción principal */}
       <div className="grid gap-4 xl:grid-cols-3">
-        {/* Registrar */}
+        {/* Registrar cliente */}
         <article className="group overflow-hidden rounded-panel border border-line bg-surface shadow-panel transition hover:-translate-y-1">
           <div className="h-2 bg-primary rounded-t-panel" />
           <div className="p-5">
@@ -93,11 +93,11 @@ export function DashboardPage() {
                 </div>
                 <div className="flex gap-3 items-center">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-black text-primary">2</span>
-                  <p className="text-sm font-bold text-muted">Granja / estructura / ubicación</p>
+                  <p className="text-sm font-bold text-muted">Granja / ubicación / contactos</p>
                 </div>
                 <div className="flex gap-3 items-center">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-black text-primary">3</span>
-                  <p className="text-sm font-bold text-muted">Contactos y responsables</p>
+                  <p className="text-sm font-bold text-muted">Galpones y sistemas instalados</p>
                 </div>
               </div>
             </div>
@@ -111,146 +111,110 @@ export function DashboardPage() {
           </div>
         </article>
 
-        {/* Visitas — módulo pendiente */}
+        {/* Granjas y galpones */}
         <article className="group overflow-hidden rounded-panel border border-line bg-surface shadow-panel transition hover:-translate-y-1">
-          <div className="h-2 bg-field rounded-t-panel" />
+          <div className="h-2 bg-emerald-500 rounded-t-panel" />
           <div className="p-5">
             <div className="flex items-start justify-between">
-              <div className="grid h-14 w-14 place-items-center rounded-section bg-field-soft text-2xl">
-                📍
+              <div className="grid h-14 w-14 place-items-center rounded-section bg-emerald-50 text-2xl">
+                🏗️
               </div>
-              <span className="rounded-full bg-field-soft px-3 py-1 text-xs font-black text-field">
-                Campo
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+                Infraestructura
               </span>
             </div>
-            <h3 className="mt-4 text-2xl font-black text-heading">Visitas</h3>
+            <h3 className="mt-4 text-2xl font-black text-heading">Granjas</h3>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Planea, ejecuta y cierra visitas técnicas con evidencias, georreferencia, novedades y compromisos asociados.
+              Gestiona granjas, agrega galpones con sus dimensiones y registra los sistemas instalados en cada uno.
             </p>
 
             <div className="mt-4 rounded-section bg-input-bg p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-muted">Opciones del flujo</p>
+              <p className="text-xs font-black uppercase tracking-wide text-muted">Flujo de gestión</p>
               <div className="mt-3 grid gap-2">
-                <div className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-muted shadow-sm border border-line opacity-60">
-                  Programar visita <span>→</span>
-                </div>
-                <div className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-muted shadow-sm border border-line opacity-60">
-                  Iniciar visita en campo <span>→</span>
-                </div>
-                <div className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-muted shadow-sm border border-line opacity-60">
-                  Cerrar visita pendiente <span>→</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              disabled
-              className="mt-4 flex w-full items-center justify-between rounded-btn bg-field px-5 py-3 text-sm font-black text-white opacity-50 cursor-not-allowed"
-            >
-              Abrir flujo de visitas <span>→</span>
-            </button>
-          </div>
-        </article>
-
-        {/* Reportes — módulo pendiente */}
-        <article className="group overflow-hidden rounded-panel border border-line bg-surface shadow-panel transition hover:-translate-y-1">
-          <div className="h-2 bg-report rounded-t-panel" />
-          <div className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="grid h-14 w-14 place-items-center rounded-section bg-report-soft text-2xl">
-                ▤
-              </div>
-              <span className="rounded-full bg-report-soft px-3 py-1 text-xs font-black text-report">
-                Hallazgos
-              </span>
-            </div>
-            <h3 className="mt-4 text-2xl font-black text-heading">Reportes</h3>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Registra hallazgos, recomendaciones, compromisos, evidencias y seguimiento técnico por cliente o granja.
-            </p>
-
-            <div className="mt-4 rounded-section bg-input-bg p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-muted">Tipos de reporte</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {['Técnico', 'Novedad', 'Compromiso', 'Seguimiento'].map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-surface px-3 py-2 text-xs font-black text-muted shadow-sm border border-line"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <button
-              disabled
-              className="mt-4 flex w-full items-center justify-between rounded-btn bg-report px-5 py-3 text-sm font-black text-white opacity-50 cursor-not-allowed"
-            >
-              Crear reporte técnico <span>→</span>
-            </button>
-          </div>
-        </article>
-      </div>
-
-      {/* Parte inferior: pendientes + indicadores */}
-      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        {/* Bandeja operativa */}
-        <section className="rounded-panel border border-line bg-surface p-5 shadow-panel">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wide text-muted">Bandeja operativa</p>
-              <h3 className="mt-1 text-xl font-black text-heading">Pendientes por continuar</h3>
-            </div>
-            <button className="rounded-btn border border-line px-4 py-2.5 text-sm font-black text-muted hover:bg-input-bg transition-colors">
-              Ver historial
-            </button>
-          </div>
-
-          <div className="mt-4">
-            <div className="rounded-section border border-dashed border-line bg-input-bg p-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-base font-black text-heading">Aún no hay trabajo pendiente</p>
-                  <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
-                    Aquí aparecerán visitas sin cerrar, reportes en borrador, compromisos vencidos o registros incompletos.
-                  </p>
-                </div>
                 <Link
-                  to="/clients/new"
-                  className="rounded-btn bg-heading px-5 py-3 text-sm font-black text-white no-underline hover:opacity-80 transition-opacity whitespace-nowrap"
+                  to="/farms"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line hover:border-emerald-300 hover:bg-emerald-50 transition-colors no-underline"
                 >
-                  Crear acción
+                  Ver todas las granjas <span>→</span>
+                </Link>
+                <Link
+                  to="/farms/new"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line hover:border-emerald-300 hover:bg-emerald-50 transition-colors no-underline"
+                >
+                  Registrar nueva granja <span>→</span>
                 </Link>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Indicadores */}
-        <section className="rounded-panel border border-line bg-surface p-5 shadow-panel">
-          <p className="text-xs font-black uppercase tracking-wide text-muted">Resumen rápido</p>
-          <h3 className="mt-1 text-xl font-black text-heading">Indicadores de operación</h3>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <Link to="/clients" className="rounded-section bg-input-bg p-4 no-underline hover:bg-primary-soft/30 transition-colors">
-              <p className="text-3xl font-black text-heading">{loading ? '–' : stats.clients}</p>
-              <p className="mt-1 text-xs font-bold text-muted">Clientes activos</p>
+            <Link
+              to="/farms"
+              className="mt-4 flex w-full items-center justify-between rounded-btn bg-emerald-600 px-5 py-3 text-sm font-black text-white no-underline hover:bg-emerald-700 transition-colors"
+            >
+              Ir a granjas <span>→</span>
             </Link>
-            <Link to="/farms" className="rounded-section bg-input-bg p-4 no-underline hover:bg-primary-soft/30 transition-colors">
-              <p className="text-3xl font-black text-heading">{loading ? '–' : stats.farms}</p>
-              <p className="mt-1 text-xs font-bold text-muted">Granjas registradas</p>
-            </Link>
-            <div className="rounded-section bg-input-bg p-4 opacity-50">
-              <p className="text-3xl font-black text-heading">0</p>
-              <p className="mt-1 text-xs font-bold text-muted">Reportes abiertos</p>
-            </div>
-            <div className="rounded-section bg-input-bg p-4 opacity-50">
-              <p className="text-3xl font-black text-heading">0</p>
-              <p className="mt-1 text-xs font-bold text-muted">Compromisos</p>
-            </div>
           </div>
-        </section>
+        </article>
+
+        {/* Clientes */}
+        <article className="group overflow-hidden rounded-panel border border-line bg-surface shadow-panel transition hover:-translate-y-1">
+          <div className="h-2 bg-violet-500 rounded-t-panel" />
+          <div className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="grid h-14 w-14 place-items-center rounded-section bg-violet-50 text-2xl">
+                👥
+              </div>
+              <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-black text-violet-700">
+                Clientes
+              </span>
+            </div>
+            <h3 className="mt-4 text-2xl font-black text-heading">Clientes</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Consulta y gestiona el directorio de clientes con sus granjas, contactos y datos de negocio asociados.
+            </p>
+
+            <div className="mt-4 rounded-section bg-input-bg p-4">
+              <p className="text-xs font-black uppercase tracking-wide text-muted">Acciones rápidas</p>
+              <div className="mt-3 grid gap-2">
+                <Link
+                  to="/clients"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line hover:border-violet-300 hover:bg-violet-50 transition-colors no-underline"
+                >
+                  Ver todos los clientes <span>→</span>
+                </Link>
+                <Link
+                  to="/clients/new"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line hover:border-violet-300 hover:bg-violet-50 transition-colors no-underline"
+                >
+                  Registrar nuevo cliente <span>→</span>
+                </Link>
+              </div>
+            </div>
+
+            <Link
+              to="/clients"
+              className="mt-4 flex w-full items-center justify-between rounded-btn bg-violet-600 px-5 py-3 text-sm font-black text-white no-underline hover:bg-violet-700 transition-colors"
+            >
+              Ir a clientes <span>→</span>
+            </Link>
+          </div>
+        </article>
       </div>
+
+      {/* Indicadores */}
+      <section className="rounded-panel border border-line bg-surface p-5 shadow-panel">
+        <p className="text-xs font-black uppercase tracking-wide text-muted">Resumen rápido</p>
+        <h3 className="mt-1 text-xl font-black text-heading">Indicadores de operación</h3>
+        <div className="mt-4 grid grid-cols-2 gap-3 max-w-sm">
+          <Link to="/clients" className="rounded-section bg-input-bg p-4 no-underline hover:bg-primary-soft/30 transition-colors">
+            <p className="text-3xl font-black text-heading">{loading ? '–' : stats.clients}</p>
+            <p className="mt-1 text-xs font-bold text-muted">Clientes activos</p>
+          </Link>
+          <Link to="/farms" className="rounded-section bg-input-bg p-4 no-underline hover:bg-primary-soft/30 transition-colors">
+            <p className="text-3xl font-black text-heading">{loading ? '–' : stats.farms}</p>
+            <p className="mt-1 text-xs font-bold text-muted">Granjas registradas</p>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

@@ -93,6 +93,7 @@ export interface Farm {
   client?: Client;
   georreference?: FarmGeorreference | null;
   contacts?: FarmContact[];
+  galpones?: Galpon[];
   created_at: string;
   updated_at: string;
 }
@@ -154,4 +155,103 @@ export interface FarmContactFormData {
   name: string;
   email?: string | null;
   phone?: string | null;
+}
+
+// ── Systems Catalog ───────────────────────────────────────────────────────────
+
+export interface SystemCatalog {
+  id: number;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+// ── Galpon ────────────────────────────────────────────────────────────────────
+
+export interface GalponDimensions {
+  largo_m: number | null;
+  ancho_m: number | null;
+  altura_canal_m: number | null;
+  altura_cumbrera_m: number | null;
+}
+
+export interface GalponTechnicalAttributes {
+  tipo_estructura?: string | null;
+  tipo_cubierta?: string | null;
+  [key: string]: unknown;
+}
+
+export interface GalponSystem {
+  id: number;
+  system_id: number;
+  quantity: number;
+  notes: string | null;
+  technical_attributes_json?: Record<string, unknown> | null;
+  system?: SystemCatalog;
+}
+
+export interface Galpon {
+  id: number;
+  farm_id: number;
+  name: string;
+  code: string | null;
+  status: 'active' | 'inactive';
+  dimensions_json: GalponDimensions | null;
+  technical_attributes_json: GalponTechnicalAttributes | null;
+  observations: string | null;
+  systems?: GalponSystem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GalponFormData {
+  name: string;
+  code?: string | null;
+  status: 'active' | 'inactive';
+  dimensions_json?: Partial<GalponDimensions> | null;
+  technical_attributes_json?: GalponTechnicalAttributes | null;
+  observations?: string | null;
+}
+
+export interface GalponSystemFormData {
+  system_id: number;
+  quantity: number;
+  notes?: string | null;
+  technical_attributes_json?: Record<string, unknown> | null;
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────────
+
+export type ProjectTipo = 'SOLUCION TOTAL' | 'AMBIENTE CONTROLADO' | 'AMBIENTE ABIERTO';
+export type ProjectLinea =
+  | 'AVICULTURA: LEVANTE Y PRODUCCION'
+  | 'AVICULTURA: ENGORDE DE POLLO'
+  | 'PORCICULTURA'
+  | 'BOVINO';
+
+export interface Project {
+  id: number;
+  client_id: number;
+  farm_id: number;
+  name: string;
+  code: string;
+  tipo: ProjectTipo;
+  linea: ProjectLinea;
+  status: string;
+  description: string | null;
+  client?: Client;
+  farm?: Farm;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectFormData {
+  client_id: number;
+  farm_id: number;
+  name: string;
+  code: string;
+  tipo: ProjectTipo;
+  linea: ProjectLinea;
+  status: string;
+  description?: string | null;
 }

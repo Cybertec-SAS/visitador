@@ -5,7 +5,6 @@ const NON_UPPERCASE_FIELDS = new Set([
   'farm_electric_current',
   'type',
   'status',
-  'code',
   'password',
 ]);
 

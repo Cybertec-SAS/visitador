@@ -5,9 +5,6 @@ import {
   HiOutlineHome,
   HiOutlineUserGroup,
   HiOutlineOfficeBuilding,
-  HiOutlineLocationMarker,
-  HiOutlineDocumentReport,
-  HiOutlineClock,
   HiOutlineLogout,
   HiOutlinePlus,
 } from 'react-icons/hi';
@@ -34,32 +31,11 @@ const sections: { label: string; color: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: 'Registrar',
+    label: 'Gestión',
     color: 'text-primary',
     items: [
       { to: '/clients', label: 'Clientes', icon: HiOutlineUserGroup },
-      { to: '/farms', label: 'Granjas', icon: HiOutlineOfficeBuilding },
-    ],
-  },
-  {
-    label: 'Visitas técnicas',
-    color: 'text-field',
-    items: [
-      { to: '/visits', label: 'Mis visitas', icon: HiOutlineLocationMarker, disabled: true },
-    ],
-  },
-  {
-    label: 'Reportes',
-    color: 'text-report',
-    items: [
-      { to: '/reports', label: 'Reportes técnicos', icon: HiOutlineDocumentReport, disabled: true },
-    ],
-  },
-  {
-    label: 'Bandeja',
-    color: 'text-muted',
-    items: [
-      { to: '/pending', label: 'Pendientes', icon: HiOutlineClock, disabled: true },
+      { to: '/farms', label: 'Granjas y galpones', icon: HiOutlineOfficeBuilding },
     ],
   },
 ];
