@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { clientsApi } from '@/api/clients';
 import { ClientForm } from '@/components/forms/ClientForm';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
 import type { Client } from '@/types/api';
 import type { ClientFormValues } from '@/schemas';
 import axios from 'axios';
-import { HiOutlineChevronLeft, HiOutlineUserGroup } from 'react-icons/hi';
+import { HiOutlineUserGroup } from 'react-icons/hi';
 
 export function ClientFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,7 +40,7 @@ export function ClientFormPage() {
         navigate(`/clients/${id}`);
       } else {
         const res = await clientsApi.create(data);
-        sileo.success({ title: '¡Cliente creado! Ahora puedes agregar una granja.' });
+        sileo.success({ title: '¡Cliente creado! Ahora agrega su granja.' });
         navigate(`/clients/${res.data.id}`);
       }
     } catch (error) {
@@ -57,16 +58,20 @@ export function ClientFormPage() {
 
   if (isLoading) return <LoadingSpinner className="mt-12" />;
 
+  const breadcrumbItems = isEdit && client
+    ? [
+        { label: 'Clientes', to: '/clients' },
+        { label: client.razon_social, to: `/clients/${client.id}` },
+        { label: 'Editar' },
+      ]
+    : [
+        { label: 'Clientes', to: '/clients' },
+        { label: 'Nuevo cliente' },
+      ];
+
   return (
     <div className="space-y-4 max-w-2xl">
-      {/* Back nav */}
-      <Link
-        to={isEdit && id ? `/clients/${id}` : '/clients'}
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors no-underline"
-      >
-        <HiOutlineChevronLeft className="w-4 h-4" />
-        {isEdit ? 'Volver al cliente' : 'Volver a clientes'}
-      </Link>
+      <Breadcrumb items={breadcrumbItems} />
 
       {/* Page header */}
       <div className="flex items-center gap-3">
@@ -75,21 +80,22 @@ export function ClientFormPage() {
         </div>
         <div>
           <h2 className="text-[22px] font-bold text-heading m-0">
-            {isEdit ? `Editar cliente` : 'Nuevo cliente'}
+            {isEdit ? 'Editar cliente' : 'Nuevo cliente'}
           </h2>
           <p className="text-[13px] text-muted m-0">
             {isEdit
               ? `Modifica los datos de ${client?.razon_social ?? 'este cliente'}`
-              : 'Paso 1 del flujo · Completa los datos en 2 pasos'}
+              : 'Paso 1 de 3 · Cliente → Granja → Galpones y sistemas'}
           </p>
         </div>
       </div>
 
-      {/* Flow hint – only on create */}
       {!isEdit && (
-        <div className="border border-primary/20 rounded-control p-3.5 bg-primary-soft/40 flex items-center gap-3">
-          <span className="text-[13px] text-primary">
-            💡 <strong>Tip:</strong> Registra el cliente primero. Después podrás agregar granjas y contactos.
+        <div className="border border-primary/20 rounded-control p-3.5 bg-primary-soft/40 flex items-start gap-3">
+          <span className="text-[13px] text-primary leading-relaxed">
+            💡 <strong>Paso 1 de 3:</strong> Registra el cliente con su razón social y contacto. Después
+            crearás la granja con datos técnicos, y dentro de cada granja agregarás los galpones y
+            los sistemas instalados en ellos.
           </span>
         </div>
       )}

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { farmsApi } from '@/api/farms';
 import { georreferencesApi } from '@/api/georreferences';
 import { farmContactsApi } from '@/api/farmContacts';
@@ -17,7 +18,6 @@ import type { Farm, FarmContact, Galpon, GalponSystem, SystemCatalog } from '@/t
 import type { GeorreferenceFormValues, FarmContactFormValues, GalponFormValues, GalponSystemFormValues } from '@/schemas';
 import axios from 'axios';
 import {
-  HiOutlineChevronLeft,
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlineLightningBolt,
@@ -48,6 +48,9 @@ const CONTACT_TYPE_META: Record<string, { label: string; icon: React.ElementType
 
 export function FarmDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isNewRegistration = searchParams.get('new') === '1';
+  const galponesRef = useRef<HTMLDivElement>(null);
   const [farm, setFarm] = useState<Farm | null>(null);
   const [catalog, setCatalog] = useState<SystemCatalog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -269,14 +272,15 @@ export function FarmDetailPage() {
 
   return (
     <div className="space-y-4 max-w-3xl">
-      {/* Back nav */}
-      <Link
-        to="/farms"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors no-underline"
-      >
-        <HiOutlineChevronLeft className="w-4 h-4" />
-        Volver a granjas
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: 'Clientes', to: '/clients' },
+          ...(farm.client
+            ? [{ label: farm.client.razon_social, to: `/clients/${farm.client.id}` }]
+            : [{ label: 'Granjas', to: '/farms' }]),
+          { label: farm.nombre },
+        ]}
+      />
 
       {/* Header card */}
       <div className="border border-line rounded-section p-4 bg-white flex items-center gap-4">
@@ -302,6 +306,145 @@ export function FarmDetailPage() {
           Editar
         </button>
       </div>
+
+      {/* ── Banner de registro guiado ── */}
+      {isNewRegistration && (
+        <div className="border border-emerald-200 rounded-section p-4 bg-emerald-50 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-logo grid place-items-center bg-emerald-100 shrink-0">
+                <HiOutlineCheck className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-emerald-800 m-0">¡Granja creada! Completa el registro</p>
+                <p className="text-[12px] text-emerald-700 m-0">Sigue los pasos para dejar la granja lista con toda su información.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete('new');
+                setSearchParams(next, { replace: true });
+              }}
+              className="w-6 h-6 grid place-items-center text-emerald-600 hover:text-emerald-800 bg-transparent border-none cursor-pointer shrink-0"
+              title="Cerrar guía"
+            >
+              <HiOutlineX className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 max-[580px]:grid-cols-1">
+            {/* Paso: Georreferencia */}
+            <div className={`flex items-center gap-2.5 rounded-control px-3 py-2.5 border ${farm?.georreference ? 'border-emerald-300 bg-emerald-100/60' : 'border-emerald-200 bg-white'}`}>
+              <div className={`w-6 h-6 rounded-full grid place-items-center shrink-0 ${farm?.georreference ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-emerald-300 text-emerald-400'}`}>
+                {farm?.georreference
+                  ? <HiOutlineCheck className="w-3 h-3" />
+                  : <span className="text-[10px] font-black">1</span>
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[12px] font-semibold m-0 ${farm?.georreference ? 'text-emerald-700 line-through' : 'text-heading'}`}>
+                  Agregar ubicación
+                </p>
+                <p className="text-[11px] text-emerald-600 m-0">Dirección, municipio y mapa</p>
+              </div>
+              {!farm?.georreference && (
+                <button
+                  onClick={() => setShowGeoForm(true)}
+                  className="text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-none rounded-btn px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                >
+                  Agregar
+                </button>
+              )}
+            </div>
+
+            {/* Paso: Contactos */}
+            <div className={`flex items-center gap-2.5 rounded-control px-3 py-2.5 border ${farm?.contacts && farm.contacts.length > 0 ? 'border-emerald-300 bg-emerald-100/60' : 'border-emerald-200 bg-white'}`}>
+              <div className={`w-6 h-6 rounded-full grid place-items-center shrink-0 ${farm?.contacts && farm.contacts.length > 0 ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-emerald-300 text-emerald-400'}`}>
+                {farm?.contacts && farm.contacts.length > 0
+                  ? <HiOutlineCheck className="w-3 h-3" />
+                  : <span className="text-[10px] font-black">2</span>
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[12px] font-semibold m-0 ${farm?.contacts && farm.contacts.length > 0 ? 'text-emerald-700 line-through' : 'text-heading'}`}>
+                  Agregar contacto
+                </p>
+                <p className="text-[11px] text-emerald-600 m-0">Administrador, veterinario…</p>
+              </div>
+              {!(farm?.contacts && farm.contacts.length > 0) && (
+                <button
+                  onClick={() => setShowContactForm(true)}
+                  className="text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-none rounded-btn px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                >
+                  Agregar
+                </button>
+              )}
+            </div>
+
+            {/* Paso: Galpones */}
+            <div className={`flex items-center gap-2.5 rounded-control px-3 py-2.5 border ${galpones.length > 0 ? 'border-emerald-300 bg-emerald-100/60' : 'border-emerald-200 bg-white'}`}>
+              <div className={`w-6 h-6 rounded-full grid place-items-center shrink-0 ${galpones.length > 0 ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-emerald-300 text-emerald-400'}`}>
+                {galpones.length > 0
+                  ? <HiOutlineCheck className="w-3 h-3" />
+                  : <span className="text-[10px] font-black">3</span>
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[12px] font-semibold m-0 ${galpones.length > 0 ? 'text-emerald-700 line-through' : 'text-heading'}`}>
+                  Crear galpones
+                </p>
+                <p className="text-[11px] text-emerald-600 m-0">Dimensiones y atributos técnicos</p>
+              </div>
+              {galpones.length === 0 && (
+                <button
+                  onClick={() => {
+                    galponesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setShowGalponForm(true);
+                  }}
+                  className="text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-none rounded-btn px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                >
+                  Agregar
+                </button>
+              )}
+            </div>
+
+            {/* Paso: Sistemas */}
+            {(() => {
+              const hasSystems = galpones.some((g) => (g.systems?.length ?? 0) > 0);
+              return (
+                <div className={`flex items-center gap-2.5 rounded-control px-3 py-2.5 border ${hasSystems ? 'border-emerald-300 bg-emerald-100/60' : 'border-emerald-200 bg-white'}`}>
+                  <div className={`w-6 h-6 rounded-full grid place-items-center shrink-0 ${hasSystems ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-emerald-300 text-emerald-400'}`}>
+                    {hasSystems
+                      ? <HiOutlineCheck className="w-3 h-3" />
+                      : <span className="text-[10px] font-black">4</span>
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[12px] font-semibold m-0 ${hasSystems ? 'text-emerald-700 line-through' : 'text-heading'}`}>
+                      Instalar sistemas
+                    </p>
+                    <p className="text-[11px] text-emerald-600 m-0">Desde el catálogo de sistemas activos</p>
+                  </div>
+                  {!hasSystems && galpones.length > 0 && (
+                    <button
+                      onClick={() => {
+                        const firstId = galpones[0].id;
+                        setExpandedGalpones((prev) => new Set(prev).add(firstId));
+                        setAddSystemGalponId(firstId);
+                        galponesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }}
+                      className="text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-none rounded-btn px-2 py-1 cursor-pointer shrink-0 transition-colors"
+                    >
+                      Agregar
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
 
       {/* ── Sistema eléctrico ── */}
       <Section
@@ -556,7 +699,7 @@ export function FarmDetailPage() {
       </div>
 
       {/* ── Galpones ── */}
-      <div className="border border-line rounded-section p-4 bg-white space-y-4">
+      <div ref={galponesRef} className="border border-line rounded-section p-4 bg-white space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0">

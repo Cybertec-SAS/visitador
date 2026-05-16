@@ -4,9 +4,9 @@ import { clientsApi } from '@/api/clients';
 import { farmsApi } from '@/api/farms';
 import type { Client, Farm } from '@/types/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { sileo } from 'sileo';
 import {
-  HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlinePencil,
   HiOutlineOfficeBuilding,
@@ -56,13 +56,12 @@ export function ClientDetailPage() {
 
   return (
     <div className="space-y-4 max-w-3xl">
-      <Link
-        to="/clients"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors no-underline"
-      >
-        <HiOutlineChevronLeft className="w-4 h-4" />
-        Volver a clientes
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: 'Clientes', to: '/clients' },
+          { label: client.razon_social },
+        ]}
+      />
 
       <div className="border border-line rounded-section p-4 bg-white flex items-center gap-4">
         <div className="w-14 h-14 rounded-logo grid place-items-center bg-primary text-white font-bold text-lg shrink-0">
@@ -130,9 +129,16 @@ export function ClientDetailPage() {
         </div>
 
         {farms.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-10 text-center px-4">
-            <HiOutlineOfficeBuilding className="w-8 h-8 text-muted" />
-            <p className="text-[13px] text-muted m-0">Este cliente no tiene granjas registradas</p>
+          <div className="flex flex-col items-center gap-4 py-10 text-center px-4">
+            <div className="w-12 h-12 rounded-full bg-primary-soft grid place-items-center">
+              <HiOutlineOfficeBuilding className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-heading m-0">Paso 2 de 3 · Agregar granja</p>
+              <p className="text-[13px] text-muted mt-1 m-0">
+                Crea la granja del cliente para luego agregar galpones y sistemas instalados.
+              </p>
+            </div>
             <Link
               to={`/farms/new?client_id=${client.id}`}
               className="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors no-underline"
