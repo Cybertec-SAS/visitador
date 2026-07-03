@@ -86,7 +86,6 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
           has_storage_warehouse: defaultValues.has_storage_warehouse ?? undefined,
           how_many_warehouses: defaultValues.how_many_warehouses ?? undefined,
           total_galpones: defaultValues.total_galpones ?? undefined,
-          galpones_a_cotizar: defaultValues.galpones_a_cotizar ?? undefined,
         }
       : preselectedClientId
         ? { client_id: preselectedClientId }
@@ -113,13 +112,12 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
     values.transformator_capacity_kva,
     values.access_ways,
     values.total_galpones,
-    values.galpones_a_cotizar,
     values.observations,
   ].filter((v) => v !== undefined && v !== '' && v !== null).length;
 
   const requiredFilled = values.client_id && values.nombre ? 2 : values.client_id || values.nombre ? 1 : 0;
   const totalFilled = requiredFilled + optionalFilled;
-  const progressPct = Math.min((totalFilled / 9) * 100, 100);
+  const progressPct = Math.min((totalFilled / 8) * 100, 100);
 
   const voltageLabel: Record<string, string> = { '110V': '110V', '220V': '220V', '440V': '440V' };
   const currentLabel: Record<string, string> = {
@@ -445,35 +443,19 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Total galpones
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Ej: 2"
-                  {...register('total_galpones', {
-                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                  })}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="text-[13px] font-semibold text-label block mb-1.5">
-                  Galpones a cotizar
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Ej: 2"
-                  {...register('galpones_a_cotizar', {
-                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                  })}
-                  className={inputClass}
-                />
-              </div>
+            <div>
+              <label className="text-[13px] font-semibold text-label block mb-1.5">
+                Total galpones
+              </label>
+              <input
+                type="number"
+                min={0}
+                placeholder="Ej: 2"
+                {...register('total_galpones', {
+                  setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                })}
+                className={inputClass}
+              />
             </div>
           </div>
         )}
@@ -524,7 +506,6 @@ export function FarmForm({ onSubmit, clients, defaultValues, preselectedClientId
                   { label: 'Tiene bodega', value: values.has_storage_warehouse ? 'Sí' : 'No' },
                   { label: 'N° bodegas', value: values.how_many_warehouses?.toString() ?? 'No especificado' },
                   { label: 'Total galpones', value: values.total_galpones?.toString() ?? 'No especificado' },
-                  { label: 'Galpones a cotizar', value: values.galpones_a_cotizar?.toString() ?? 'No especificado' },
                 ]}
               />
             </div>

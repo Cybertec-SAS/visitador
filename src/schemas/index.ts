@@ -32,7 +32,6 @@ export const farmSchema = z.object({
   has_storage_warehouse: z.boolean().optional(),
   how_many_warehouses: z.number().min(0).optional(),
   total_galpones: z.number().min(0).optional(),
-  galpones_a_cotizar: z.number().min(0).optional(),
 });
 
 export type FarmFormValues = z.infer<typeof farmSchema>;

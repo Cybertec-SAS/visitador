@@ -89,7 +89,6 @@ export interface Farm {
   has_storage_warehouse: boolean | null;
   how_many_warehouses: number | null;
   total_galpones: number | null;
-  galpones_a_cotizar: number | null;
   client?: Client;
   georreference?: FarmGeorreference | null;
   contacts?: FarmContact[];
@@ -114,7 +113,6 @@ export interface FarmFormData {
   has_storage_warehouse?: boolean | null;
   how_many_warehouses?: number | null;
   total_galpones?: number | null;
-  galpones_a_cotizar?: number | null;
 }
 
 export interface FarmGeorreference {

@@ -466,12 +466,11 @@ export function FarmDetailPage() {
       <Section
         icon={HiOutlineOfficeBuilding}
         title="Acceso e infraestructura"
-        count={[farm.access_ways, farm.total_galpones, farm.galpones_a_cotizar].filter((v) => v != null).length}
+        count={[farm.access_ways, farm.total_galpones].filter((v) => v != null).length}
       >
         <div className="grid grid-cols-2 gap-x-6 gap-y-3.5 max-[580px]:grid-cols-1">
           <InfoRow label="Vías de acceso" value={farm.access_ways ?? '—'} />
           <InfoRow label="Total galpones" value={farm.total_galpones != null ? String(farm.total_galpones) : '—'} />
-          <InfoRow label="Galpones a cotizar" value={farm.galpones_a_cotizar != null ? String(farm.galpones_a_cotizar) : '—'} />
           <InfoRow
             label="Bodegas"
             value={
