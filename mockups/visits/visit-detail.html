@@ -1,0 +1,384 @@
+<!doctype html>
+<!--
+  MOCKUP · Detalle de visita (vista individual)
+  Patrones extraídos de: src/pages/farms/FarmDetailPage.tsx
+    - Header card (icono + título + link + botón editar)
+    - Banner guiado con checklist (patrón ?new=1, aquí como "ejecución de la visita")
+    - Section / InfoRow / BoolRow
+    - Lista colapsable (galpones con header de badges + contenido expandido + sub-lista de sistemas)
+  Tokens de tema copiados de: src/index.css (mantener clases idénticas para integrar)
+  Datos: ../data/visit-detail.mock.js, ../data/visits.mock.js
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Visitas — Detalle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    /* ── Tokens copiados 1:1 de src/index.css ── */
+    @theme {
+      --color-bg: #f6f8fb;
+      --color-surface: #ffffff;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-soft: #eef4ff;
+      --color-muted: #6f7b8f;
+      --color-line: #e7ecf3;
+      --color-heading: #172033;
+      --color-label: #344054;
+      --color-input-bg: #fcfdff;
+      --color-placeholder: #98a2b3;
+      --color-danger: #dc2626;
+      --color-danger-hover: #b91c1c;
+      --color-field: #059669;
+      --color-field-hover: #047857;
+      --color-field-soft: #ecfdf5;
+      --color-report: #ea580c;
+      --color-report-hover: #c2410c;
+      --color-report-soft: #fff7ed;
+      --shadow-panel: 0 10px 30px rgba(20, 32, 60, 0.08);
+      --radius-panel: 28px;
+      --radius-section: 20px;
+      --radius-control: 15px;
+      --radius-btn: 14px;
+      --radius-action: 18px;
+      --radius-search: 16px;
+      --radius-logo: 14px;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-heading);
+      min-width: 360px;
+    }
+  </style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-5 py-8 space-y-4">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-[13px] text-muted">
+      <a href="#" class="text-primary hover:underline">Inicio</a>
+      <span class="text-placeholder">›</span>
+      <a href="visits-list.html" class="text-primary hover:underline">Visitas</a>
+      <span class="text-placeholder">›</span>
+      <span class="text-heading font-medium" id="bc-code"></span>
+    </nav>
+
+    <!-- ── Header card (patrón FarmDetailPage) ── -->
+    <div class="border border-line rounded-section p-4 bg-white flex items-center gap-4">
+      <div class="w-14 h-14 rounded-logo grid place-items-center bg-field-soft shrink-0" id="header-icon"></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h2 class="text-[22px] font-bold text-heading m-0 truncate" id="h-code"></h2>
+          <span id="h-status" class="text-[12px] font-semibold rounded-lg px-2 py-0.5"></span>
+          <span id="h-tipo" class="text-[12px] font-medium text-label border border-line bg-input-bg rounded-lg px-2 py-0.5"></span>
+        </div>
+        <p class="text-[13px] text-muted m-0 mt-0.5">
+          <a href="#" class="text-primary hover:underline" id="h-farm"></a>
+          <span id="h-client-wrap"> · <a href="#" class="text-primary hover:underline" id="h-client"></a></span>
+        </p>
+      </div>
+      <button
+        class="flex items-center gap-2 rounded-btn px-4 py-2.5 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none shrink-0"
+        onclick="location.href='visit-form.html'">
+        <span data-icon-sm="pencil"></span>
+        Editar
+      </button>
+    </div>
+
+    <!-- ── Checklist de ejecución (patrón banner guiado ?new=1) ── -->
+    <div class="border border-emerald-200 rounded-section p-4 bg-emerald-50 space-y-3" id="checklist-banner">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-logo grid place-items-center bg-emerald-100 shrink-0" id="banner-icon"></div>
+          <div>
+            <p class="text-[14px] font-bold text-emerald-800 m-0">Visita en curso — Ejecución</p>
+            <p class="text-[12px] text-emerald-700 m-0">Completa los pasos para cerrar la visita con su informe.</p>
+          </div>
+        </div>
+        <button id="banner-close" title="Cerrar guía"
+          class="w-6 h-6 grid place-items-center text-emerald-600 hover:text-emerald-800 bg-transparent border-none cursor-pointer shrink-0"></button>
+      </div>
+      <div id="checklist-steps" class="grid grid-cols-2 gap-2 max-[580px]:grid-cols-1"></div>
+    </div>
+
+    <!-- ── Sección: Detalles de la visita ── -->
+    <div class="border border-line rounded-section p-4 bg-white space-y-4">
+      <div class="flex items-center gap-2.5 pb-3 border-b border-line">
+        <div class="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="calendar"></div>
+        <div>
+          <h3 class="text-[15px] font-semibold text-heading m-0">Detalles de la visita</h3>
+          <p class="text-[12px] text-muted m-0">Programación y coordinación</p>
+        </div>
+      </div>
+      <div id="detalles-grid" class="grid grid-cols-2 gap-x-6 gap-y-3.5 max-[580px]:grid-cols-1"></div>
+    </div>
+
+    <!-- ── Sección: Granja visitada ── -->
+    <div class="border border-line rounded-section p-4 bg-white space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-line">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="office-building"></div>
+          <div>
+            <h3 class="text-[15px] font-semibold text-heading m-0">Granja visitada</h3>
+            <p class="text-[12px] text-muted m-0">Datos del registro existente</p>
+          </div>
+        </div>
+        <a href="#" class="flex items-center gap-1.5 text-[13px] font-semibold text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors rounded-btn px-3 py-1.5 no-underline">
+          <span data-icon-sm="external-link"></span>
+          Ver granja
+        </a>
+      </div>
+      <div id="granja-grid" class="grid grid-cols-2 gap-x-6 gap-y-3.5 max-[580px]:grid-cols-1"></div>
+    </div>
+
+    <!-- ── Sección: Galpones (lista colapsable, patrón FarmDetailPage) ── -->
+    <div class="border border-line rounded-section p-4 bg-white space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="home"></div>
+          <div>
+            <h3 class="text-[15px] font-semibold text-heading m-0">
+              Galpones a revisar <span class="text-muted font-normal" id="galpones-count"></span>
+            </h3>
+            <p class="text-[12px] text-muted m-0">Alcance definido al programar la visita</p>
+          </div>
+        </div>
+        <button
+          class="flex items-center gap-1.5 text-[13px] font-semibold text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors cursor-pointer border-none rounded-btn px-3 py-1.5">
+          <span data-icon-sm="plus"></span>
+          Agregar
+        </button>
+      </div>
+      <div id="galpones-list" class="space-y-2"></div>
+    </div>
+
+    <!-- ── Sección: Hallazgos ── -->
+    <div class="border border-line rounded-section p-4 bg-white space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-logo grid place-items-center bg-report-soft shrink-0" data-icon-report="exclamation"></div>
+          <div>
+            <h3 class="text-[15px] font-semibold text-heading m-0">
+              Hallazgos <span class="text-muted font-normal" id="hallazgos-count"></span>
+            </h3>
+            <p class="text-[12px] text-muted m-0">Novedades detectadas durante la visita</p>
+          </div>
+        </div>
+        <button
+          class="flex items-center gap-1.5 text-[13px] font-semibold text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors cursor-pointer border-none rounded-btn px-3 py-1.5">
+          <span data-icon-sm="plus"></span>
+          Agregar
+        </button>
+      </div>
+      <div id="hallazgos-list" class="space-y-2"></div>
+    </div>
+
+    <!-- ── Sección: Observaciones ── -->
+    <div class="border border-line rounded-section p-4 bg-white space-y-4">
+      <div class="flex items-center gap-2.5 pb-3 border-b border-line">
+        <div class="w-8 h-8 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="annotation"></div>
+        <div>
+          <h3 class="text-[15px] font-semibold text-heading m-0">Observaciones previas</h3>
+          <p class="text-[12px] text-muted m-0">Contexto registrado al programar</p>
+        </div>
+      </div>
+      <p class="text-[14px] text-heading m-0 leading-relaxed" id="observations"></p>
+    </div>
+
+  </main>
+
+  <script src="../shared/icons.js"></script>
+  <script src="../data/visits.mock.js"></script>
+  <script src="../data/visit-detail.mock.js"></script>
+  <script>
+    const V = MOCK_VISIT_DETAIL;
+
+    // ── Iconos estáticos ──
+    document.getElementById('header-icon').innerHTML = ICON('location-marker', 'w-7 h-7 text-field');
+    document.getElementById('banner-icon').innerHTML = ICON('clock', 'w-4 h-4 text-emerald-600');
+    document.getElementById('banner-close').innerHTML = ICON('x', 'w-4 h-4');
+    document.querySelectorAll('[data-icon]').forEach((el) => (el.innerHTML = ICON(el.dataset.icon, 'w-4 h-4 text-primary')));
+    document.querySelectorAll('[data-icon-report]').forEach((el) => (el.innerHTML = ICON(el.dataset.iconReport, 'w-4 h-4 text-report')));
+    document.querySelectorAll('[data-icon-sm]').forEach((el) => (el.innerHTML = ICON(el.dataset.iconSm, 'w-4 h-4')));
+
+    document.getElementById('banner-close').addEventListener('click', () =>
+      document.getElementById('checklist-banner').remove());
+
+    // ── Header ──
+    const st = VISIT_STATUS[V.estado];
+    document.getElementById('bc-code').textContent = V.code;
+    document.getElementById('h-code').textContent = V.code;
+    document.getElementById('h-status').textContent = st.label;
+    document.getElementById('h-status').className += ' ' + st.classes;
+    document.getElementById('h-tipo').textContent = VISIT_TYPES[V.tipo];
+    document.getElementById('h-farm').textContent = V.farm.nombre;
+    document.getElementById('h-client').textContent = V.client.razon_social;
+
+    // ── Checklist de ejecución (réplica del banner ?new=1) ──
+    document.getElementById('checklist-steps').innerHTML = V.checklist.map((step, i) => `
+      <div class="flex items-center gap-2.5 rounded-control px-3 py-2.5 border ${step.done ? 'border-emerald-300 bg-emerald-100/60' : 'border-emerald-200 bg-white'}">
+        <div class="w-6 h-6 rounded-full grid place-items-center shrink-0 ${step.done ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-emerald-300 text-emerald-400'}">
+          ${step.done ? ICON('check', 'w-3 h-3') : `<span class="text-[10px] font-black">${i + 1}</span>`}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12px] font-semibold m-0 ${step.done ? 'text-emerald-700 line-through' : 'text-heading'}">${step.label}</p>
+          <p class="text-[11px] text-emerald-600 m-0">${step.hint}</p>
+        </div>
+        ${!step.done ? `
+          <button class="text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-none rounded-btn px-2 py-1 cursor-pointer shrink-0 transition-colors">
+            Completar
+          </button>` : ''}
+      </div>`).join('');
+
+    // ── Helpers InfoRow / BoolRow (réplica de FarmDetailPage) ──
+    const infoRow = (label, value) => `
+      <div>
+        <p class="text-[12px] text-muted m-0">${label}</p>
+        <p class="text-[14px] font-medium text-heading m-0 mt-0.5">${value}</p>
+      </div>`;
+
+    const boolRow = (label, value) => `
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 rounded grid place-items-center shrink-0 ${
+          value === true ? 'bg-green-100 text-green-600' : value === false ? 'bg-red-50 text-danger' : 'bg-input-bg text-muted'}">
+          ${value === true ? ICON('check', 'w-3 h-3') : value === false ? ICON('x', 'w-3 h-3') : '<span class="text-[10px]">—</span>'}
+        </div>
+        <p class="text-[13px] text-heading m-0">${label}</p>
+      </div>`;
+
+    const fmtDate = (iso) => { const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; };
+
+    // ── Detalles de la visita ──
+    document.getElementById('detalles-grid').innerHTML = [
+      infoRow('Fecha programada', fmtDate(V.fecha_programada)),
+      infoRow('Hora', V.hora),
+      infoRow('Técnico asignado', V.tecnico.name),
+      infoRow('Acompañante', V.acompanante ?? '—'),
+      infoRow('Hora de llegada', V.llegada_at ?? '—'),
+      boolRow('Cliente notificado por correo', V.notificar_cliente),
+    ].join('');
+
+    // ── Granja visitada ──
+    document.getElementById('granja-grid').innerHTML = [
+      infoRow('Granja', V.farm.nombre),
+      infoRow('Cliente', V.client.razon_social),
+      infoRow('Municipio', `${V.farm.town}, ${V.farm.department}`),
+      infoRow('Dirección', V.farm.address ?? '—'),
+    ].join('');
+
+    // ── Galpones: lista colapsable ──
+    const expanded = new Set([V.galpones[0]?.id]);
+    document.getElementById('galpones-count').textContent = `(${V.galpones.length})`;
+
+    function renderGalpones() {
+      document.getElementById('galpones-list').innerHTML = V.galpones.map((g) => {
+        const isExpanded = expanded.has(g.id);
+        const revisado = g.revision === 'revisado';
+        return `
+          <div class="border border-line rounded-control overflow-hidden">
+            <!-- Header del galpón -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-input-bg hover:bg-primary-soft/20 transition-colors">
+              <button type="button" data-toggle="${g.id}"
+                class="flex items-center gap-2.5 flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left p-0">
+                ${ICON(isExpanded ? 'chevron-down' : 'chevron-right', 'w-4 h-4 text-muted shrink-0')}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[14px] font-semibold text-heading">${g.name}</span>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-primary-soft text-primary">${g.code}</span>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${revisado ? 'bg-field-soft text-field' : 'bg-amber-50 text-amber-600'}">
+                      ${revisado ? 'Revisado' : 'Pendiente'}
+                    </span>
+                  </div>
+                  <p class="text-[12px] text-muted m-0">
+                    ${g.sistemas.length} sistema${g.sistemas.length !== 1 ? 's' : ''} revisado${g.sistemas.length !== 1 ? 's' : ''}${g.revisado_at ? ' · ' + g.revisado_at : ''}
+                  </p>
+                </div>
+              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${!revisado ? `
+                  <button title="Marcar como revisado" data-check="${g.id}"
+                    class="w-7 h-7 rounded-lg grid place-items-center text-field bg-field-soft hover:bg-field hover:text-white transition-colors cursor-pointer border-none">
+                    ${ICON('check', 'w-3.5 h-3.5')}
+                  </button>` : ''}
+                <button title="Editar revisión"
+                  class="w-7 h-7 rounded-lg grid place-items-center text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors cursor-pointer border-none">
+                  ${ICON('pencil', 'w-3.5 h-3.5')}
+                </button>
+              </div>
+            </div>
+
+            <!-- Contenido expandido -->
+            ${isExpanded ? `
+              <div class="px-4 pb-4 space-y-3">
+                ${g.sistemas.length ? `
+                  <div class="pt-3 space-y-2">
+                    ${g.sistemas.map((s) => `
+                      <div class="flex items-center justify-between gap-3 border border-line rounded-control px-3.5 py-2.5 flex-wrap">
+                        <div class="min-w-0">
+                          <p class="text-[13px] font-semibold text-heading m-0">
+                            ${s.name}
+                            <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-input-bg text-muted ml-1">×${s.quantity}</span>
+                          </p>
+                          ${s.notas ? `<p class="text-[12px] text-muted m-0">${s.notas}</p>` : ''}
+                        </div>
+                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${s.estado === 'ok' ? 'bg-field-soft text-field' : 'bg-report-soft text-report'}">
+                          ${s.estado === 'ok' ? 'OK' : 'Requiere atención'}
+                        </span>
+                      </div>`).join('')}
+                  </div>` : `
+                  <p class="text-[13px] text-muted m-0 pt-3">Aún no se han revisado sistemas en este galpón.</p>`}
+                ${g.notas ? `
+                  <div>
+                    <p class="text-[12px] text-muted m-0">Notas de la revisión</p>
+                    <p class="text-[14px] font-medium text-heading m-0 mt-0.5">${g.notas}</p>
+                  </div>` : ''}
+              </div>` : ''}
+          </div>`;
+      }).join('');
+
+      document.querySelectorAll('[data-toggle]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const id = Number(btn.dataset.toggle);
+          expanded.has(id) ? expanded.delete(id) : expanded.add(id);
+          renderGalpones();
+        }));
+
+      // Mock interactivo: marcar galpón como revisado
+      document.querySelectorAll('[data-check]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const g = V.galpones.find((x) => x.id === Number(btn.dataset.check));
+          g.revision = 'revisado';
+          g.revisado_at = new Date().toTimeString().slice(0, 5);
+          renderGalpones();
+        }));
+    }
+    renderGalpones();
+
+    // ── Hallazgos ──
+    document.getElementById('hallazgos-count').textContent = `(${V.hallazgos.length})`;
+    document.getElementById('hallazgos-list').innerHTML = V.hallazgos.length
+      ? V.hallazgos.map((h) => {
+          const sev = FINDING_SEVERITY[h.severidad];
+          return `
+            <div class="border border-line rounded-control px-4 py-3 space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${sev.classes}">Severidad ${sev.label}</span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-primary-soft text-primary">${h.galpon}</span>
+              </div>
+              <p class="text-[14px] font-semibold text-heading m-0">${h.titulo}</p>
+              <p class="text-[13px] text-muted m-0 leading-relaxed">${h.descripcion}</p>
+            </div>`;
+        }).join('')
+      : '<p class="text-[13px] text-muted m-0">No se han registrado hallazgos en esta visita.</p>';
+
+    // ── Observaciones ──
+    document.getElementById('observations').textContent = V.observations || 'Sin observaciones.';
+  </script>
+</body>
+</html>

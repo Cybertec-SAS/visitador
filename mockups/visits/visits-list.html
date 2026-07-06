@@ -1,0 +1,241 @@
+<!doctype html>
+<!--
+  MOCKUP · Listado de visitas ("tabla de vista superior")
+  Patrón extraído de: src/pages/farms/FarmsListPage.tsx
+  Tokens de tema copiados de: src/index.css  (mantener clases idénticas para integrar)
+  Datos: ../data/visits.mock.js
+  Requiere internet (Tailwind 4 browser CDN + Google Fonts). Abrir con doble clic.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Visitas — Listado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    /* ── Tokens copiados 1:1 de src/index.css ── */
+    @theme {
+      --color-bg: #f6f8fb;
+      --color-surface: #ffffff;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-soft: #eef4ff;
+      --color-muted: #6f7b8f;
+      --color-line: #e7ecf3;
+      --color-heading: #172033;
+      --color-label: #344054;
+      --color-input-bg: #fcfdff;
+      --color-placeholder: #98a2b3;
+      --color-danger: #dc2626;
+      --color-danger-hover: #b91c1c;
+      --color-field: #059669;
+      --color-field-hover: #047857;
+      --color-field-soft: #ecfdf5;
+      --color-report: #ea580c;
+      --color-report-hover: #c2410c;
+      --color-report-soft: #fff7ed;
+      --shadow-panel: 0 10px 30px rgba(20, 32, 60, 0.08);
+      --radius-panel: 28px;
+      --radius-section: 20px;
+      --radius-control: 15px;
+      --radius-btn: 14px;
+      --radius-action: 18px;
+      --radius-search: 16px;
+      --radius-logo: 14px;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-heading);
+      min-width: 360px;
+    }
+  </style>
+</head>
+<body>
+  <main class="max-w-5xl mx-auto px-5 py-8">
+
+    <!-- Breadcrumb (patrón src/components/ui/Breadcrumb.tsx) -->
+    <nav class="flex items-center gap-1.5 text-[13px] text-muted mb-4">
+      <a href="#" class="text-primary hover:underline">Inicio</a>
+      <span class="text-placeholder">›</span>
+      <span class="text-heading font-medium">Visitas</span>
+    </nav>
+
+    <!-- Page header (patrón FarmsListPage) -->
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-logo grid place-items-center bg-field-soft shrink-0" id="header-icon"></div>
+        <div>
+          <h2 class="text-[28px] font-bold text-heading m-0 max-[640px]:text-2xl leading-tight">Visitas</h2>
+          <p class="text-[13px] text-muted m-0">Visitas técnicas programadas y realizadas en campo</p>
+        </div>
+      </div>
+      <button id="btn-new"
+        class="flex items-center gap-2 rounded-btn px-4.5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none">
+        <span id="icon-plus"></span>
+        Nueva visita
+      </button>
+    </div>
+
+    <!-- ── Estado: cargando ── -->
+    <div id="state-loading" class="hidden mt-12 justify-center">
+      <div class="w-8 h-8 border-4 border-line border-t-primary rounded-full animate-spin"></div>
+    </div>
+
+    <!-- ── Estado: vacío ── -->
+    <div id="state-empty" class="hidden border border-line rounded-section bg-white py-16 flex-col items-center gap-4">
+      <div class="w-16 h-16 rounded-full bg-field-soft grid place-items-center" id="empty-icon"></div>
+      <div class="text-center">
+        <h3 class="text-base font-semibold text-heading m-0">No hay visitas aún</h3>
+        <p class="text-[13px] text-muted mt-1.5">Programa la primera visita a una granja registrada</p>
+      </div>
+      <button
+        class="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none"
+        onclick="location.href='visit-form.html'">
+        <span id="empty-plus"></span>
+        Programar primera visita
+      </button>
+    </div>
+
+    <!-- ── Estado: tabla con datos ── -->
+    <div id="state-table">
+      <div class="border border-line rounded-section bg-white overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm min-w-175">
+            <thead class="bg-input-bg">
+              <tr>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Código</th>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Granja</th>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Tipo</th>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Fecha</th>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Técnico</th>
+                <th class="text-left px-4 py-3 font-bold text-[13px] text-label">Estado</th>
+                <th class="text-right px-4 py-3 font-bold text-[13px] text-label">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="rows" class="divide-y divide-line"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Paginación (patrón src/components/ui/Pagination.tsx) -->
+      <div class="flex items-center justify-between mt-4 flex-wrap gap-3">
+        <p class="text-[13px] text-muted m-0" id="pagination-info"></p>
+        <div class="flex items-center gap-1.5" id="pagination"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Barra de controles del mockup (no forma parte del diseño) -->
+  <div class="fixed bottom-4 right-4 flex items-center gap-1.5 bg-heading/90 text-white rounded-btn px-3 py-2 shadow-panel">
+    <span class="text-[11px] font-semibold uppercase tracking-wide opacity-70 mr-1">Mock</span>
+    <button data-state="table" class="mock-btn text-[12px] px-2.5 py-1 rounded-lg bg-white/20 cursor-pointer border-none text-white">Datos</button>
+    <button data-state="empty" class="mock-btn text-[12px] px-2.5 py-1 rounded-lg bg-transparent hover:bg-white/10 cursor-pointer border-none text-white">Vacío</button>
+    <button data-state="loading" class="mock-btn text-[12px] px-2.5 py-1 rounded-lg bg-transparent hover:bg-white/10 cursor-pointer border-none text-white">Cargando</button>
+  </div>
+
+  <script src="../shared/icons.js"></script>
+  <script src="../data/visits.mock.js"></script>
+  <script>
+    // ── Iconos estáticos ──
+    document.getElementById('header-icon').innerHTML = ICON('location-marker', 'w-6 h-6 text-field');
+    document.getElementById('empty-icon').innerHTML = ICON('location-marker', 'w-8 h-8 text-field');
+    document.getElementById('icon-plus').innerHTML = ICON('plus', 'w-4 h-4');
+    document.getElementById('empty-plus').innerHTML = ICON('plus', 'w-4 h-4');
+    document.getElementById('btn-new').addEventListener('click', () => (location.href = 'visit-form.html'));
+
+    // ── Render de filas desde el mock ──
+    const fmtDate = (iso) => {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    };
+
+    document.getElementById('rows').innerHTML = MOCK_VISITS.map((v) => {
+      const st = VISIT_STATUS[v.estado];
+      return `
+        <tr class="hover:bg-primary-soft/50">
+          <td class="px-4 py-3">
+            <a href="visit-detail.html" class="text-primary hover:underline font-medium">${v.code}</a>
+          </td>
+          <td class="px-4 py-3">
+            <p class="text-heading font-medium m-0">${v.farm}</p>
+            <p class="text-[12px] text-muted m-0">${v.client}</p>
+          </td>
+          <td class="px-4 py-3">
+            <span class="inline-block text-[12px] font-medium text-label border border-line bg-input-bg rounded-lg px-2 py-0.5">
+              ${VISIT_TYPES[v.tipo]}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-heading whitespace-nowrap">
+            ${fmtDate(v.fecha_programada)}
+            <span class="text-[12px] text-muted">· ${v.hora}</span>
+          </td>
+          <td class="px-4 py-3 text-heading">${v.tecnico}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block text-[12px] font-semibold rounded-lg px-2 py-0.5 ${st.classes}">${st.label}</span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button title="Ver visita" onclick="location.href='visit-detail.html'"
+                class="w-8 h-8 rounded-lg grid place-items-center text-field bg-field-soft hover:bg-field hover:text-white transition-colors cursor-pointer border-none">
+                ${ICON('eye', 'w-4 h-4')}
+              </button>
+              <button title="Editar visita"
+                class="w-8 h-8 rounded-lg grid place-items-center text-primary bg-primary-soft hover:bg-primary hover:text-white transition-colors cursor-pointer border-none">
+                ${ICON('pencil', 'w-4 h-4')}
+              </button>
+              <button title="Eliminar visita"
+                class="w-8 h-8 rounded-lg grid place-items-center text-danger bg-red-50 hover:bg-danger hover:text-white transition-colors cursor-pointer border-none">
+                ${ICON('trash', 'w-4 h-4')}
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    // ── Paginación mock ──
+    const meta = MOCK_PAGINATION;
+    const from = (meta.page - 1) * meta.per_page + 1;
+    const to = Math.min(meta.page * meta.per_page, meta.total);
+    document.getElementById('pagination-info').textContent = `Mostrando ${from}–${to} de ${meta.total} visitas`;
+
+    const pageBtn = (label, { active = false, disabled = false } = {}) => `
+      <button ${disabled ? 'disabled' : ''}
+        class="min-w-9 h-9 px-2.5 rounded-btn text-[13px] font-semibold border transition-colors cursor-pointer
+          ${active
+            ? 'bg-primary text-white border-primary'
+            : disabled
+              ? 'bg-white text-placeholder border-line cursor-default'
+              : 'bg-white text-heading border-line hover:bg-input-bg'}">
+        ${label}
+      </button>`;
+
+    document.getElementById('pagination').innerHTML = [
+      pageBtn('‹ Anterior', { disabled: meta.page === 1 }),
+      ...Array.from({ length: meta.last_page }, (_, i) => pageBtn(i + 1, { active: i + 1 === meta.page })),
+      pageBtn('Siguiente ›', { disabled: meta.page === meta.last_page }),
+    ].join('');
+
+    // ── Toggle de estados del mockup ──
+    const states = ['table', 'empty', 'loading'];
+    document.querySelectorAll('.mock-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        states.forEach((s) => {
+          const el = document.getElementById('state-' + s);
+          const on = s === btn.dataset.state;
+          el.classList.toggle('hidden', !on);
+          if (s !== 'table') el.classList.toggle('flex', on);
+        });
+        document.querySelectorAll('.mock-btn').forEach((b) => {
+          b.classList.toggle('bg-white/20', b === btn);
+          b.classList.toggle('bg-transparent', b !== btn);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

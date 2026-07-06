@@ -1,0 +1,584 @@
+<!doctype html>
+<!--
+  MOCKUP · Formulario progresivo de visita (wizard 4 pasos)
+  Patrones extraídos de:
+    - src/components/forms/FarmForm.tsx        → step indicator, progreso, ToggleField,
+                                                  revelación progresiva, SummaryCard, navegación
+    - src/components/forms/FarmContactForm.tsx → selector visual de tipo (botones con icono)
+    - src/pages/farms/FarmFormPage.tsx         → breadcrumb, header de página, banner de flujo
+  Tokens de tema copiados de: src/index.css (mantener clases idénticas para integrar)
+  Datos: ../data/clients-farms.mock.js, ../data/visits.mock.js
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Visitas — Nueva visita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    /* ── Tokens copiados 1:1 de src/index.css ── */
+    @theme {
+      --color-bg: #f6f8fb;
+      --color-surface: #ffffff;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-soft: #eef4ff;
+      --color-muted: #6f7b8f;
+      --color-line: #e7ecf3;
+      --color-heading: #172033;
+      --color-label: #344054;
+      --color-input-bg: #fcfdff;
+      --color-placeholder: #98a2b3;
+      --color-danger: #dc2626;
+      --color-danger-hover: #b91c1c;
+      --color-field: #059669;
+      --color-field-hover: #047857;
+      --color-field-soft: #ecfdf5;
+      --color-report: #ea580c;
+      --color-report-hover: #c2410c;
+      --color-report-soft: #fff7ed;
+      --shadow-panel: 0 10px 30px rgba(20, 32, 60, 0.08);
+      --radius-panel: 28px;
+      --radius-section: 20px;
+      --radius-control: 15px;
+      --radius-btn: 14px;
+      --radius-action: 18px;
+      --radius-search: 16px;
+      --radius-logo: 14px;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-heading);
+      min-width: 360px;
+    }
+    /* Réplica del inputClass de FarmForm.tsx */
+    .input {
+      @apply w-full min-h-12.5 border border-line rounded-control px-3.75 py-3.5 bg-input-bg text-sm text-heading outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-placeholder transition-colors;
+    }
+    /* Réplica del ToggleField (switch) de FarmForm.tsx */
+    .toggle-track {
+      @apply relative w-10 h-5.5 bg-line rounded-full transition-colors peer-checked:bg-primary shrink-0
+        after:content-[''] after:absolute after:left-0.5 after:top-0.5 after:w-4.5 after:h-4.5
+        after:bg-white after:rounded-full after:shadow after:transition-transform peer-checked:after:translate-x-4.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="max-w-2xl mx-auto px-5 py-8 space-y-4">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-[13px] text-muted">
+      <a href="#" class="text-primary hover:underline">Inicio</a>
+      <span class="text-placeholder">›</span>
+      <a href="visits-list.html" class="text-primary hover:underline">Visitas</a>
+      <span class="text-placeholder">›</span>
+      <span class="text-heading font-medium">Nueva visita</span>
+    </nav>
+
+    <!-- Page header (patrón FarmFormPage) -->
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-logo grid place-items-center bg-field-soft shrink-0" id="header-icon"></div>
+      <div>
+        <h2 class="text-[22px] font-bold text-heading m-0">Nueva visita</h2>
+        <p class="text-[13px] text-muted m-0">Programa una visita técnica a una granja registrada</p>
+      </div>
+    </div>
+
+    <!-- Banner de flujo (patrón FarmFormPage) -->
+    <div class="border border-primary/20 rounded-control p-3.5 bg-primary-soft/40 flex items-start gap-3">
+      <span class="text-[13px] text-primary leading-relaxed">
+        💡 <strong>Flujo:</strong> Contexto → Programación → Alcance → Resumen. Los datos de granjas y
+        galpones vienen del registro ya existente (Cliente → Granja → Galpones).
+      </span>
+    </div>
+
+    <form id="visit-form" class="space-y-3.5" onsubmit="return false;">
+
+      <!-- ══ Step indicator + progreso (patrón FarmForm) ══ -->
+      <div class="border border-line rounded-section p-4 bg-white space-y-3">
+        <div id="step-indicator" class="flex items-center gap-0 overflow-x-auto pb-1 w-fit max-w-full"></div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[12px] text-muted" id="step-label"></span>
+            <span class="text-[12px] font-semibold text-primary" id="progress-pct">0%</span>
+          </div>
+          <div class="h-1.5 bg-line rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Contenido de pasos ══ -->
+      <div class="border border-line rounded-section p-4 bg-white space-y-3">
+
+        <!-- ── PASO 0: Contexto ── -->
+        <section data-step="0" class="space-y-3">
+          <div class="flex items-center gap-3 pb-2 border-b border-line">
+            <div class="w-9 h-9 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="user-group"></div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-heading m-0">Cliente, granja y tipo de visita</h3>
+              <p class="text-[13px] text-muted m-0">Estos datos son obligatorios para continuar</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[13px] font-semibold text-label block mb-1.5">
+              Cliente <span class="text-danger">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" data-icon-sm="user-group"></span>
+              <select id="f-client" class="input pl-10 appearance-none">
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            <p class="text-[12px] text-danger mt-1.5 hidden" data-error="client">Selecciona un cliente</p>
+          </div>
+
+          <div>
+            <label class="text-[13px] font-semibold text-label block mb-1.5">
+              Granja <span class="text-danger">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" data-icon-sm="office-building"></span>
+              <select id="f-farm" class="input pl-10 appearance-none" disabled>
+                <option value="">Primero selecciona un cliente...</option>
+              </select>
+            </div>
+            <p class="text-[12px] text-danger mt-1.5 hidden" data-error="farm">Selecciona una granja</p>
+          </div>
+
+          <!-- Selector visual de tipo (patrón FarmContactForm) -->
+          <div>
+            <label class="text-[13px] font-semibold text-label block mb-1.5">
+              Tipo de visita <span class="text-danger">*</span>
+            </label>
+            <div id="type-buttons" class="grid grid-cols-2 gap-2 min-[560px]:grid-cols-4"></div>
+            <p class="text-[12px] text-danger mt-1.5 hidden" data-error="tipo">Selecciona el tipo de visita</p>
+          </div>
+        </section>
+
+        <!-- ── PASO 1: Programación ── -->
+        <section data-step="1" class="space-y-3 hidden">
+          <div class="flex items-center gap-3 pb-2 border-b border-line">
+            <div class="w-9 h-9 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="calendar"></div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-heading m-0">Programación</h3>
+              <p class="text-[13px] text-muted m-0">Fecha, técnico responsable y coordinación</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3.5 max-[580px]:grid-cols-1">
+            <div>
+              <label class="text-[13px] font-semibold text-label block mb-1.5">
+                Fecha programada <span class="text-danger">*</span>
+              </label>
+              <input type="date" id="f-fecha" class="input" />
+              <p class="text-[12px] text-danger mt-1.5 hidden" data-error="fecha">La fecha es obligatoria</p>
+            </div>
+            <div>
+              <label class="text-[13px] font-semibold text-label block mb-1.5">Hora</label>
+              <input type="time" id="f-hora" class="input" />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[13px] font-semibold text-label block mb-1.5">Técnico asignado</label>
+            <select id="f-tecnico" class="input appearance-none">
+              <option value="">Sin asignar</option>
+            </select>
+          </div>
+
+          <!-- Switch cards con revelación progresiva (patrón FarmForm paso 2) -->
+          <div class="space-y-2">
+            <div id="card-acompanante" class="border border-line bg-white rounded-control overflow-hidden transition-colors">
+              <div class="px-4 py-3">
+                <label class="flex items-center justify-between gap-3 cursor-pointer">
+                  <span class="text-[13px] text-heading">El cliente asigna un acompañante en campo</span>
+                  <input type="checkbox" id="f-tiene-acompanante" class="sr-only peer" />
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+              <div id="reveal-acompanante" class="px-4 pb-3 border-t border-primary/20 hidden">
+                <label class="text-[13px] font-semibold text-label block mb-1.5 mt-3">Nombre del acompañante</label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" data-icon-sm="user-group"></span>
+                  <input id="f-acompanante" placeholder="Ej: Administrador de la granja" class="input pl-10" />
+                </div>
+              </div>
+            </div>
+
+            <div id="card-notificar" class="border border-line bg-white rounded-control px-4 py-3 transition-colors">
+              <label class="flex items-center justify-between gap-3 cursor-pointer">
+                <span class="text-[13px] text-heading">Notificar al cliente por correo al programar</span>
+                <input type="checkbox" id="f-notificar" class="sr-only peer" />
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── PASO 2: Alcance ── -->
+        <section data-step="2" class="space-y-3 hidden">
+          <div class="flex items-center gap-3 pb-2 border-b border-line">
+            <div class="w-9 h-9 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="home"></div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-heading m-0">Alcance de la visita</h3>
+              <p class="text-[13px] text-muted m-0">Selecciona los galpones que se revisarán</p>
+            </div>
+          </div>
+
+          <div id="galpones-empty" class="border border-line rounded-control p-3.5 bg-input-bg">
+            <p class="text-[13px] text-muted m-0">Selecciona una granja en el paso 1 para listar sus galpones.</p>
+          </div>
+          <div id="galpones-list" class="space-y-2"></div>
+
+          <div>
+            <label class="text-[13px] font-semibold text-label block mb-1.5">Observaciones previas</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-3.5 text-muted pointer-events-none" data-icon-sm="annotation"></span>
+              <textarea id="f-observaciones" rows="3" placeholder="Contexto para el técnico antes de llegar a la granja..."
+                class="input pl-10 min-h-22.5 resize-none"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── PASO 3: Resumen ── -->
+        <section data-step="3" class="space-y-3 hidden">
+          <div class="flex items-center gap-3 pb-2 border-b border-line">
+            <div class="w-9 h-9 rounded-logo grid place-items-center bg-primary-soft shrink-0" data-icon="clipboard-list"></div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-heading m-0">Resumen y confirmación</h3>
+              <p class="text-[13px] text-muted m-0">Revisa los datos antes de guardar</p>
+            </div>
+          </div>
+          <div id="summary" class="space-y-3"></div>
+        </section>
+      </div>
+
+      <!-- ══ Navegación (patrón FarmForm) ══ -->
+      <div class="flex items-center justify-between gap-3">
+        <button type="button" id="btn-prev"
+          class="flex items-center gap-2 rounded-btn px-4 py-3 text-sm font-semibold text-muted hover:text-heading border border-line bg-white hover:bg-input-bg transition-colors cursor-pointer invisible">
+          <span data-icon-sm="chevron-left"></span> Anterior
+        </button>
+        <button type="button" id="btn-next"
+          class="flex items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer border-none">
+          Siguiente <span data-icon-sm="chevron-right"></span>
+        </button>
+        <button type="button" id="btn-submit"
+          class="hidden items-center gap-2 rounded-btn px-5 py-3 text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition-colors cursor-pointer border-none">
+          <span data-icon-sm="check"></span> Programar visita
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Toast estilo sileo (mock) -->
+  <div id="toast" class="hidden fixed top-4 right-4 bg-white border border-line rounded-control shadow-panel px-4 py-3 flex items-center gap-3 max-w-xs">
+    <div class="w-8 h-8 rounded-lg bg-field-soft grid place-items-center shrink-0" id="toast-icon"></div>
+    <div>
+      <p class="text-[13px] font-semibold text-heading m-0">¡Visita programada!</p>
+      <p class="text-[12px] text-muted m-0">Payload impreso en la consola (mock)</p>
+    </div>
+  </div>
+
+  <script src="../shared/icons.js"></script>
+  <script src="../data/clients-farms.mock.js"></script>
+  <script src="../data/visits.mock.js"></script>
+  <script>
+    // ─────────────────────────────────────────────────────────────────────────
+    // Configuración de pasos (equivalente al array STEPS de FarmForm.tsx)
+    // ─────────────────────────────────────────────────────────────────────────
+    const STEPS = [
+      { title: 'Contexto', description: 'Cliente, granja y tipo', icon: 'user-group' },
+      { title: 'Programación', description: 'Fecha y técnico', icon: 'calendar' },
+      { title: 'Alcance', description: 'Galpones a revisar', icon: 'home' },
+      { title: 'Resumen', description: 'Revisa y confirma', icon: 'clipboard-list' },
+    ];
+
+    const TYPE_ICONS = { tecnica: 'cog', instalacion: 'lightning-bolt', seguimiento: 'badge-check', novedad: 'annotation' };
+
+    let step = 0;
+    const state = { tipo: '', galpones: [] };
+
+    // ── Iconos estáticos declarados en el HTML ──
+    document.getElementById('header-icon').innerHTML = ICON('location-marker', 'w-6 h-6 text-field');
+    document.querySelectorAll('[data-icon]').forEach((el) => (el.innerHTML = ICON(el.dataset.icon, 'w-5 h-5 text-primary')));
+    document.querySelectorAll('[data-icon-sm]').forEach((el) => (el.innerHTML = ICON(el.dataset.iconSm, 'w-4 h-4')));
+
+    // ── Poblar selects desde los mocks ──
+    const selClient = document.getElementById('f-client');
+    const selFarm = document.getElementById('f-farm');
+    const selTecnico = document.getElementById('f-tecnico');
+
+    MOCK_CLIENTS.forEach((c) => selClient.add(new Option(`${c.razon_social} — ${c.nit}`, c.id)));
+    MOCK_TECHNICIANS.forEach((t) => selTecnico.add(new Option(t.name, t.id)));
+
+    selClient.addEventListener('change', () => {
+      const client = MOCK_CLIENTS.find((c) => c.id === Number(selClient.value));
+      selFarm.innerHTML = '';
+      selFarm.disabled = !client;
+      selFarm.add(new Option(client ? 'Seleccionar granja...' : 'Primero selecciona un cliente...', ''));
+      (client?.farms ?? []).forEach((f) => selFarm.add(new Option(`${f.nombre} — ${f.town}`, f.id)));
+      state.galpones = [];
+      renderGalpones();
+      updateProgress();
+    });
+    selFarm.addEventListener('change', () => {
+      state.galpones = [];
+      renderGalpones();
+      updateProgress();
+    });
+
+    // ── Selector visual de tipo (patrón FarmContactForm) ──
+    const typeWrap = document.getElementById('type-buttons');
+    typeWrap.innerHTML = Object.entries(VISIT_TYPES).map(([key, label]) => `
+      <button type="button" data-type="${key}"
+        class="type-btn flex flex-col items-center gap-1.5 border border-line bg-white rounded-control px-3 py-3 cursor-pointer transition-colors hover:border-primary/40">
+        <span class="type-icon text-muted">${ICON(TYPE_ICONS[key], 'w-5 h-5')}</span>
+        <span class="text-[12px] font-semibold text-label">${label}</span>
+      </button>`).join('');
+
+    typeWrap.querySelectorAll('.type-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.tipo = btn.dataset.type;
+        typeWrap.querySelectorAll('.type-btn').forEach((b) => {
+          const on = b === btn;
+          b.classList.toggle('border-primary', on);
+          b.classList.toggle('bg-primary-soft', on);
+          b.querySelector('.type-icon').classList.toggle('text-primary', on);
+          b.querySelector('.type-icon').classList.toggle('text-muted', !on);
+        });
+        updateProgress();
+      });
+    });
+
+    // ── Revelación progresiva (patrón toggle-cards de FarmForm) ──
+    const chkAcomp = document.getElementById('f-tiene-acompanante');
+    chkAcomp.addEventListener('change', () => {
+      document.getElementById('reveal-acompanante').classList.toggle('hidden', !chkAcomp.checked);
+      const card = document.getElementById('card-acompanante');
+      card.classList.toggle('border-primary/40', chkAcomp.checked);
+      card.classList.toggle('bg-primary-soft/30', chkAcomp.checked);
+      card.classList.toggle('border-line', !chkAcomp.checked);
+      card.classList.toggle('bg-white', !chkAcomp.checked);
+    });
+    const chkNotif = document.getElementById('f-notificar');
+    chkNotif.addEventListener('change', () => {
+      const card = document.getElementById('card-notificar');
+      card.classList.toggle('border-primary/40', chkNotif.checked);
+      card.classList.toggle('bg-primary-soft/30', chkNotif.checked);
+      card.classList.toggle('border-line', !chkNotif.checked);
+      card.classList.toggle('bg-white', !chkNotif.checked);
+    });
+
+    // ── Checklist de galpones (checkbox-cards) ──
+    function currentFarm() {
+      const client = MOCK_CLIENTS.find((c) => c.id === Number(selClient.value));
+      return client?.farms.find((f) => f.id === Number(selFarm.value));
+    }
+
+    function renderGalpones() {
+      const farm = currentFarm();
+      const list = document.getElementById('galpones-list');
+      document.getElementById('galpones-empty').classList.toggle('hidden', !!farm);
+      if (!farm) { list.innerHTML = ''; return; }
+
+      list.innerHTML = farm.galpones.map((g) => {
+        const checked = state.galpones.includes(g.id);
+        return `
+          <label class="flex items-center justify-between gap-3 border rounded-control px-4 py-3 cursor-pointer transition-colors
+            ${checked ? 'border-primary/40 bg-primary-soft/30' : 'border-line bg-white hover:border-primary/30'}">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" data-galpon="${g.id}" ${checked ? 'checked' : ''}
+                class="w-4 h-4 accent-[#2563eb] cursor-pointer" />
+              <div>
+                <p class="text-[13px] font-semibold text-heading m-0">${g.name}</p>
+                <p class="text-[11px] text-muted m-0">Código ${g.code}</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-semibold rounded-lg px-2 py-0.5 ${g.status === 'active' ? 'bg-field-soft text-field' : 'bg-input-bg text-muted'}">
+              ${g.status === 'active' ? 'Activo' : 'Inactivo'}
+            </span>
+          </label>`;
+      }).join('');
+
+      list.querySelectorAll('input[data-galpon]').forEach((chk) => {
+        chk.addEventListener('change', () => {
+          const id = Number(chk.dataset.galpon);
+          state.galpones = chk.checked ? [...state.galpones, id] : state.galpones.filter((g) => g !== id);
+          renderGalpones();
+          updateProgress();
+        });
+      });
+    }
+
+    // ── Step indicator (réplica del bloque indicador de FarmForm) ──
+    function renderIndicator() {
+      document.getElementById('step-indicator').innerHTML = STEPS.map((s, i) => {
+        const isActive = i === step;
+        const isDone = i < step;
+        const connector = i < STEPS.length - 1 ? `
+          <div class="w-6 mx-1 shrink-0">
+            <div class="h-0.5 bg-line rounded-full overflow-hidden">
+              <div class="h-full bg-primary transition-all duration-300" style="width:${isDone ? '100%' : '0%'}"></div>
+            </div>
+          </div>` : '';
+        return `
+          <div class="flex items-center shrink-0 last:shrink">
+            <button type="button" data-goto="${i}" ${isDone ? '' : 'disabled'}
+              class="flex items-center gap-2 rounded-control px-2.5 py-2 transition-colors border-none
+                ${isActive ? 'bg-primary-soft cursor-default' : isDone ? 'hover:bg-primary-soft/60 cursor-pointer bg-transparent' : 'opacity-35 cursor-default bg-transparent'}">
+              <div class="w-7 h-7 rounded-lg grid place-items-center shrink-0 transition-colors
+                ${isDone || isActive ? 'bg-primary text-white' : 'bg-input-bg text-muted'}">
+                ${ICON(isDone ? 'check' : s.icon, 'w-3.5 h-3.5')}
+              </div>
+              <div class="text-left hidden min-[560px]:block">
+                <p class="text-[12px] font-semibold m-0 ${isActive ? 'text-primary' : isDone ? 'text-heading' : 'text-muted'}">${s.title}</p>
+                <p class="text-[11px] text-muted m-0">${s.description}</p>
+              </div>
+              <span class="text-[12px] font-bold min-[560px]:hidden ${isActive ? 'text-primary' : isDone ? 'text-heading' : 'text-muted'}">${i + 1}</span>
+            </button>
+            ${connector}
+          </div>`;
+      }).join('');
+
+      document.querySelectorAll('[data-goto]').forEach((btn) => {
+        btn.addEventListener('click', () => { if (Number(btn.dataset.goto) < step) goTo(Number(btn.dataset.goto)); });
+      });
+      document.getElementById('step-label').textContent = `Paso ${step + 1} de ${STEPS.length} — ${STEPS[step].title}`;
+    }
+
+    // ── Progreso: 4 requeridos + 4 opcionales = 8 (misma mecánica de FarmForm) ──
+    function updateProgress() {
+      const required = [selClient.value, selFarm.value, state.tipo, document.getElementById('f-fecha').value];
+      const optional = [
+        document.getElementById('f-hora').value,
+        selTecnico.value,
+        state.galpones.length > 0 ? 'x' : '',
+        document.getElementById('f-observaciones').value,
+      ];
+      const filled = [...required, ...optional].filter(Boolean).length;
+      const pct = Math.min((filled / 8) * 100, 100);
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+    }
+    ['f-fecha', 'f-hora', 'f-observaciones'].forEach((id) =>
+      document.getElementById(id).addEventListener('input', updateProgress));
+    selTecnico.addEventListener('change', updateProgress);
+
+    // ── Validación por paso ──
+    function validate() {
+      const show = (key, bad) => document.querySelector(`[data-error="${key}"]`).classList.toggle('hidden', !bad);
+      if (step === 0) {
+        const badClient = !selClient.value, badFarm = !selFarm.value, badTipo = !state.tipo;
+        show('client', badClient); show('farm', badFarm); show('tipo', badTipo);
+        return !(badClient || badFarm || badTipo);
+      }
+      if (step === 1) {
+        const badFecha = !document.getElementById('f-fecha').value;
+        show('fecha', badFecha);
+        return !badFecha;
+      }
+      return true;
+    }
+
+    // ── Resumen (patrón SummaryCard de FarmForm) ──
+    function summaryCard(icon, title, gotoStep, items) {
+      return `
+        <div class="border border-line rounded-control p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-primary">${ICON(icon, 'w-4 h-4')}</span>
+              <span class="text-[13px] font-semibold text-heading">${title}</span>
+            </div>
+            <button type="button" data-edit="${gotoStep}"
+              class="text-[12px] text-primary hover:underline font-medium cursor-pointer border-none bg-transparent">Editar</button>
+          </div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 max-[480px]:grid-cols-1">
+            ${items.map(([label, value]) => `
+              <div>
+                <p class="text-[11px] text-muted m-0">${label}</p>
+                <p class="text-[13px] font-medium text-heading m-0 truncate">${value}</p>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderSummary() {
+      const client = MOCK_CLIENTS.find((c) => c.id === Number(selClient.value));
+      const farm = currentFarm();
+      const tecnico = MOCK_TECHNICIANS.find((t) => t.id === Number(selTecnico.value));
+      const galpones = (farm?.galpones ?? []).filter((g) => state.galpones.includes(g.id));
+
+      document.getElementById('summary').innerHTML = [
+        summaryCard('user-group', 'Contexto', 0, [
+          ['Cliente', client?.razon_social ?? '—'],
+          ['Granja', farm?.nombre ?? '—'],
+          ['Tipo de visita', VISIT_TYPES[state.tipo] ?? '—'],
+          ['Ubicación', farm ? `${farm.town}, ${farm.department}` : '—'],
+        ]),
+        summaryCard('calendar', 'Programación', 1, [
+          ['Fecha', document.getElementById('f-fecha').value || 'No especificada'],
+          ['Hora', document.getElementById('f-hora').value || 'No especificada'],
+          ['Técnico', tecnico?.name ?? 'Sin asignar'],
+          ['Acompañante', chkAcomp.checked ? (document.getElementById('f-acompanante').value || 'Sí') : 'No'],
+          ['Notificar cliente', chkNotif.checked ? 'Sí' : 'No'],
+        ]),
+        summaryCard('home', 'Alcance', 2, [
+          ['Galpones a revisar', galpones.length ? galpones.map((g) => g.name).join(', ') : 'Ninguno seleccionado'],
+          ['Observaciones', document.getElementById('f-observaciones').value || 'Sin observaciones'],
+        ]),
+      ].join('');
+
+      document.querySelectorAll('[data-edit]').forEach((btn) =>
+        btn.addEventListener('click', () => goTo(Number(btn.dataset.edit))));
+    }
+
+    // ── Navegación ──
+    function goTo(n) {
+      step = n;
+      document.querySelectorAll('[data-step]').forEach((s) =>
+        s.classList.toggle('hidden', Number(s.dataset.step) !== step));
+      document.getElementById('btn-prev').classList.toggle('invisible', step === 0);
+      const last = step === STEPS.length - 1;
+      document.getElementById('btn-next').classList.toggle('hidden', last);
+      const submit = document.getElementById('btn-submit');
+      submit.classList.toggle('hidden', !last);
+      submit.classList.toggle('flex', last);
+      if (last) renderSummary();
+      renderIndicator();
+      updateProgress();
+    }
+
+    document.getElementById('btn-next').addEventListener('click', () => { if (validate()) goTo(step + 1); });
+    document.getElementById('btn-prev').addEventListener('click', () => goTo(step - 1));
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      const payload = {
+        client_id: Number(selClient.value),
+        farm_id: Number(selFarm.value),
+        tipo: state.tipo,
+        fecha_programada: document.getElementById('f-fecha').value,
+        hora: document.getElementById('f-hora').value || null,
+        technician_id: Number(selTecnico.value) || null,
+        acompanante: chkAcomp.checked ? document.getElementById('f-acompanante').value : null,
+        notificar_cliente: chkNotif.checked,
+        galpon_ids: state.galpones,
+        observations: document.getElementById('f-observaciones').value || null,
+      };
+      console.log('MOCK payload →', payload);
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-icon').innerHTML = ICON('check', 'w-4 h-4 text-field');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    });
+
+    // ── Init ──
+    goTo(0);
+  </script>
+</body>
+</html>
