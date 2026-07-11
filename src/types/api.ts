@@ -253,3 +253,166 @@ export interface ProjectFormData {
   status: string;
   description?: string | null;
 }
+
+// ── Visitas ─────────────────────────────────────────────────────────────────
+
+export type EstadoBRMN = 'b' | 'r' | 'm' | 'n';
+export type SegSiNo = 'si' | 'no';
+export type SegSiNoNa = 'si' | 'no' | 'na';
+
+/** Tipo de visita. Hoy sólo `diagnostico_tecnico` está activo (la maqueta). */
+export type VisitType = 'diagnostico_tecnico';
+
+export type VisitStatus = 'draft' | 'completed';
+
+export interface VisitContacto {
+  adm_nombre?: string | null;
+  adm_cel?: string | null;
+  vet_nombre?: string | null;
+  vet_cel?: string | null;
+  correo?: string | null;
+}
+
+export interface VisitSensor {
+  instalados?: number | null;
+  detectados?: number | null;
+  estado: EstadoBRMN;
+}
+
+export interface VisitControl {
+  marca?: string | null;
+  modelo?: string | null;
+  serial?: string | null;
+  version?: string | null;
+  volt_ac?: number | null;
+  volt_dc?: number | null;
+  /** key de SENSOR_TYPES → medición */
+  sensores: Record<string, VisitSensor>;
+  lecturas: {
+    temp?: number | null;
+    hum?: number | null;
+    pres?: number | null;
+    co2?: number | null;
+    amm?: number | null;
+  };
+  /** key de ESTADO_CRITERIOS → estado */
+  estado_fisico: Record<string, EstadoBRMN>;
+  observaciones?: string | null;
+}
+
+export interface VisitTablero {
+  /** key de TABLERO_FISICO_CRITERIOS → estado */
+  fisico: Record<string, EstadoBRMN>;
+  obs_fisico?: string | null;
+  /** key de OTROS_EQUIPOS_ITEMS → estado */
+  otros_equipos: Record<string, EstadoBRMN>;
+  obs_otros_equipos?: string | null;
+  mediciones: {
+    l1l2?: number | null;
+    l2l3?: number | null;
+    l1l3?: number | null;
+    l1n?: number | null;
+    l2n?: number | null;
+    l3n?: number | null;
+  };
+  termografia: {
+    temp_max?: number | null;
+    puntos_calientes?: SegSiNo | null;
+    obs?: string | null;
+  };
+}
+
+export interface VisitVariables {
+  /** key de PRUEBA_EMERGENCIA_CRITERIOS → si/no */
+  prueba_emergencia: Record<string, SegSiNo>;
+  obs_prueba_emergencia?: string | null;
+  termostatos: { instalados?: number | null; operativos?: number | null };
+  obs_termostatos?: string | null;
+  /** key de MED_AMBIENTALES_CRITERIOS → {valor, estado} */
+  med_ambientales: Record<string, { valor?: number | null; estado: EstadoBRMN }>;
+  obs_med_ambientales?: string | null;
+}
+
+export interface VisitVentilacion {
+  extractores: { marca?: string | null; cantidad?: number | null; estado: EstadoBRMN };
+  panel_humedo: {
+    estado_general: EstadoBRMN;
+    moja_uniforme: SegSiNoNa;
+    estado_bomba: EstadoBRMN;
+  };
+  inlets: { velocidad?: number | null; cantidad?: number | null; estado: EstadoBRMN };
+  tunel: { n_puertas?: number | null; longitud?: number | null; estado: EstadoBRMN };
+  nebulizacion: { estado: EstadoBRMN };
+  ventiladores: { estado: EstadoBRMN };
+  observaciones?: string | null;
+}
+
+export interface VisitMecanicos {
+  comedero: { longitud?: number | null; n_lineas?: number | null; estado: EstadoBRMN };
+  bebedero: {
+    longitud?: number | null;
+    n_lineas?: number | null;
+    estado_panel_hidraulico: EstadoBRMN;
+    estado_filtro: EstadoBRMN;
+    estado_dosatron: EstadoBRMN;
+  };
+  alimentacion: { n_silos?: number | null; n_lineas?: number | null; estado: EstadoBRMN };
+  observaciones?: string | null;
+  cierre: {
+    recibe_nombre?: string | null;
+    realiza_nombre?: string | null;
+    recibe_firma?: string | null;
+    realiza_firma?: string | null;
+  };
+}
+
+export interface VisitFoto {
+  id: string;
+  /** dataURL mientras es mock; URL del archivo cuando exista backend de subida */
+  url: string;
+  descripcion?: string | null;
+}
+
+export interface VisitInforme {
+  objetivos?: string | null;
+  alcance?: string | null;
+  actividades?: string | null;
+  resultados?: string | null;
+  conclusiones?: string | null;
+  recomendaciones?: string | null;
+}
+
+export interface VisitFormData {
+  type: VisitType;
+  client_id: number;
+  farm_id: number;
+  galpon_id: number;
+  fecha: string;
+  num_aves?: number | null;
+  dia_lote?: number | null;
+  status?: VisitStatus;
+  // Snapshot de la granja/contactos al momento de la visita (para el informe)
+  cliente_nombre?: string | null;
+  granja_nombre?: string | null;
+  galpon_numero?: string | null;
+  ubicacion?: string | null;
+  total_galpones?: number | null;
+  contacto: VisitContacto;
+  // Secciones (columnas JSON en backend)
+  control: VisitControl;
+  tablero: VisitTablero;
+  variables: VisitVariables;
+  ventilacion: VisitVentilacion;
+  mecanicos: VisitMecanicos;
+  evidencia: { fotos: VisitFoto[] };
+  informe: VisitInforme;
+}
+
+export interface Visit extends VisitFormData {
+  id: number;
+  status: VisitStatus;
+  client?: Client;
+  farm?: Farm;
+  created_at: string;
+  updated_at: string;
+}
