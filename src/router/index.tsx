@@ -12,6 +12,10 @@ import { ClientFormPage } from '@/pages/clients/ClientFormPage';
 import { FarmsListPage } from '@/pages/farms/FarmsListPage';
 import { FarmDetailPage } from '@/pages/farms/FarmDetailPage';
 import { FarmFormPage } from '@/pages/farms/FarmFormPage';
+import { VisitsListPage } from '@/pages/visits/VisitsListPage';
+import { VisitTypePage } from '@/pages/visits/VisitTypePage';
+import { VisitFormPage } from '@/pages/visits/VisitFormPage';
+import { VisitDetailPage } from '@/pages/visits/VisitDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +45,12 @@ export const router = createBrowserRouter([
       { path: 'farms/new', element: <FarmFormPage /> },
       { path: 'farms/:id', element: <FarmDetailPage /> },
       { path: 'farms/:id/edit', element: <FarmFormPage /> },
+      // Visits
+      { path: 'visits', element: <VisitsListPage /> },
+      { path: 'visits/new', element: <VisitTypePage /> },
+      { path: 'visits/new/diagnostico', element: <VisitFormPage /> },
+      { path: 'visits/:id', element: <VisitDetailPage /> },
+      { path: 'visits/:id/edit', element: <VisitFormPage /> },
     ],
   },
 ]);
