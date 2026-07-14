@@ -4,7 +4,7 @@
   Patrón extraído de: src/pages/farms/FarmsListPage.tsx
   Tokens de tema copiados de: src/index.css  (mantener clases idénticas para integrar)
   Datos: ../data/visits.mock.js
-  Requiere internet (Tailwind 4 browser CDN + Google Fonts). Abrir con doble clic.
+  Requiere `npm install` previo (Tailwind se carga desde node_modules, no CDN). Abrir con doble clic.
 -->
 <html lang="es">
 <head>
@@ -14,7 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Tailwind local (requiere `npm install` en la raíz del proyecto) en vez de CDN, para que funcione sin internet -->
+  <script src="../../node_modules/@tailwindcss/browser/dist/index.global.js"></script>
   <style type="text/tailwindcss">
     /* ── Tokens copiados 1:1 de src/index.css ── */
     @theme {
