@@ -1,53 +1,45 @@
+import apiClient from './client';
 import type {
   Visit,
   VisitFormData,
   PaginatedResponse,
   SingleResponse,
 } from '@/types/api';
-import { visitsMockStore } from './_visitsMockStore';
 
 /**
- * API de visitas. Implementada hoy contra un store en memoria porque el
- * endpoint `/visits` aún no existe. Cada método deja anotado el `// TODO(backend)`
- * con la llamada real equivalente: al conectar, reemplazar el cuerpo por la
- * línea comentada (misma forma que `farmsApi`). Ver `docs/visitas-backend.md`.
+ * API de visitas. A diferencia de clients/farms, el payload NO pasa por
+ * `normalizePayload`: el backend guarda las secciones (contacto, control,
+ * informe, etc.) verbatim, y ese helper uppercasea strings recursivamente
+ * (rompería los enums `b/r/m/n`, `si/no/na` y el texto libre). Ver
+ * `docs/visitas-backend.md` §7 (Diferencias vs. contrato).
  */
 export const visitsApi = {
-  list: async (page = 1, extra?: { per_page?: number }): Promise<PaginatedResponse<Visit>> => {
-    // TODO(backend): return (await apiClient.get('/visits', { params: { page, ...extra } })).data;
-    const perPage = extra?.per_page ?? 15;
-    const all = visitsMockStore.all();
-    const total = all.length;
-    const lastPage = Math.max(1, Math.ceil(total / perPage));
-    const data = all.slice((page - 1) * perPage, page * perPage);
-    return {
-      data,
-      links: { first: '', last: '', prev: null, next: null },
-      meta: { current_page: page, last_page: lastPage, per_page: perPage, total },
-    };
+  list: async (
+    page = 1,
+    extra?: { client_id?: number; farm_id?: number; status?: string; type?: string; per_page?: number },
+  ): Promise<PaginatedResponse<Visit>> => {
+    const response = await apiClient.get<PaginatedResponse<Visit>>('/visits', {
+      params: { page, ...extra },
+    });
+    return response.data;
   },
 
   get: async (id: number): Promise<SingleResponse<Visit>> => {
-    // TODO(backend): return (await apiClient.get(`/visits/${id}`)).data;
-    const visit = visitsMockStore.find(id);
-    if (!visit) throw new Error('Visita no encontrada');
-    return { data: visit };
+    const response = await apiClient.get<SingleResponse<Visit>>(`/visits/${id}`);
+    return response.data;
   },
 
   create: async (data: VisitFormData): Promise<SingleResponse<Visit>> => {
-    // TODO(backend): return (await apiClient.post('/visits', normalizePayload(data))).data;
-    return { data: visitsMockStore.create(data) };
+    const response = await apiClient.post<SingleResponse<Visit>>('/visits', data);
+    return response.data;
   },
 
   update: async (id: number, data: Partial<VisitFormData>): Promise<SingleResponse<Visit>> => {
-    // TODO(backend): return (await apiClient.patch(`/visits/${id}`, normalizePayload(data))).data;
-    const visit = visitsMockStore.update(id, data);
-    if (!visit) throw new Error('Visita no encontrada');
-    return { data: visit };
+    const response = await apiClient.patch<SingleResponse<Visit>>(`/visits/${id}`, data);
+    return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    // TODO(backend): await apiClient.delete(`/visits/${id}`);
-    visitsMockStore.remove(id);
+    await apiClient.delete(`/visits/${id}`);
   },
 };

@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { sileo } from 'sileo';
 import type { Client, Visit } from '@/types/api';
 import type { VisitFormValues } from '@/schemas';
+import axios from 'axios';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 
 export function VisitFormPage() {
@@ -47,8 +48,14 @@ export function VisitFormPage() {
         sileo.success({ title: '¡Visita registrada!' });
         navigate(`/visits/${res.data.id}`);
       }
-    } catch {
-      sileo.error({ title: 'Error al guardar la visita' });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 422) {
+        const errors = error.response.data.errors;
+        const messages = Object.values(errors).flat() as string[];
+        messages.forEach((msg) => sileo.error({ title: msg }));
+      } else {
+        sileo.error({ title: 'Error al guardar la visita' });
+      }
     } finally {
       setIsSaving(false);
     }
