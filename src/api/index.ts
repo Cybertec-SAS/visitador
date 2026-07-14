@@ -7,3 +7,4 @@ export { galponesPorGranjaApi, galponesApi } from './galpones';
 export { galponSystemsApi } from './galponSystems';
 export { systemsCatalogApi } from './systemsCatalog';
 export { projectsApi } from './projects';
+export { visitsApi } from './visits';

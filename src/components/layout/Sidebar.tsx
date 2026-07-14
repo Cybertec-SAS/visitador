@@ -66,10 +66,9 @@ const sections: Section[] = [
         label: 'Visitas',
         icon: HiOutlineLocationMarker,
         matchPrefix: '/visits',
-        disabled: true,
         subItems: [
-          { to: '/visits/new', label: 'Programar visita', icon: HiOutlinePlus, disabled: true },
-          { to: '/visits', label: 'Mis visitas', icon: HiOutlineViewList, disabled: true },
+          { to: '/visits/new', label: 'Programar visita', icon: HiOutlinePlus },
+          { to: '/visits', label: 'Mis visitas', icon: HiOutlineViewList },
         ],
       },
     ],
