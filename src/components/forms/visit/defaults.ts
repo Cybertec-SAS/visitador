@@ -88,6 +88,37 @@ export function createEmptyVisit(preset?: { client_id?: number }): VisitFormValu
       cierre: { recibe_nombre: null, realiza_nombre: null, recibe_firma: null, realiza_firma: null },
     },
     evidencia: { fotos: [] },
+    procesos_operativos: {
+      falso_techo: { color: null, tipo_cortina: null, estado: 'b', observaciones: null },
+      cortina_lateral: {
+        estado: 'b',
+        suspension: null,
+        cortavientos: null,
+        sellamiento: null,
+        cortina: null,
+        observaciones: null,
+      },
+      aislamiento: { puntos_calientes: 'no', tipo: null, estado: 'b', observaciones: null },
+      turbo_calefactores: { cantidad: null, estado: 'b', observaciones: null },
+      sistema_pesaje: {
+        operativo: 'si',
+        celdas_pesaje: 'b',
+        rsw: 'si',
+        rsu: 'si',
+        observaciones: null,
+      },
+      iluminacion: {
+        dimerizable: 'no',
+        referencia_bombillo: null,
+        iluminarias_operativas: null,
+        observaciones: null,
+      },
+      sistema_comunicacion: { operativo: 'si', observaciones: null },
+    },
+    hallazgos: [],
+    actividades_recomendadas: [],
+    repuestos_identificados: [],
+    observaciones_generales: null,
     informe: {
       objetivos: null,
       alcance: null,
@@ -113,6 +144,30 @@ export function visitToFormValues(visit: Visit): VisitFormValues {
     ventilacion: { ...empty.ventilacion, ...visit.ventilacion },
     mecanicos: { ...empty.mecanicos, ...visit.mecanicos },
     evidencia: { fotos: visit.evidencia?.fotos ?? [] },
+    procesos_operativos: {
+      ...empty.procesos_operativos,
+      ...visit.procesos_operativos,
+      falso_techo: { ...empty.procesos_operativos.falso_techo, ...visit.procesos_operativos?.falso_techo },
+      cortina_lateral: {
+        ...empty.procesos_operativos.cortina_lateral,
+        ...visit.procesos_operativos?.cortina_lateral,
+      },
+      aislamiento: { ...empty.procesos_operativos.aislamiento, ...visit.procesos_operativos?.aislamiento },
+      turbo_calefactores: {
+        ...empty.procesos_operativos.turbo_calefactores,
+        ...visit.procesos_operativos?.turbo_calefactores,
+      },
+      sistema_pesaje: { ...empty.procesos_operativos.sistema_pesaje, ...visit.procesos_operativos?.sistema_pesaje },
+      iluminacion: { ...empty.procesos_operativos.iluminacion, ...visit.procesos_operativos?.iluminacion },
+      sistema_comunicacion: {
+        ...empty.procesos_operativos.sistema_comunicacion,
+        ...visit.procesos_operativos?.sistema_comunicacion,
+      },
+    },
+    hallazgos: visit.hallazgos ?? [],
+    actividades_recomendadas: visit.actividades_recomendadas ?? [],
+    repuestos_identificados: visit.repuestos_identificados ?? [],
+    observaciones_generales: visit.observaciones_generales ?? null,
     informe: { ...empty.informe, ...visit.informe },
   } as VisitFormValues;
 }

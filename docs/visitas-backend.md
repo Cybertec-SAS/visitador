@@ -69,7 +69,12 @@ que se filtra o lista, y **columnas JSON por sección** para el detalle de la in
 | `ventilacion_json` | json | sí | Paso 5 (ver 3.6). |
 | `mecanicos_json` | json | sí | Paso 6 (ver 3.7). |
 | `evidencia_json` | json | sí | Paso 7 (ver 3.8). |
-| `informe_json` | json | sí | Paso 8 (ver 3.9). |
+| `procesos_operativos_json` | json | sí | Paso 8 (ver 3.9). |
+| `hallazgos_json` | json | sí | Paso 9 (ver 3.10). |
+| `actividades_recomendadas_json` | json | sí | Paso 10 (ver 3.11). |
+| `repuestos_identificados_json` | json | sí | Paso 11 (ver 3.12). |
+| `observaciones_generales` | string | sí | Observación libre de cierre (ver 3.12). |
+| `informe_json` | json | sí | Paso 12 (ver 3.13). |
 | `created_at` / `updated_at` | timestamp | no | |
 
 > **Snapshot vs. referencia:** `client_id/farm_id/galpon_id` son la referencia viva;
@@ -174,7 +179,46 @@ que se filtra o lista, y **columnas JSON por sección** para el detalle de la in
 > almacenado (S3/disco) y conviene un `POST /api/visits/{id}/fotos` (multipart) que
 > devuelva `{ id, url }`. Ver §6.
 
-### 3.9 `informe_json`
+### 3.9 `procesos_operativos_json` (Procesos operativos)
+```jsonc
+{
+  "falso_techo": { "color": string|null, "tipo_cortina": string|null, "estado": "b|r|m|n", "observaciones": string|null },
+  "cortina_lateral": {
+    "estado": "b|r|m|n", "suspension": string|null, "cortavientos": string|null,
+    "sellamiento": string|null, "cortina": string|null, "observaciones": string|null
+  },
+  "aislamiento": { "puntos_calientes": "si|no", "tipo": string|null, "estado": "b|r|m|n", "observaciones": string|null },
+  "turbo_calefactores": { "cantidad": number|null, "estado": "b|r|m|n", "observaciones": string|null },
+  "sistema_pesaje": {
+    "operativo": "si|no", "celdas_pesaje": "b|r|m|n", "rsw": "si|no", "rsu": "si|no", "observaciones": string|null
+  },
+  "iluminacion": {
+    "dimerizable": "si|no", "referencia_bombillo": string|null, "iluminarias_operativas": string|null,
+    "observaciones": string|null
+  },
+  "sistema_comunicacion": { "operativo": "si|no", "observaciones": string|null }
+}
+```
+
+### 3.10 `hallazgos_json` (Hallazgos principales)
+```jsonc
+[ { "id": string, "sistema": string|null, "hallazgo": string|null } ]
+```
+
+### 3.11 `actividades_recomendadas_json` (Actividades recomendadas)
+```jsonc
+[ { "id": string, "actividad": string|null, "prioridad": "alta|media|baja" } ]
+```
+
+### 3.12 `repuestos_identificados_json` (Repuestos identificados)
+```jsonc
+[ { "id": string, "codigo": string|null, "repuesto": string|null, "cantidad": number|null,
+    "momento": "inmediato|programado|seguimiento" } ]
+```
+> `observaciones_generales` (string|null) es un campo escalar de cierre, capturado junto a
+> esta sección.
+
+### 3.13 `informe_json`
 ```jsonc
 { "objetivos": string|null, "alcance": string|null, "actividades": string|null,
   "resultados": string|null, "conclusiones": string|null, "recomendaciones": string|null }
@@ -191,6 +235,8 @@ que se filtra o lista, y **columnas JSON por sección** para el detalle de la in
 | Estado de criterio | `b` (bueno), `r` (regular), `m` (malo), `n` (no aplica) | Sensores, estado físico, tablero, etc. Algunos criterios sólo usan un subconjunto: `b/r/m`, `b/m` o `b/r/m/n`. |
 | Toggle SÍ/NO | `si`, `no` | Prueba de emergencia, puntos calientes. |
 | Toggle SÍ/NO/N-A | `si`, `no`, `na` | Moja uniforme (panel húmedo). |
+| Prioridad | `alta`, `media`, `baja` | Actividades recomendadas. |
+| Momento de instalación | `inmediato`, `programado`, `seguimiento` | Repuestos identificados. |
 
 ## 5. Validaciones
 

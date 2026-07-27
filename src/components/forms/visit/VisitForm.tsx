@@ -13,7 +13,11 @@ import { Step4Variables } from './steps/Step4Variables';
 import { Step5Ventilacion } from './steps/Step5Ventilacion';
 import { Step6Mecanicos } from './steps/Step6Mecanicos';
 import { Step7Evidencia } from './steps/Step7Evidencia';
-import { Step8Informe } from './steps/Step8Informe';
+import { Step8ProcesosOperativos } from './steps/Step8ProcesosOperativos';
+import { Step9Hallazgos } from './steps/Step9Hallazgos';
+import { Step10Actividades } from './steps/Step10Actividades';
+import { Step11Repuestos } from './steps/Step11Repuestos';
+import { Step12Informe } from './steps/Step12Informe';
 import {
   HiOutlineIdentification,
   HiOutlineChip,
@@ -22,6 +26,10 @@ import {
   HiOutlineSparkles,
   HiOutlineCog,
   HiOutlineCamera,
+  HiOutlineViewGrid,
+  HiOutlineExclamation,
+  HiOutlineClipboardCheck,
+  HiOutlineCube,
   HiOutlineClipboardList,
   HiOutlineCheck,
   HiOutlineChevronLeft,
@@ -37,6 +45,10 @@ const STEPS: (WizardStep & { requiredFields: (keyof VisitFormValues)[] })[] = [
   { title: 'Ventilación', description: 'Extractores e inlets', icon: HiOutlineSparkles, requiredFields: [] },
   { title: 'Sistemas mecánicos', description: 'Comederos y bebederos', icon: HiOutlineCog, requiredFields: [] },
   { title: 'Evidencia', description: 'Fotografías', icon: HiOutlineCamera, requiredFields: [] },
+  { title: 'Procesos operativos', description: 'Techo, cortinas, pesaje e iluminación', icon: HiOutlineViewGrid, requiredFields: [] },
+  { title: 'Hallazgos principales', description: 'Sistemas con novedades', icon: HiOutlineExclamation, requiredFields: [] },
+  { title: 'Actividades recomendadas', description: 'Prioridad de intervención', icon: HiOutlineClipboardCheck, requiredFields: [] },
+  { title: 'Repuestos identificados', description: 'Repuestos y momento de instalación', icon: HiOutlineCube, requiredFields: [] },
   { title: 'Resumen e informe', description: 'Vista presentable', icon: HiOutlineClipboardList, requiredFields: [] },
 ];
 
@@ -92,7 +104,11 @@ export function VisitForm({ onSubmit, clients, defaultValues, preselectedClientI
           {step === 4 && <Step5Ventilacion />}
           {step === 5 && <Step6Mecanicos />}
           {step === 6 && <Step7Evidencia />}
-          {step === 7 && <Step8Informe ctx={ctx} />}
+          {step === 7 && <Step8ProcesosOperativos />}
+          {step === 8 && <Step9Hallazgos />}
+          {step === 9 && <Step10Actividades />}
+          {step === 10 && <Step11Repuestos />}
+          {step === 11 && <Step12Informe ctx={ctx} />}
         </div>
 
         {/* Navegación */}

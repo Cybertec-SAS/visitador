@@ -20,6 +20,7 @@ export function collectCriteria(v: VisitFormValues): {
   sec4: CriterioEstado[];
   sec5: CriterioEstado[];
   sec6: CriterioEstado[];
+  sec8: CriterioEstado[];
   combined: CriterioEstado[];
 } {
   const sec2: CriterioEstado[] = [
@@ -50,7 +51,22 @@ export function collectCriteria(v: VisitFormValues): {
     { name: 'Estado Dosatron', v: v.mecanicos.bebedero.estado_dosatron },
     { name: 'Sistema de alimentación', v: v.mecanicos.alimentacion.estado },
   ];
-  return { sec2, sec3, sec4, sec5, sec6, combined: [...sec2, ...sec3, ...sec4, ...sec5, ...sec6] };
+  const sec8: CriterioEstado[] = [
+    { name: 'Falso techo', v: v.procesos_operativos.falso_techo.estado },
+    { name: 'Cortina lateral', v: v.procesos_operativos.cortina_lateral.estado },
+    { name: 'Aislamiento', v: v.procesos_operativos.aislamiento.estado },
+    { name: 'Turbo calefactores', v: v.procesos_operativos.turbo_calefactores.estado },
+    { name: 'Celdas de pesaje', v: v.procesos_operativos.sistema_pesaje.celdas_pesaje },
+  ];
+  return {
+    sec2,
+    sec3,
+    sec4,
+    sec5,
+    sec6,
+    sec8,
+    combined: [...sec2, ...sec3, ...sec4, ...sec5, ...sec6, ...sec8],
+  };
 }
 
 export interface CriteriaCounts {

@@ -12,6 +12,14 @@ const PILL_STYLE: Record<string, { sel: string; idle: string }> = {
   },
   m: { sel: 'bg-danger text-white border-danger', idle: 'text-danger border-line hover:bg-red-50' },
   n: { sel: 'bg-muted text-white border-muted', idle: 'text-muted border-line hover:bg-input-bg' },
+  // Prioridad de actividades recomendadas
+  alta: { sel: 'bg-danger text-white border-danger', idle: 'text-danger border-line hover:bg-red-50' },
+  media: { sel: 'bg-report text-white border-report', idle: 'text-report border-line hover:bg-report-soft' },
+  baja: { sel: 'bg-field text-white border-field', idle: 'text-field border-line hover:bg-field-soft' },
+  // Momento de instalación de repuestos identificados
+  inmediato: { sel: 'bg-danger text-white border-danger', idle: 'text-danger border-line hover:bg-red-50' },
+  programado: { sel: 'bg-report text-white border-report', idle: 'text-report border-line hover:bg-report-soft' },
+  seguimiento: { sel: 'bg-field text-white border-field', idle: 'text-field border-line hover:bg-field-soft' },
 };
 
 /* ── Contenedor de campo con label ─────────────────────────────────────────── */
@@ -132,10 +140,16 @@ export function TextArea({
   );
 }
 
-/* ── Pill select (BUENO/REGULAR/MALO/N-A) ──────────────────────────────────── */
-export function PillSelect({ name, options }: { name: string; options: PillOption[] }) {
+/* ── Pill select (BUENO/REGULAR/MALO/N-A, o cualquier catálogo de 3-4 opciones) ── */
+export function PillSelect<T extends string = EstadoBRMN>({
+  name,
+  options,
+}: {
+  name: string;
+  options: { v: T; label: string }[];
+}) {
   const { watch, setValue } = useFormContext();
-  const value = watch(name) as EstadoBRMN | undefined;
+  const value = watch(name) as T | undefined;
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       {options.map((o) => {
