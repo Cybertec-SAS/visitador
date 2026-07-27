@@ -91,23 +91,27 @@ export function DashboardPage() {
             <div className="mt-4 rounded-section bg-input-bg p-4">
               <p className="text-xs font-black uppercase tracking-wide text-muted">Opciones del flujo</p>
               <div className="mt-3 grid gap-2">
-                {['Programar visita', 'Iniciar visita en campo', 'Cerrar visita pendiente'].map((label) => (
-                  <div
-                    key={label}
-                    className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-muted shadow-sm border border-line opacity-60"
-                  >
-                    {label} <span>→</span>
-                  </div>
-                ))}
+                <Link
+                  to="/visits/new"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line no-underline hover:border-field hover:text-field transition-colors"
+                >
+                  Nueva visita <span>→</span>
+                </Link>
+                <Link
+                  to="/visits"
+                  className="flex items-center justify-between rounded-action bg-surface px-4 py-3 text-sm font-black text-heading shadow-sm border border-line no-underline hover:border-field hover:text-field transition-colors"
+                >
+                  Mis visitas <span>→</span>
+                </Link>
               </div>
             </div>
 
-            <button
-              disabled
-              className="mt-4 flex w-full items-center justify-between rounded-btn bg-field px-5 py-3 text-sm font-black text-white opacity-50 cursor-not-allowed"
+            <Link
+              to="/visits/new"
+              className="mt-4 flex w-full items-center justify-between rounded-btn bg-field px-5 py-3 text-sm font-black text-white no-underline hover:bg-field-hover transition-colors group-hover:bg-field-hover"
             >
-              Abrir flujo de visitas <span>→</span>
-            </button>
+              Iniciar flujo de visitas <span>→</span>
+            </Link>
           </div>
         </article>
 

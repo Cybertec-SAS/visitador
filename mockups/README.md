@@ -5,13 +5,26 @@ antes de integrarlos al código React. No se compila ni forma parte del build de
 
 ## Cómo verlos
 
-Doble clic en cualquier `.html` (o `npx serve mockups`). Requieren **internet**:
-Tailwind 4 se carga vía CDN browser y la fuente Inter desde Google Fonts.
+1. `npm install` en la raíz del proyecto (una vez) — instala `@tailwindcss/browser`,
+   que los mockups referencian localmente desde `node_modules`.
+2. Abrir **`mockups/index.html`** (doble clic, o clic derecho → "Open with Live Server").
+   Desde ahí hay links a las 3 vistas.
+
+No requieren internet para los estilos (Tailwind corre desde `node_modules`, no desde CDN).
+Solo la fuente Inter se carga desde Google Fonts; sin internet cae a Arial como fallback,
+sin romper el layout.
+
+⚠️ **No confundir con el `index.html` de la raíz del proyecto** — ese es la app React real
+y solo funciona con `npm run dev` (Vite). Si lo abrís con Live Server o doble clic vas a ver
+errores de consola (`main.tsx` con MIME type equivocado, `favicon.svg` 404, etc.) porque
+ningún servidor estático puede transpilar TSX/JSX — eso es trabajo de Vite, no algo a corregir
+en el HTML.
 
 ## Estructura
 
 ```
 mockups/
+├── index.html                 # Landing con links a las vistas — abrir este primero
 ├── data/                      # Mocks de datos (window.MOCK_*, consumidos por los HTML)
 │   ├── clients-farms.mock.js  # Jerarquía Client → Farm → Galpon (ficticia)
 │   ├── visits.mock.js         # Visitas, estados, tipos, técnicos, paginación
