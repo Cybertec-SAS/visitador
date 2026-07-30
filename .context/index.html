@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INSUMMA BG · Visitas / Diagnóstico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C7 6 4 10 4 14a8 8 0 0 0 16 0c0-4-3-8-8-12Z"/><path d="M12 8v10"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">INSUMMA BG</div>
+        <div class="brand-sub">Pecuaria · Industrial</div>
+      </div>
+    </div>
+
+    <span class="module-tag">Visitas · Diagnóstico</span>
+
+    <nav class="steps" id="stepsNav">
+      <div class="step-item active" data-step="1">
+        <div class="step-num">1</div>
+        <div class="step-label"><div class="step-title">Información general</div><div class="step-desc">Cliente y granja</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="2">
+        <div class="step-num">2</div>
+        <div class="step-label"><div class="step-title">Control y automatización</div><div class="step-desc">Sensores, lecturas y estado físico</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="3">
+        <div class="step-num">3</div>
+        <div class="step-label"><div class="step-title">Tablero potencia y control</div><div class="step-desc">Eléctrico, termografía y equipos</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="4">
+        <div class="step-num">4</div>
+        <div class="step-label"><div class="step-title">Toma de variables</div><div class="step-desc">Emergencia, termostatos y ambiente</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="5">
+        <div class="step-num">5</div>
+        <div class="step-label"><div class="step-title">Ventilación y refrigeración</div><div class="step-desc">Extractores, inlets y nebulización</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="6">
+        <div class="step-num">6</div>
+        <div class="step-label"><div class="step-title">Sistemas mecánicos</div><div class="step-desc">Comederos, bebederos y alimentación</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="7">
+        <div class="step-num">7</div>
+        <div class="step-label"><div class="step-title">Evidencia fotográfica</div><div class="step-desc">Fotos y descripciones</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="8">
+        <div class="step-num">8</div>
+        <div class="step-label"><div class="step-title">Resumen e informe</div><div class="step-desc">Vista presentable</div></div>
+      </div>
+    </nav>
+
+    <div class="side-footer">
+      <button class="sample-btn" id="btnSample">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        Cargar datos de ejemplo
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-info">
+        <h1>Diagnóstico de ambiente controlado</h1>
+        <p>Registra la visita técnica paso a paso para generar el informe final.</p>
+      </div>
+      <div class="context-chip">
+        <div class="ci"><b>Granja</b><span id="ctxGranja">—</span></div>
+        <div class="ci"><b>Cliente</b><span id="ctxCliente">—</span></div>
+        <div class="ci"><b>Fecha</b><span id="ctxFecha">—</span></div>
+        <div class="ci"><b>Galpón</b><span id="ctxGalpon">—</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section class="panel step-panel" id="panel-1">
+      <div class="panel-head">
+        <div><h2>Información general de la granja</h2><div class="ph-sub">Datos del cliente, ubicación y contactos</div></div>
+        <span class="section-tag">Paso 1 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="subhead"><h3>Cliente y granja</h3><div class="line"></div></div>
+        <div class="grid g-2">
+          <div class="field">
+            <div class="field-label-row"><label>Cliente / razón social</label><span class="auto-tag">Registro</span></div>
+            <div class="autocomplete-wrap">
+              <input id="clienteSearch" placeholder="Buscar cliente registrado por nombre..." autocomplete="off">
+              <input type="hidden" id="clienteId">
+              <button type="button" class="ac-clear" id="clienteClear" style="display:none;" title="Cambiar cliente">✕</button>
+              <div class="ac-dropdown" id="clienteDropdown"></div>
+            </div>
+          </div>
+          <div class="field"><label>Fecha de la visita</label><input id="fecha" type="date"></div>
+        </div>
+        <div class="grid g-3" style="margin-top:16px;">
+          <div class="field">
+            <div class="field-label-row"><label>Granja</label><span class="auto-tag">Registro</span></div>
+            <select id="granjaSelect" disabled><option value="">Selecciona un cliente primero...</option></select>
+          </div>
+          <div class="field">
+            <div class="field-label-row"><label>Galpón N°</label><span class="auto-tag">Registro</span></div>
+            <select id="galponSelect" disabled><option value="">Selecciona una granja primero...</option></select>
+          </div>
+          <div class="field"><label>Número de aves (lote actual)</label><input id="numAves" type="number" min="0" placeholder="Se sugiere al elegir galpón"></div>
+        </div>
+        <div class="grid g-3" style="margin-top:16px;">
+          <div class="field"><label>Día de lote</label><input id="diaLote" type="number" min="0" placeholder="Ej. 18"></div>
+          <div class="field" style="grid-column:span 1;"><label>Ubicación de la granja</label><input id="ubicacion" readonly placeholder="—"></div>
+          <div class="field"><label>Total de galpones en la granja</label><input id="totalGalpones" readonly placeholder="—"></div>
+        </div>
+
+        <div class="subhead"><h3>Contacto de la granja</h3><span class="auto-tag">Auto-completado</span><div class="line"></div></div>
+        <div class="grid g-2">
+          <div class="field"><label>Nombre del administrador</label><input id="admNombre" readonly placeholder="—"></div>
+          <div class="field"><label>Número celular</label><input id="admCel" readonly placeholder="—"></div>
+        </div>
+        <div class="grid g-2" style="margin-top:16px;">
+          <div class="field"><label>Nombre del veterinario</label><input id="vetNombre" readonly placeholder="—"></div>
+          <div class="field"><label>Número celular</label><input id="vetCel" readonly placeholder="—"></div>
+        </div>
+        <div class="grid g-2" style="margin-top:16px;">
+          <div class="field"><label>Correo electrónico</label><input id="correo" readonly placeholder="—"></div>
+        </div>
+
+        <div class="nav-row">
+          <span></span>
+          <button class="btn primary" onclick="goStep(2)">Continuar → Control y automatización</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="panel step-panel" id="panel-2" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Control y automatización</h2><div class="ph-sub">Controlador, sensores y lecturas tomadas</div></div>
+        <span class="section-tag">Paso 2 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="subhead"><h3>Controlador</h3><div class="line"></div></div>
+        <div class="grid g-4">
+          <div class="field"><label>Marca</label><input id="ctrlMarca" placeholder="Ej. Rotem"></div>
+          <div class="field"><label>Modelo</label><input id="ctrlModelo" placeholder="Ej. Pro Series"></div>
+          <div class="field"><label>Serial</label><input id="ctrlSerial" placeholder="Ej. RT-88213"></div>
+          <div class="field"><label>Versión software</label><input id="ctrlVersion" placeholder="Ej. v4.2.1"></div>
+        </div>
+        <div class="grid g-2" style="margin-top:16px;">
+          <div class="field unit-field"><label>Voltaje AC</label><input id="voltAC" type="number" step="0.1"><span class="unit-tag">V</span></div>
+          <div class="field unit-field"><label>Voltaje DC</label><input id="voltDC" type="number" step="0.1"><span class="unit-tag">V</span></div>
+        </div>
+
+        <div class="subhead"><h3>Sensores instalados y detectados</h3><div class="line"></div></div>
+        <table class="sensor-table">
+          <thead>
+            <tr><th style="width:24%">Tipo de sensor</th><th>Instalados</th><th>Detectados</th><th style="width:15%">Cobertura</th><th style="width:36%">Estado</th></tr>
+          </thead>
+          <tbody id="sensorBody"></tbody>
+        </table>
+
+        <div class="subhead"><h3>Lecturas tomadas</h3><div class="line"></div></div>
+        <div class="grid g-3">
+          <div class="field unit-field"><label>Temperatura</label><input id="lTemp" type="number" step="0.1"><span class="unit-tag">°C</span></div>
+          <div class="field unit-field"><label>Humedad relativa</label><input id="lHum" type="number" step="0.1"><span class="unit-tag">%</span></div>
+          <div class="field unit-field"><label>Presión estática</label><input id="lPres" type="number" step="0.01"><span class="unit-tag">in.H2O</span></div>
+        </div>
+        <div class="grid g-2" style="margin-top:16px;">
+          <div class="field unit-field"><label>CO2</label><input id="lCO2" type="number" step="1"><span class="unit-tag">ppm</span></div>
+          <div class="field unit-field"><label>Amoníaco (NH3)</label><input id="lAmm" type="number" step="1"><span class="unit-tag">ppm</span></div>
+        </div>
+
+        <div class="subhead"><h3>Estado físico del equipo</h3><span class="auto-tag" style="background:var(--na-soft);color:var(--ink-soft);">B · R · M · N/A</span><div class="line"></div></div>
+        <div class="estado-list" id="estadoList"></div>
+        <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="observaciones" placeholder="Anota hallazgos relevantes, recomendaciones o pendientes de la visita..."></textarea></div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(1)">← Volver</button>
+          <button class="btn primary" onclick="goStep(3)">Continuar → Tablero potencia y control</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="panel step-panel" id="panel-3" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Tablero de potencia y control</h2><div class="ph-sub">Estado físico, mediciones eléctricas, termografía y otros equipos</div></div>
+        <span class="section-tag">Paso 3 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="tablero-grid">
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Estado físico del tablero</h3><div class="line"></div></div>
+            <div class="estado-list" id="tableroFisicoList"></div>
+            <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="obsTableroFisico" placeholder="Limpieza, humedad, corrosión, orden..."></textarea></div>
+
+            <div class="subhead"><h3>Otros equipos</h3><div class="line"></div></div>
+            <div class="estado-list" id="otrosEquiposList"></div>
+            <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="obsOtrosEquipos" placeholder="Dimmer, RDT-5, RSW/RSU, backup..."></textarea></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Mediciones eléctricas</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field unit-field"><label>L1 - L2</label><input id="mL1L2" type="number" step="0.1"><span class="unit-tag">V</span></div>
+              <div class="field unit-field"><label>L2 - L3</label><input id="mL2L3" type="number" step="0.1"><span class="unit-tag">V</span></div>
+              <div class="field unit-field"><label>L1 - L3</label><input id="mL1L3" type="number" step="0.1"><span class="unit-tag">V</span></div>
+              <div class="field unit-field"><label>L1 - N</label><input id="mL1N" type="number" step="0.1"><span class="unit-tag">V</span></div>
+              <div class="field unit-field"><label>L2 - N</label><input id="mL2N" type="number" step="0.1"><span class="unit-tag">V</span></div>
+              <div class="field unit-field"><label>L3 - N</label><input id="mL3N" type="number" step="0.1"><span class="unit-tag">V</span></div>
+            </div>
+
+            <div class="subhead"><h3>Termografía</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field unit-field"><label>T° máxima encontrada</label><input id="tempMax" type="number" step="0.1"><span class="unit-tag">°C</span></div>
+              <div class="field">
+                <label>¿Puntos calientes detectados?</label>
+                <div class="seg-toggle" id="puntosCalientesToggle">
+                  <button type="button" class="seg-btn" data-v="si">SÍ</button>
+                  <button type="button" class="seg-btn" data-v="no">NO</button>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:16px;"><label>Observaciones de termografía</label><textarea id="obsTermografia" placeholder="Ubicación y severidad de los puntos calientes encontrados..."></textarea></div>
+          </div>
+
+        </div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(2)">← Volver</button>
+          <button class="btn primary" onclick="goStep(4)">Continuar → Toma de variables</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="panel step-panel" id="panel-4" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Toma de variables</h2><div class="ph-sub">Prueba de emergencia, termostatos y mediciones ambientales</div></div>
+        <span class="section-tag">Paso 4 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="variables-grid">
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Prueba de emergencia</h3><div class="line"></div></div>
+            <div class="estado-list" id="pruebaEmergenciaList"></div>
+            <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="obsPruebaEmergencia" placeholder="Detalles de las pruebas de emergencia realizadas..."></textarea></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Termostatos</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field"><label>Instalados</label><input id="termoInstalados" type="number" min="0"></div>
+              <div class="field"><label>Operativos</label><input id="termoOperativos" type="number" min="0"></div>
+            </div>
+            <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="obsTermostatos" placeholder="Estado de los termostatos..."></textarea></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Mediciones ambientales</h3><div class="line"></div></div>
+            <div class="estado-list" id="medAmbientalesList"></div>
+            <div class="field" style="margin-top:14px;"><label>Observaciones</label><textarea id="obsMedAmbientales" placeholder="Observaciones sobre las mediciones ambientales..."></textarea></div>
+          </div>
+
+        </div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(3)">← Volver</button>
+          <button class="btn primary" onclick="goStep(5)">Continuar → Ventilación y refrigeración</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="panel step-panel" id="panel-5" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Sistema de ventilación / entrada de aire / refrigeración</h2><div class="ph-sub">Extractores, inlets, nebulización, panel húmedo, túnel y ventiladores</div></div>
+        <span class="section-tag">Paso 5 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="ventilacion-grid vent-3col">
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Extractores</h3><div class="line"></div></div>
+            <div class="grid" style="grid-template-columns:1.4fr 0.6fr;gap:16px;">
+              <div class="field"><label>Marca</label><input id="extMarca" placeholder="Ej. Munters"></div>
+              <div class="field"><label>Cantidad</label><input id="extCantidad" type="number" min="0"></div>
+            </div>
+            <div class="estado-list" id="extractoresEstadoList"></div>
+
+            <div class="subhead"><h3>Panel húmedo</h3><div class="line"></div></div>
+            <div class="estado-list" id="panelHumedoGeneralList"></div>
+            <div class="estado-list" id="mojaUniformeList"></div>
+            <div class="estado-list" id="panelHumedoBombaList"></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Inlets</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field unit-field"><label>Velocidad de aire</label><input id="inlVelocidad" type="number" step="0.1"><span class="unit-tag">m/s</span></div>
+              <div class="field"><label>Cantidad</label><input id="inlCantidad" type="number" min="0"></div>
+            </div>
+            <div class="estado-list" id="inletsEstadoList"></div>
+
+            <div class="subhead"><h3>Túnel door / Portón cortina</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field"><label>N° puertas</label><input id="tunelNPuertas" type="number" min="0"></div>
+              <div class="field"><label>Longitud</label><input id="tunelLongitud" type="number" step="0.1"></div>
+            </div>
+            <div class="estado-list" id="tunelEstadoList"></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead"><h3>Nebulización</h3><div class="line"></div></div>
+            <div class="estado-list" id="nebulizacionEstadoList"></div>
+
+            <div class="subhead"><h3>Ventiladores</h3><div class="line"></div></div>
+            <div class="estado-list" id="ventiladoresEstadoList"></div>
+          </div>
+
+        </div>
+
+        <div class="subhead"><h3>Observaciones</h3><div class="line"></div></div>
+        <div class="field"><textarea id="obsVentilacion" style="min-height:120px;" placeholder="Hallazgos sobre ventilación, refrigeración y sistemas de entrada de aire..."></textarea></div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(4)">← Volver</button>
+          <button class="btn primary" onclick="goStep(6)">Continuar → Sistemas mecánicos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="panel step-panel" id="panel-6" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Sistemas mecánicos</h2><div class="ph-sub">Comedero automático, bebedero automático y sistema de alimentación</div></div>
+        <span class="section-tag">Paso 6 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="ventilacion-grid">
+
+          <div class="tablero-col">
+            <div class="subhead" style="margin-top:0;"><h3>Comedero automático</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field"><label>Longitud</label><input id="comLongitud" type="number" step="0.1"></div>
+              <div class="field"><label>N° líneas</label><input id="comNLineas" type="number" min="0"></div>
+            </div>
+            <div class="estado-list" id="comederoEstadoList"></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead" style="margin-top:0;"><h3>Bebedero automático</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field"><label>Longitud</label><input id="bebLongitud" type="number" step="0.1"></div>
+              <div class="field"><label>N° líneas</label><input id="bebNLineas" type="number" min="0"></div>
+            </div>
+            <div class="estado-list" id="bebederoEstadoList"></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead" style="margin-top:0;"><h3>Sistema de alimentación</h3><div class="line"></div></div>
+            <div class="grid g-2">
+              <div class="field"><label>N° silos</label><input id="aliNSilos" type="number" min="0"></div>
+              <div class="field"><label>N° líneas</label><input id="aliNLineas" type="number" min="0"></div>
+            </div>
+            <div class="estado-list" id="alimentacionEstadoList"></div>
+          </div>
+
+          <div class="tablero-col">
+            <div class="subhead" style="margin-top:0;"><h3>Observaciones</h3><div class="line"></div></div>
+            <div class="field"><textarea id="obsMecanicos" style="min-height:220px;" placeholder="Hallazgos sobre comederos, bebederos y sistema de alimentación..."></textarea></div>
+          </div>
+
+        </div>
+
+        <div class="subhead" style="margin-top:28px;"><h3>Cierre de la visita</h3><div class="line"></div></div>
+        <div class="grid g-2">
+          <div class="field"><label>Nombre de quien recibe la visita</label><input id="recibeNombre" placeholder="Nombre completo"></div>
+          <div class="field"><label>Nombre de quien realiza la visita</label><input id="realizaNombre" placeholder="Nombre completo"></div>
+        </div>
+        <div class="grid g-2" style="margin-top:16px;">
+          <div class="field"><label>Firma de quien recibe</label><input id="recibeFirma" placeholder="Firma"></div>
+          <div class="field"><label>Firma de quien realiza</label><input id="realizaFirma" placeholder="Firma"></div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(5)">← Volver</button>
+          <button class="btn primary" onclick="goStep(7)">Continuar → Evidencia fotográfica</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="panel step-panel" id="panel-7" style="display:none;">
+      <div class="panel-head">
+        <div><h2>Evidencia fotográfica</h2><div class="ph-sub">Sube fotografías de la visita y describe qué muestra cada una</div></div>
+        <span class="section-tag">Paso 7 de 8</span>
+      </div>
+      <div class="panel-body">
+        <div class="subhead" style="margin-top:0;"><h3>Fotografías</h3><div class="line"></div></div>
+
+        <input type="file" id="fotoInput" accept="image/*" multiple style="display:none;">
+        <button type="button" class="btn primary" id="btnAddFoto" style="margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          Agregar fotografías
+        </button>
+
+        <div class="foto-grid" id="fotoGrid"></div>
+        <div class="foto-empty" id="fotoEmpty">Aún no se han agregado fotografías. Usa el botón de arriba para subir imágenes de la visita.</div>
+
+        <div class="nav-row">
+          <button class="btn ghost" onclick="goStep(6)">← Volver</button>
+          <button class="btn primary" onclick="goStep(8)">Continuar → Resumen e informe</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 8 -->
+    <section class="step-panel" id="panel-8" style="display:none;">
+      <div class="report" id="reportRoot">
+        <div class="report-head">
+          <div class="rh-left">
+            <h2>Informe de diagnóstico · Ambiente controlado</h2>
+            <p id="repSub">Generado a partir de la visita técnica registrada</p>
+          </div>
+          <div class="rh-right">
+            <div class="rlabel">Versión</div><div class="rval">1.0</div>
+            <div class="rlabel" style="margin-top:8px;">Página</div><div class="rval">1 de 1</div>
+          </div>
+        </div>
+        <div class="report-body">
+
+          <div class="rsummary">
+            <div class="donut-wrap">
+              <svg id="donutSvg" width="150" height="150" viewBox="0 0 150 150"></svg>
+              <div class="donut-total" id="r_donutTotal">0 criterios evaluados</div>
+              <div class="donut-legend">
+                <div class="dl-item"><span class="dot" style="background:var(--brand)"></span>Bueno</div>
+                <div class="dl-item"><span class="dot" style="background:var(--orange)"></span>Regular</div>
+                <div class="dl-item"><span class="dot" style="background:var(--red)"></span>Malo</div>
+                <div class="dl-item"><span class="dot" style="background:var(--na)"></span>N/A</div>
+              </div>
+            </div>
+            <div class="rsummary-stats">
+              <div class="sstat sstat-bueno">
+                <svg class="sstat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                <span class="sstat-num" id="r_sumBueno">0</span>
+                <span class="sstat-pct" id="r_pctBueno">0%</span>
+                <span class="sstat-label">Bueno</span>
+              </div>
+              <div class="sstat sstat-regular">
+                <svg class="sstat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+                <span class="sstat-num" id="r_sumRegular">0</span>
+                <span class="sstat-pct" id="r_pctRegular">0%</span>
+                <span class="sstat-label">Regular</span>
+              </div>
+              <div class="sstat sstat-malo">
+                <svg class="sstat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                <span class="sstat-num" id="r_sumMalo">0</span>
+                <span class="sstat-pct" id="r_pctMalo">0%</span>
+                <span class="sstat-label">Malo</span>
+              </div>
+              <div class="sstat sstat-na">
+                <svg class="sstat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+                <span class="sstat-num" id="r_sumNA">0</span>
+                <span class="sstat-pct" id="r_pctNA">0%</span>
+                <span class="sstat-label">N/A</span>
+              </div>
+            </div>
+            <div class="rsummary-verdict" id="r_verdict">—</div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><h3>Introducción</h3></div>
+            <div class="rsection-body">
+              <div class="rsub-title" style="margin-top:0;">Objetivos</div>
+              <textarea class="rtext-input" id="r_objetivos" rows="3"></textarea>
+              <div class="rsub-title">Alcance</div>
+              <textarea class="rtext-input" id="r_alcance" rows="3"></textarea>
+              <div class="rsub-title">Actividades realizadas</div>
+              <textarea class="rtext-input" id="r_actividades" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">1</span><h3>Información general</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Cliente / razón social</span><span id="r_cliente">—</span></div>
+              <div class="rd-row"><span>Granja</span><span id="r_granja">—</span></div>
+              <div class="rd-row"><span>Ubicación</span><span id="r_ubicacion">—</span></div>
+              <div class="rd-row"><span>Fecha de visita</span><span id="r_fecha">—</span></div>
+              <div class="rd-row"><span>Total galpones / N° galpón</span><span id="r_galpones">—</span></div>
+              <div class="rd-row"><span>Número de aves</span><span id="r_aves">—</span></div>
+              <div class="rd-row"><span>Día de lote</span><span id="r_lote">—</span></div>
+              <div class="rsub-title">Contactos</div>
+              <div class="rd-row"><span>Administrador</span><span id="r_admin">—</span></div>
+              <div class="rd-row"><span>Veterinario</span><span id="r_vet">—</span></div>
+              <div class="rd-row"><span>Correo electrónico</span><span id="r_correo">—</span></div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">2</span><h3>Control y automatización</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Controlador (marca / modelo)</span><span id="r_ctrl">—</span></div>
+              <div class="rd-row"><span>Serial</span><span id="r_serial">—</span></div>
+              <div class="rd-row"><span>Versión software</span><span id="r_version">—</span></div>
+              <div class="rd-row"><span>Voltaje AC / DC</span><span id="r_volt">—</span></div>
+              <div class="rd-row"><span>Temperatura</span><span id="r_ltemp">—</span></div>
+              <div class="rd-row"><span>Humedad relativa</span><span id="r_lhum">—</span></div>
+              <div class="rd-row"><span>Presión estática</span><span id="r_lpres">—</span></div>
+              <div class="rd-row"><span>CO2</span><span id="r_lco2">—</span></div>
+              <div class="rd-row"><span>Amoníaco</span><span id="r_lamm">—</span></div>
+              <div class="rsub-title">Estado del equipo y sensores</div>
+              <div class="rd-cols" id="r_estado_sec2"></div>
+              <div class="rsub-title">Observaciones</div>
+              <div class="obs-box" id="r_obs">Sin observaciones registradas.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">3</span><h3>Tablero de potencia y control</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>L1-L2 / L2-L3 / L1-L3</span><span id="r_medFases">—</span></div>
+              <div class="rd-row"><span>L1-N / L2-N / L3-N</span><span id="r_medNeutro">—</span></div>
+              <div class="rd-row"><span>Temperatura máxima</span><span id="r_tempMax">—</span></div>
+              <div class="rd-row"><span>Puntos calientes</span><span id="r_puntosCalientes">—</span></div>
+              <div class="rsub-title">Estado del tablero y otros equipos</div>
+              <div class="rd-cols" id="r_estado_sec3"></div>
+              <div class="rsub-title">Observaciones</div>
+              <div class="obs-box" id="r_obsTablero">Sin observaciones registradas.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">4</span><h3>Toma de variables</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Termostatos instalados / operativos</span><span id="r_termostatos">—</span></div>
+              <div class="rd-row"><span>Prueba de emergencia</span><span id="r_pruebaEmergencia">—</span></div>
+              <div class="rd-row"><span>Presión estática (sellamiento)</span><span id="r_presSellamiento">—</span></div>
+              <div class="rd-row"><span>Presión estática (vent. mínima)</span><span id="r_presVentMinima">—</span></div>
+              <div class="rd-row"><span>Velocidad de aire promedio</span><span id="r_velAire">—</span></div>
+              <div class="rd-row"><span>Intensidad de luz</span><span id="r_intensidadLuz">—</span></div>
+              <div class="rsub-title">Estado de mediciones ambientales</div>
+              <div class="rd-cols" id="r_estado_sec4"></div>
+              <div class="rsub-title">Observaciones</div>
+              <div class="obs-box" id="r_obsVariables">Sin observaciones registradas.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">5</span><h3>Ventilación y refrigeración</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Extractores (marca / cantidad)</span><span id="r_extractores">—</span></div>
+              <div class="rd-row"><span>Inlets (velocidad / cantidad)</span><span id="r_inlets">—</span></div>
+              <div class="rd-row"><span>Túnel door (N° puertas / longitud)</span><span id="r_tunel">—</span></div>
+              <div class="rd-row"><span>Moja uniforme</span><span id="r_mojaUniforme">—</span></div>
+              <div class="rsub-title">Estado de equipos</div>
+              <div class="rd-cols" id="r_estado_sec5"></div>
+              <div class="rsub-title">Observaciones</div>
+              <div class="obs-box" id="r_obsVentilacion">Sin observaciones registradas.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">6</span><h3>Sistemas mecánicos</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Comedero automático (longitud / líneas)</span><span id="r_comedero">—</span></div>
+              <div class="rd-row"><span>Bebedero automático (longitud / líneas)</span><span id="r_bebedero">—</span></div>
+              <div class="rd-row"><span>Sistema de alimentación (silos / líneas)</span><span id="r_alimentacion">—</span></div>
+              <div class="rsub-title">Estado de equipos</div>
+              <div class="rd-cols" id="r_estado_sec6"></div>
+              <div class="rsub-title">Observaciones</div>
+              <div class="obs-box" id="r_obsMecanicos">Sin observaciones registradas.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><span class="rsection-num">7</span><h3>Evidencia fotográfica</h3></div>
+            <div class="rsection-body">
+              <div class="rfoto-grid" id="r_fotoGrid"></div>
+              <div class="obs-box" id="r_fotoEmpty" style="display:none;">No se registraron fotografías durante la visita.</div>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><h3>Resultados, conclusiones y recomendaciones</h3></div>
+            <div class="rsection-body">
+              <div class="rsub-title" style="margin-top:0;">Resultados</div>
+              <textarea class="rtext-input" id="r_resultados" rows="3"></textarea>
+              <div class="rsub-title">Conclusiones</div>
+              <textarea class="rtext-input" id="r_conclusiones" rows="3"></textarea>
+              <div class="rsub-title">Recomendaciones</div>
+              <textarea class="rtext-input" id="r_recomendaciones" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="rsection">
+            <div class="rsection-head"><h3>Cierre de la visita</h3></div>
+            <div class="rsection-body">
+              <div class="rd-row"><span>Recibe</span><span id="r_recibe">—</span></div>
+              <div class="rd-row"><span>Realiza</span><span id="r_realiza">—</span></div>
+            </div>
+          </div>
+
+        </div>
+        <div class="report-actions">
+          <button class="btn ghost" onclick="goStep(7)">← Editar visita</button>
+          <button class="btn" onclick="window.print()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+            Imprimir / Exportar PDF
+          </button>
+          <button class="btn accent" onclick="alert('En la siguiente fase esto guardará la visita en la base de datos del módulo de Registro.')">
+            Finalizar visita
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

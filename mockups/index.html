@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  MOCKUPS · Índice
+  Landing de la carpeta mockups/ — punto de entrada al abrir con Live Server (o doble clic)
+  para no confundirlo con el index.html de la raíz (ese es la app React real, requiere `npm run dev`).
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockups · Visitador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind local (requiere `npm install` en la raíz del proyecto) en vez de CDN, para que funcione sin internet -->
+  <script src="../node_modules/@tailwindcss/browser/dist/index.global.js"></script>
+  <style type="text/tailwindcss">
+    /* ── Tokens copiados 1:1 de src/index.css ── */
+    @theme {
+      --color-bg: #f6f8fb;
+      --color-surface: #ffffff;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-soft: #eef4ff;
+      --color-muted: #6f7b8f;
+      --color-line: #e7ecf3;
+      --color-heading: #172033;
+      --color-label: #344054;
+      --color-input-bg: #fcfdff;
+      --color-placeholder: #98a2b3;
+      --color-danger: #dc2626;
+      --color-danger-hover: #b91c1c;
+      --color-field: #059669;
+      --color-field-hover: #047857;
+      --color-field-soft: #ecfdf5;
+      --color-report: #ea580c;
+      --color-report-hover: #c2410c;
+      --color-report-soft: #fff7ed;
+      --shadow-panel: 0 10px 30px rgba(20, 32, 60, 0.08);
+      --radius-panel: 28px;
+      --radius-section: 20px;
+      --radius-control: 15px;
+      --radius-btn: 14px;
+      --radius-action: 18px;
+      --radius-search: 16px;
+      --radius-logo: 14px;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-heading);
+      min-width: 360px;
+    }
+  </style>
+</head>
+<body>
+  <main class="max-w-2xl mx-auto px-5 py-10">
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-11 h-11 rounded-logo grid place-items-center bg-field-soft shrink-0" id="header-icon"></div>
+      <div>
+        <h1 class="text-[26px] font-bold text-heading m-0 leading-tight">Mockups · Visitas</h1>
+        <p class="text-[13px] text-muted m-0">Prototipos HTML + Tailwind, antes de integrarlos al código React</p>
+      </div>
+    </div>
+
+    <div class="border border-line rounded-section bg-primary-soft px-4 py-3 mt-6 mb-6 text-[13px] text-label">
+      Esto es solo la carpeta <code class="text-primary font-semibold">mockups/</code>. La app real
+      (React + Vite) está en la raíz del proyecto y se levanta con <code class="font-semibold">npm run dev</code>
+      — no funciona con Live Server ni abriendo su <code class="font-semibold">index.html</code> directo.
+    </div>
+
+    <nav class="flex flex-col gap-3" id="links"></nav>
+  </main>
+
+  <script src="shared/icons.js"></script>
+  <script>
+    document.getElementById('header-icon').innerHTML = ICON('location-marker', 'w-6 h-6 text-field');
+
+    const PAGES = [
+      { href: 'visits/visits-list.html', title: 'Listado de visitas', desc: 'Tabla de vista superior, con paginación y estados (datos / vacío / cargando)', icon: 'clipboard-list' },
+      { href: 'visits/visit-form.html', title: 'Nueva visita', desc: 'Formulario progresivo (wizard de 4 pasos)', icon: 'chevron-double-right' },
+      { href: 'visits/visit-detail.html', title: 'Detalle de visita', desc: 'Vista individual con checklist de ejecución y hallazgos', icon: 'external-link' },
+    ];
+
+    document.getElementById('links').innerHTML = PAGES.map((p) => `
+      <a href="${p.href}"
+        class="flex items-center gap-3.5 border border-line rounded-section bg-white px-4.5 py-4 no-underline hover:border-primary hover:bg-primary-soft/40 transition-colors">
+        <div class="w-10 h-10 rounded-logo grid place-items-center bg-primary-soft text-primary shrink-0">
+          ${ICON(p.icon, 'w-5 h-5')}
+        </div>
+        <div>
+          <p class="text-heading font-semibold m-0">${p.title}</p>
+          <p class="text-[13px] text-muted m-0">${p.desc}</p>
+        </div>
+      </a>`).join('');
+  </script>
+</body>
+</html>
