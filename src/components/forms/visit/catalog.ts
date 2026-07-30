@@ -97,6 +97,40 @@ export const SEG_SINO: SegOption[] = [
 ];
 export const SEG_SINONA: SegOption[] = [...SEG_SINO, { v: 'na', label: 'N/A' }];
 
+// ── Prioridad de actividades recomendadas ───────────────────────────────────
+export type Prioridad = 'alta' | 'media' | 'baja';
+export interface PrioridadOption {
+  v: Prioridad;
+  label: string;
+}
+export const PILL_PRIORIDAD: PrioridadOption[] = [
+  { v: 'alta', label: 'ALTA' },
+  { v: 'media', label: 'MEDIA' },
+  { v: 'baja', label: 'BAJA' },
+];
+export const PRIORIDAD_LABEL: Record<Prioridad, string> = {
+  alta: 'Alta',
+  media: 'Media',
+  baja: 'Baja',
+};
+
+// ── Momento de instalación de repuestos identificados ───────────────────────
+export type MomentoRepuesto = 'inmediato' | 'programado' | 'seguimiento';
+export interface MomentoOption {
+  v: MomentoRepuesto;
+  label: string;
+}
+export const PILL_MOMENTO: MomentoOption[] = [
+  { v: 'inmediato', label: 'INMEDIATO' },
+  { v: 'programado', label: 'PROGRAMADO' },
+  { v: 'seguimiento', label: 'SEGUIMIENTO' },
+];
+export const MOMENTO_LABEL: Record<MomentoRepuesto, string> = {
+  inmediato: 'Inmediato',
+  programado: 'Programado',
+  seguimiento: 'Seguimiento',
+};
+
 // ── Mapas de presentación (informe) ─────────────────────────────────────────
 export const STATUS_LABEL: Record<string, string> = {
   b: 'Bueno',

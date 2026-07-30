@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { wizardInput } from '@/components/ui/wizard';
 import { CriteriaDonut } from './CriteriaDonut';
 import { collectCriteria, criteriaCounts, type CriterioEstado } from './report';
-import { STATUS_LABEL, SEG_LABEL } from './catalog';
+import { STATUS_LABEL, SEG_LABEL, PRIORIDAD_LABEL, MOMENTO_LABEL } from './catalog';
 import type { VisitFormValues } from '@/schemas';
 
 export interface VisitReportCtx {
@@ -327,6 +327,162 @@ export function VisitReport({ values: v, ctx, editableNarrative = false }: Visit
             ))}
           </div>
         )}
+      </RSection>
+
+      {/* 8. Procesos operativos */}
+      <RSection num={8} title="Procesos operativos">
+        <DataRow
+          label="Falso techo (color / tipo de cortina)"
+          value={join([v.procesos_operativos.falso_techo.color, v.procesos_operativos.falso_techo.tipo_cortina])}
+        />
+        <DataRow
+          label="Cortina lateral (suspensión / cortavientos / sellamiento / cortina)"
+          value={join([
+            v.procesos_operativos.cortina_lateral.suspension,
+            v.procesos_operativos.cortina_lateral.cortavientos,
+            v.procesos_operativos.cortina_lateral.sellamiento,
+            v.procesos_operativos.cortina_lateral.cortina,
+          ])}
+        />
+        <DataRow
+          label="Aislamiento (tipo / puntos calientes)"
+          value={join([
+            v.procesos_operativos.aislamiento.tipo,
+            SEG_LABEL[v.procesos_operativos.aislamiento.puntos_calientes],
+          ])}
+        />
+        <DataRow label="Turbo calefactores (cantidad)" value={dash(v.procesos_operativos.turbo_calefactores.cantidad)} />
+        <DataRow
+          label="Sistema de pesaje (operativo / RSW / RSU)"
+          value={join([
+            SEG_LABEL[v.procesos_operativos.sistema_pesaje.operativo],
+            SEG_LABEL[v.procesos_operativos.sistema_pesaje.rsw],
+            SEG_LABEL[v.procesos_operativos.sistema_pesaje.rsu],
+          ])}
+        />
+        <DataRow
+          label="Iluminación (dimerizable / referencia bombillo / iluminarias operativas)"
+          value={join([
+            SEG_LABEL[v.procesos_operativos.iluminacion.dimerizable],
+            v.procesos_operativos.iluminacion.referencia_bombillo,
+            v.procesos_operativos.iluminacion.iluminarias_operativas,
+          ])}
+        />
+        <DataRow
+          label="Sistema de comunicación (operativo)"
+          value={SEG_LABEL[v.procesos_operativos.sistema_comunicacion.operativo] ?? '—'}
+        />
+        <SubTitle>Estado de equipos</SubTitle>
+        <StatusGrid items={sections.sec8} />
+        <SubTitle>Observaciones</SubTitle>
+        <ObsBox
+          text={[
+            v.procesos_operativos.falso_techo.observaciones && `Falso techo: ${v.procesos_operativos.falso_techo.observaciones}`,
+            v.procesos_operativos.cortina_lateral.observaciones && `Cortina lateral: ${v.procesos_operativos.cortina_lateral.observaciones}`,
+            v.procesos_operativos.aislamiento.observaciones && `Aislamiento: ${v.procesos_operativos.aislamiento.observaciones}`,
+            v.procesos_operativos.turbo_calefactores.observaciones && `Turbo calefactores: ${v.procesos_operativos.turbo_calefactores.observaciones}`,
+            v.procesos_operativos.sistema_pesaje.observaciones && `Sistema de pesaje: ${v.procesos_operativos.sistema_pesaje.observaciones}`,
+            v.procesos_operativos.iluminacion.observaciones && `Iluminación: ${v.procesos_operativos.iluminacion.observaciones}`,
+            v.procesos_operativos.sistema_comunicacion.observaciones && `Sistema de comunicación: ${v.procesos_operativos.sistema_comunicacion.observaciones}`,
+          ]
+            .filter(Boolean)
+            .join('\n')}
+        />
+      </RSection>
+
+      {/* Hallazgos principales */}
+      <RSection title="Hallazgos principales">
+        {v.hallazgos.length === 0 ? (
+          <ObsBox text="No se registraron hallazgos durante la visita." />
+        ) : (
+          <div className="border border-line rounded-section overflow-x-auto">
+            <table className="w-full text-sm min-w-[420px]">
+              <thead className="bg-input-bg">
+                <tr>
+                  <th className="text-left py-2 pl-3 pr-2 text-[12px] font-semibold text-label w-1/3">Sistema</th>
+                  <th className="text-left py-2 px-2 text-[12px] font-semibold text-label">Hallazgo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {v.hallazgos.map((h) => (
+                  <tr key={h.id} className="border-b border-line last:border-0">
+                    <td className="py-2 pl-3 pr-2 text-[13px] text-heading align-top">{dash(h.sistema)}</td>
+                    <td className="py-2 px-2 text-[13px] text-heading align-top whitespace-pre-line">{dash(h.hallazgo)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </RSection>
+
+      {/* Actividades recomendadas */}
+      <RSection title="Actividades recomendadas">
+        {v.actividades_recomendadas.length === 0 ? (
+          <ObsBox text="No se registraron actividades recomendadas." />
+        ) : (
+          <div className="border border-line rounded-section overflow-x-auto">
+            <table className="w-full text-sm min-w-[420px]">
+              <thead className="bg-input-bg">
+                <tr>
+                  <th className="text-left py-2 pl-3 pr-2 text-[12px] font-semibold text-label">Actividad recomendada</th>
+                  <th className="text-left py-2 px-2 text-[12px] font-semibold text-label w-28">Prioridad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {v.actividades_recomendadas.map((a) => (
+                  <tr key={a.id} className="border-b border-line last:border-0">
+                    <td className="py-2 pl-3 pr-2 text-[13px] text-heading align-top whitespace-pre-line">{dash(a.actividad)}</td>
+                    <td className="py-2 px-2 align-top">
+                      <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${BADGE_STYLE[a.prioridad === 'alta' ? 'm' : a.prioridad === 'media' ? 'r' : 'b']}`}>
+                        {PRIORIDAD_LABEL[a.prioridad]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </RSection>
+
+      {/* Repuestos identificados */}
+      <RSection title="Repuestos identificados">
+        {v.repuestos_identificados.length === 0 ? (
+          <ObsBox text="No se identificaron repuestos durante la visita." />
+        ) : (
+          <div className="border border-line rounded-section overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
+              <thead className="bg-input-bg">
+                <tr>
+                  <th className="text-left py-2 pl-3 pr-2 text-[12px] font-semibold text-label">Código</th>
+                  <th className="text-left py-2 px-2 text-[12px] font-semibold text-label">Repuesto</th>
+                  <th className="text-left py-2 px-2 text-[12px] font-semibold text-label w-20">Cantidad</th>
+                  <th className="text-left py-2 px-2 text-[12px] font-semibold text-label w-32">Momento</th>
+                </tr>
+              </thead>
+              <tbody>
+                {v.repuestos_identificados.map((r) => (
+                  <tr key={r.id} className="border-b border-line last:border-0">
+                    <td className="py-2 pl-3 pr-2 text-[13px] text-heading align-top">{dash(r.codigo)}</td>
+                    <td className="py-2 px-2 text-[13px] text-heading align-top">{dash(r.repuesto)}</td>
+                    <td className="py-2 px-2 text-[13px] text-heading align-top">{dash(r.cantidad)}</td>
+                    <td className="py-2 px-2 align-top">
+                      <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${BADGE_STYLE[r.momento === 'inmediato' ? 'm' : r.momento === 'programado' ? 'r' : 'b']}`}>
+                        {MOMENTO_LABEL[r.momento]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </RSection>
+
+      {/* Observaciones generales */}
+      <RSection title="Observaciones generales">
+        <ObsBox text={v.observaciones_generales} />
       </RSection>
 
       {/* Resultados / conclusiones / recomendaciones */}

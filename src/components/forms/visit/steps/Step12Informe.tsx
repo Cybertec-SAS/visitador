@@ -7,7 +7,7 @@ import { narrativeKeys } from '../catalog';
 import type { VisitFormValues } from '@/schemas';
 import { HiOutlineClipboardList } from 'react-icons/hi';
 
-export function Step8Informe({ ctx }: { ctx: VisitReportCtx }) {
+export function Step12Informe({ ctx }: { ctx: VisitReportCtx }) {
   const { getValues, setValue, watch } = useFormContext<VisitFormValues>();
 
   // Auto-genera la narrativa por defecto para los campos aún vacíos (una vez al entrar).

@@ -366,6 +366,75 @@ export interface VisitMecanicos {
   };
 }
 
+export interface VisitProcesosOperativos {
+  falso_techo: {
+    color?: string | null;
+    tipo_cortina?: string | null;
+    estado: EstadoBRMN;
+    observaciones?: string | null;
+  };
+  cortina_lateral: {
+    estado: EstadoBRMN;
+    suspension?: string | null;
+    cortavientos?: string | null;
+    sellamiento?: string | null;
+    cortina?: string | null;
+    observaciones?: string | null;
+  };
+  aislamiento: {
+    puntos_calientes: SegSiNo;
+    tipo?: string | null;
+    estado: EstadoBRMN;
+    observaciones?: string | null;
+  };
+  turbo_calefactores: {
+    cantidad?: number | null;
+    estado: EstadoBRMN;
+    observaciones?: string | null;
+  };
+  sistema_pesaje: {
+    operativo: SegSiNo;
+    celdas_pesaje: EstadoBRMN;
+    rsw: SegSiNo;
+    rsu: SegSiNo;
+    observaciones?: string | null;
+  };
+  iluminacion: {
+    dimerizable: SegSiNo;
+    referencia_bombillo?: string | null;
+    iluminarias_operativas?: string | null;
+    observaciones?: string | null;
+  };
+  sistema_comunicacion: {
+    operativo: SegSiNo;
+    observaciones?: string | null;
+  };
+}
+
+export interface VisitHallazgo {
+  id: string;
+  sistema?: string | null;
+  hallazgo?: string | null;
+}
+
+export type Prioridad = 'alta' | 'media' | 'baja';
+
+export interface VisitActividadRecomendada {
+  id: string;
+  actividad?: string | null;
+  prioridad: Prioridad;
+}
+
+export type MomentoRepuesto = 'inmediato' | 'programado' | 'seguimiento';
+
+export interface VisitRepuesto {
+  id: string;
+  codigo?: string | null;
+  repuesto?: string | null;
+  cantidad?: number | null;
+  momento: MomentoRepuesto;
+}
+
 export interface VisitFoto {
   id: string;
   /** dataURL mientras es mock; URL del archivo cuando exista backend de subida */
@@ -405,6 +474,11 @@ export interface VisitFormData {
   ventilacion: VisitVentilacion;
   mecanicos: VisitMecanicos;
   evidencia: { fotos: VisitFoto[] };
+  procesos_operativos: VisitProcesosOperativos;
+  hallazgos: VisitHallazgo[];
+  actividades_recomendadas: VisitActividadRecomendada[];
+  repuestos_identificados: VisitRepuesto[];
+  observaciones_generales?: string | null;
   informe: VisitInforme;
 }
 

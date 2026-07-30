@@ -125,6 +125,8 @@ const segSiNo = z.enum(['si', 'no']);
 const segSiNoNa = z.enum(['si', 'no', 'na']);
 const num = z.number().nullable().optional();
 const txt = z.string().nullable().optional();
+const prioridad = z.enum(['alta', 'media', 'baja']);
+const momentoRepuesto = z.enum(['inmediato', 'programado', 'seguimiento']);
 
 const sensorSchema = z.object({
   instalados: num,
@@ -240,7 +242,75 @@ export const visitSchema = z.object({
     ),
   }),
 
-  // Paso 8 — informe
+  // Paso 8 — procesos operativos
+  procesos_operativos: z.object({
+    falso_techo: z.object({
+      color: txt,
+      tipo_cortina: txt,
+      estado: estadoBRMN.default('b'),
+      observaciones: txt,
+    }),
+    cortina_lateral: z.object({
+      estado: estadoBRMN.default('b'),
+      suspension: txt,
+      cortavientos: txt,
+      sellamiento: txt,
+      cortina: txt,
+      observaciones: txt,
+    }),
+    aislamiento: z.object({
+      puntos_calientes: segSiNo.default('no'),
+      tipo: txt,
+      estado: estadoBRMN.default('b'),
+      observaciones: txt,
+    }),
+    turbo_calefactores: z.object({
+      cantidad: num,
+      estado: estadoBRMN.default('b'),
+      observaciones: txt,
+    }),
+    sistema_pesaje: z.object({
+      operativo: segSiNo.default('si'),
+      celdas_pesaje: estadoBRMN.default('b'),
+      rsw: segSiNo.default('si'),
+      rsu: segSiNo.default('si'),
+      observaciones: txt,
+    }),
+    iluminacion: z.object({
+      dimerizable: segSiNo.default('no'),
+      referencia_bombillo: txt,
+      iluminarias_operativas: txt,
+      observaciones: txt,
+    }),
+    sistema_comunicacion: z.object({
+      operativo: segSiNo.default('si'),
+      observaciones: txt,
+    }),
+  }),
+
+  // Paso 9 — hallazgos principales
+  hallazgos: z.array(
+    z.object({ id: z.string(), sistema: txt, hallazgo: txt }),
+  ),
+
+  // Paso 10 — actividades recomendadas
+  actividades_recomendadas: z.array(
+    z.object({ id: z.string(), actividad: txt, prioridad: prioridad.default('media') }),
+  ),
+
+  // Paso 11 — repuestos identificados
+  repuestos_identificados: z.array(
+    z.object({
+      id: z.string(),
+      codigo: txt,
+      repuesto: txt,
+      cantidad: num,
+      momento: momentoRepuesto.default('programado'),
+    }),
+  ),
+  observaciones_generales: txt,
+
+  // Paso 12 — informe
   informe: z.object({
     objetivos: txt,
     alcance: txt,
